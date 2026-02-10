@@ -163,7 +163,7 @@
   <section id="faq"><div class="section-inner"><div class="reveal" style="text-align:center"><div class="section-label">FAQ</div><h2 class="section-title">Common questions</h2></div><div class="faq-list"><div class="faq-item reveal"><button class="faq-question">Is the website really free?</button><div class="faq-answer"><p>Yes. When you sign up for any monthly content plan, we design and build your website at no cost. There are no hidden fees, no setup charges, and no contracts. The website is yours to use as long as you're on a plan.</p></div></div><div class="faq-item reveal"><button class="faq-question">Who writes the content?</button><div class="faq-answer"><p>Our team of experienced writers creates all content. They research your industry, understand your customers, and write strategic pieces designed to rank in search engines and bring real traffic to your site.</p></div></div><div class="faq-item reveal"><button class="faq-question">How long before I see results?</button><div class="faq-answer"><p>SEO is a long game, but most clients start seeing increased traffic within 2&ndash;3 months. By month 6, the compounding effect of consistent content typically delivers significant organic growth.</p></div></div><div class="faq-item reveal"><button class="faq-question">Can I cancel anytime?</button><div class="faq-answer"><p>Absolutely. We ask for 30 days notice so we can wrap up any content in progress, but there are no long-term contracts or cancellation fees. If you cancel, your site stays live through the end of your billing period.</p></div></div><div class="faq-item reveal"><button class="faq-question">Do I own my domain and content?</button><div class="faq-answer"><p>You own your domain name and all the content we create for you. If you ever leave, you keep everything. We believe in earning your business every month, not locking you in.</p></div></div><div class="faq-item reveal"><button class="faq-question">What if I already have a website?</button><div class="faq-answer"><p>No problem. We can redesign your existing site for free as part of your plan, or we can work with your current site and focus purely on content creation and SEO growth. Whatever makes sense for your business.</p></div></div></div></div></section>
   <section class="final-cta" id="contact"><div class="section-inner reveal"><div class="section-label">Ready?</div><h2>Get your free website today</h2><p>Tell us about your business and we'll get started on your custom site. No obligation, no upfront costs.</p><button class="btn-primary" onclick="openContactModal()">Let's Talk <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></section>
   <!-- Contact Modal -->
-  <div class="modal-overlay" id="contactModal"><div class="modal-card"><button class="modal-close" onclick="closeContactModal()" aria-label="Close">&times;</button><div class="modal-header"><h3>Let's build your site</h3><p>Tell us a little about your business and we'll be in touch within 24 hours.</p></div><div id="formContent"><div class="form-row"><div class="form-group"><label for="cf-name">Your name *</label><input type="text" id="cf-name" placeholder="Jane Smith" required><span class="form-error">Please enter your name</span></div><div class="form-group"><label for="cf-email">Email *</label><input type="email" id="cf-email" placeholder="jane@example.com" required><span class="form-error">Please enter a valid email</span></div></div><div class="form-row"><div class="form-group"><label for="cf-business">Business name *</label><input type="text" id="cf-business" placeholder="Smith's Plumbing"><span class="form-error">Please enter your business name</span></div><div class="form-group"><label for="cf-phone">Phone <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="tel" id="cf-phone" placeholder="(555) 123-4567"></div></div><div class="form-group"><label for="cf-message">What can we help with? <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea id="cf-message" rows="3" placeholder="I need a website for my gutter installation business..."></textarea></div><button class="btn-primary" id="cfSubmit" onclick="submitContactForm()" style="width:100%;justify-content:center;margin-top:0.75rem">Send Message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div><div id="formSuccess" style="display:none;text-align:center;padding:2rem 0"><div style="width:64px;height:64px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h3 style="margin-bottom:0.5rem">We got your message!</h3><p style="color:var(--slate);line-height:1.7">Check your inbox &mdash; we just sent you a welcome email.<br>We'll be in touch within 24 hours to discuss your project.</p></div></div></div>
+  <div class="modal-overlay" id="contactModal"><div class="modal-card"><button class="modal-close" onclick="closeContactModal()" aria-label="Close">&times;</button><div class="modal-header"><h3>Let's build your site</h3><p>Tell us a little about your business and we'll be in touch within 24 hours.</p></div><div id="formContent"><form id="contactForm"><div class="form-row"><div class="form-group"><label for="cf-name">Your name *</label><input type="text" id="cf-name" name="name" placeholder="Jane Smith" required><span class="form-error">Please enter your name</span></div><div class="form-group"><label for="cf-email">Email *</label><input type="email" id="cf-email" name="email" placeholder="jane@example.com" required><span class="form-error">Please enter a valid email</span></div></div><div class="form-row"><div class="form-group"><label for="cf-business">Business name *</label><input type="text" id="cf-business" name="business" placeholder="Smith's Plumbing"><span class="form-error">Please enter your business name</span></div><div class="form-group"><label for="cf-phone">Phone <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="tel" id="cf-phone" name="phone" placeholder="(555) 123-4567"></div></div><div class="form-group"><label for="cf-message">What can we help with? <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea id="cf-message" name="message" rows="3" placeholder="I need a website for my gutter installation business..."></textarea></div><button type="submit" class="btn-primary" id="cfSubmit" style="width:100%;justify-content:center;margin-top:0.75rem">Send Message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></form></div><div id="formSuccess" style="display:none;text-align:center;padding:2rem 0"><div style="width:64px;height:64px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h3 style="margin-bottom:0.5rem">We got your message!</h3><p style="color:var(--slate);line-height:1.7">We'll be in touch within 24 hours to discuss your project.</p></div></div></div>
   <footer><div class="footer-inner"><div class="footer-logo">Sites On <span>Call</span></div><ul class="footer-links"><li><a href="#how-it-works">How It Works</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li><li><a href="javascript:void(0)" onclick="openContactModal()">Contact</a></li></ul><p style="font-size:0.82rem">&copy; 2026 Sites On Call. All rights reserved.</p></div></footer>
   <script>
     const nav=document.getElementById('navbar');window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>20)});
@@ -171,39 +171,87 @@
     navLinks.querySelectorAll('a').forEach(link=>{link.addEventListener('click',()=>navLinks.classList.remove('open'))});
     document.querySelectorAll('.faq-question').forEach(btn=>{btn.addEventListener('click',()=>{const item=btn.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!wasOpen)item.classList.add('open')})});
     const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add('visible')})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
     // Contact Modal
-    const FORM_ENDPOINT='https://sitesoncall-contact.micaiah-tasks.workers.dev';
     const modal=document.getElementById('contactModal');
     function openContactModal(){modal.classList.add('open');document.body.style.overflow='hidden';navLinks.classList.remove('open');setTimeout(()=>document.getElementById('cf-name').focus(),200)}
     function closeContactModal(){modal.classList.remove('open');document.body.style.overflow=''}
     modal.addEventListener('click',(e)=>{if(e.target===modal)closeContactModal()});
     document.addEventListener('keydown',(e)=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeContactModal()});
-    async function submitContactForm(){
-      const name=document.getElementById('cf-name').value.trim();
-      const email=document.getElementById('cf-email').value.trim();
-      const business=document.getElementById('cf-business').value.trim();
-      const phone=document.getElementById('cf-phone').value.trim();
-      const message=document.getElementById('cf-message').value.trim();
-      const btn=document.getElementById('cfSubmit');
-      document.querySelectorAll('.form-group').forEach(g=>g.classList.remove('has-error'));
-      let hasError=false;
-      if(!name){document.getElementById('cf-name').closest('.form-group').classList.add('has-error');hasError=true}
-      if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('cf-email').closest('.form-group').classList.add('has-error');hasError=true}
-      if(!business){document.getElementById('cf-business').closest('.form-group').classList.add('has-error');hasError=true}
-      if(hasError)return;
-      btn.disabled=true;btn.innerHTML='Sending\u2026';
-      try{
-        const resp=await fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,business,phone,message})});
-        if(!resp.ok)throw new Error('Network error');
-        document.getElementById('formContent').style.display='none';
-        const success=document.getElementById('formSuccess');success.style.display='block';success.classList.add('show');
-      }catch(err){
-        btn.disabled=false;
-        btn.innerHTML='Send Message <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
-        alert('Something went wrong. Please try again or email us at hello@sitesoncall.com');
-      }
-    }
-    document.querySelectorAll('#formContent input').forEach(input=>{input.addEventListener('keydown',(e)=>{if(e.key==='Enter'){e.preventDefault();submitContactForm()}})});
+
+    // Form → Courier Integration
+    (function(){
+      const CONFIG={
+        list:'sites-on-call-leads',
+        source:'sites-on-call',
+        funnel:'contact-form',
+        formSelector:'#contactForm',
+        tags:['new-lead'],
+        customFields:['business','phone','message'],
+        successMessage:'Thanks! We\'ll be in touch within 24 hours.',
+        errorMessage:'Something went wrong. Please try again or email us at hello@sitesoncall.com.'
+      };
+      const API_URL='https://email-bot-server.micaiah-tasks.workers.dev/api/subscribe';
+
+      document.querySelector(CONFIG.formSelector)?.addEventListener('submit',async(e)=>{
+        e.preventDefault();
+        const form=e.target;
+        const btn=form.querySelector('button[type="submit"]');
+        const originalHTML=btn.innerHTML;
+
+        // Clear errors
+        form.querySelectorAll('.form-group').forEach(g=>g.classList.remove('has-error'));
+
+        // Validate
+        const email=form.querySelector('[name="email"]').value.trim();
+        const name=form.querySelector('[name="name"]').value.trim();
+        const business=form.querySelector('[name="business"]').value.trim();
+        let hasError=false;
+        if(!name){form.querySelector('[name="name"]').closest('.form-group').classList.add('has-error');hasError=true}
+        if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){form.querySelector('[name="email"]').closest('.form-group').classList.add('has-error');hasError=true}
+        if(!business){form.querySelector('[name="business"]').closest('.form-group').classList.add('has-error');hasError=true}
+        if(hasError)return;
+
+        btn.disabled=true;
+        btn.textContent='Sending\u2026';
+
+        // Build payload per form-to-courier skill
+        const payload={
+          email:email,
+          list:CONFIG.list,
+          source:CONFIG.source,
+          funnel:CONFIG.funnel,
+          name:name,
+          tags:CONFIG.tags,
+          metadata:{}
+        };
+        CONFIG.customFields.forEach(field=>{
+          const el=form.querySelector('[name="'+field+'"]');
+          if(el&&el.value.trim())payload.metadata[field]=el.value.trim();
+        });
+
+        try{
+          const resp=await fetch(API_URL,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(payload)
+          });
+          const data=await resp.json();
+          if(resp.ok){
+            document.getElementById('formContent').style.display='none';
+            const success=document.getElementById('formSuccess');
+            success.style.display='block';
+            success.classList.add('show');
+          }else{
+            throw new Error(data.error||CONFIG.errorMessage);
+          }
+        }catch(err){
+          btn.disabled=false;
+          btn.innerHTML=originalHTML;
+          alert(err.message||CONFIG.errorMessage);
+        }
+      });
+    })();
   </script>
 </body>
 </html>
