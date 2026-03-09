@@ -1,0 +1,16 @@
+{
+  "name": "sites-on-call",
+  "version": "1.0.0",
+  "description": "Sites On Call - Free website design with strategic content growth",
+  "scripts": {
+    "build": "eleventy",
+    "dev": "eleventy --serve",
+    "clean": "rm -rf _site"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
