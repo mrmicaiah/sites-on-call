@@ -132,3 +132,7 @@ To add a new article:
 | `src/index.njk` | The landing page content |
 | `src/articles/article.njk` | Template that generates each article page |
 | `.eleventy.js` | 11ty configuration (input/output dirs, filters) |
+
+---
+
+*Last build triggered: 2026-03-09*
