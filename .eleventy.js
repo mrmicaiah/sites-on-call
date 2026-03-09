@@ -11,6 +11,11 @@ module.exports = function(eleventyConfig) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   });
 
+  // Year filter for copyright
+  eleventyConfig.addFilter("year", () => {
+    return new Date().getFullYear();
+  });
+
   // Excerpt filter - first 160 chars, strips HTML
   eleventyConfig.addFilter("excerpt", (content) => {
     if (!content) return '';
