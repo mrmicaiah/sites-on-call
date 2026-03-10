@@ -23,6 +23,14 @@ module.exports = function(eleventyConfig) {
     return text.substring(0, 160) + (text.length > 160 ? '...' : '');
   });
 
+  // Posts collection - excludes future-dated posts
+  eleventyConfig.addCollection("posts", function(collectionApi) {
+    const now = new Date();
+    return collectionApi.getFilteredByGlob("src/articles/posts/*.md")
+      .filter(post => post.date <= now)
+      .sort((a, b) => b.date - a.date);
+  });
+
   return {
     dir: {
       input: "src",
