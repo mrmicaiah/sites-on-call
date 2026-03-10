@@ -17,6 +17,7 @@ module.exports = function() {
   }
   
   const files = fs.readdirSync(articlesDir).filter(f => f.endsWith('.md'));
+  const now = new Date();
   
   const articles = files.map(filename => {
     const filePath = path.join(articlesDir, filename);
@@ -36,7 +37,9 @@ module.exports = function() {
       tags: data.tags || [],
       url: `/articles/${slug}/`
     };
-  });
+  })
+  // Filter out future-dated posts
+  .filter(article => new Date(article.publishedAt) <= now);
   
   // Sort by date, newest first
   articles.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
