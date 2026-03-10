@@ -1,52 +1,46 @@
 /**
- * This file fetches articles from the UP Blog API at build time.
- * 
- * SETUP REQUIRED: Micaiah needs to create a UP Blog entry for 'sites-on-call'
- * in the database with the appropriate configuration.
+ * Reads articles from local markdown files in src/articles/posts/
  */
 
-const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
+const matter = require('gray-matter');
+const { marked } = require('marked');
 
-const BLOG_ID = 'sites-on-call';
-// TODO: Update this URL when Micaiah confirms the correct API endpoint
-const API_BASE = 'https://blog.untitledpublishers.com/api';
-
-module.exports = async function() {
-  // For now, return empty array until the UP Blog is set up
-  // This prevents build failures while we wait for backend configuration
+module.exports = function() {
+  const articlesDir = path.join(__dirname, '../articles/posts');
   
-  try {
-    const response = await fetch(`${API_BASE}/blogs/${BLOG_ID}/posts?status=published`, {
-      timeout: 5000 // 5 second timeout
-    });
-    
-    if (!response.ok) {
-      console.log(`[articles.js] UP Blog not configured yet (${response.status}) - returning empty array`);
-      return [];
-    }
-    
-    const data = await response.json();
-    
-    const articles = (data.posts || []).map(post => ({
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt || post.meta_description || '',
-      content: post.content,
-      publishedAt: post.published_at || post.created_at,
-      image: post.featured_image || post.og_image || null,
-      author: post.author_name || 'Sites On Call',
-      tags: post.tags || [],
-      url: `/articles/${post.slug}/`
-    }));
-    
-    articles.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
-    
-    console.log(`[articles.js] Fetched ${articles.length} articles from UP Blog`);
-    return articles;
-    
-  } catch (error) {
-    // Silently return empty array - UP Blog isn't set up yet
-    console.log(`[articles.js] UP Blog not available - returning empty array`);
+  // Return empty array if directory doesn't exist yet
+  if (!fs.existsSync(articlesDir)) {
+    console.log('[articles.js] No posts directory found - returning empty array');
     return [];
   }
+  
+  const files = fs.readdirSync(articlesDir).filter(f => f.endsWith('.md'));
+  
+  const articles = files.map(filename => {
+    const filePath = path.join(articlesDir, filename);
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const { data, content } = matter(fileContent);
+    
+    const slug = filename.replace('.md', '');
+    
+    return {
+      title: data.title,
+      slug: slug,
+      excerpt: data.excerpt || data.meta_description || '',
+      content: marked(content),
+      publishedAt: data.date || new Date().toISOString(),
+      image: data.image || null,
+      author: data.author || 'Sites On Call',
+      tags: data.tags || [],
+      url: `/articles/${slug}/`
+    };
+  });
+  
+  // Sort by date, newest first
+  articles.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  
+  console.log(`[articles.js] Loaded ${articles.length} articles from local files`);
+  return articles;
 };
