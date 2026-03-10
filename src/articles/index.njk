@@ -19,13 +19,6 @@ description: "Tips, guides, and insights about web design, SEO, and content mark
         {% for article in articles %}
           <article class="article-card">
             <a href="{{ article.url }}">
-              {% if article.image %}
-                <img src="{{ article.image }}" alt="{{ article.title }}" class="article-card-image" loading="lazy">
-              {% else %}
-                <div class="article-card-image" style="background:var(--cream);display:flex;align-items:center;justify-content:center;">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                </div>
-              {% endif %}
               <div class="article-card-content">
                 <div class="article-card-date">{{ article.publishedAt | readableDate }}</div>
                 <h2 class="article-card-title">{{ article.title }}</h2>
