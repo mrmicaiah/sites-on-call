@@ -5,6 +5,9 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/images");
   eleventyConfig.addPassthroughCopy("src/CNAME");
 
+  // Demo sites - copied as-is, no 11ty processing
+  eleventyConfig.addPassthroughCopy("src/demos");
+
   // Date formatting filter - turns ISO dates into readable format
   eleventyConfig.addFilter("readableDate", (dateStr) => {
     const date = new Date(dateStr);
