@@ -49,6 +49,10 @@ function closeContactModal() {
   document.body.style.overflow = '';
 }
 
+// Expose modal functions globally for onclick handlers
+window.openContactModal = openContactModal;
+window.closeContactModal = closeContactModal;
+
 modal.addEventListener('click', (e) => {
   if (e.target === modal) closeContactModal();
 });
