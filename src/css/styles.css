@@ -77,16 +77,20 @@ section { padding:6rem 2rem; }
 .pricing-section-header span { font-weight:400; color:var(--muted); }
 .pricing-section-desc { color:var(--slate); font-size:0.95rem; margin-bottom:1.5rem; max-width:600px; }
 
-/* Build pricing grid */
+/* Build pricing grid - clickable cards */
 .build-pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem; }
-.build-card { background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:2rem; text-align:center; transition:transform 0.2s,box-shadow 0.2s; }
-.build-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px var(--shadow); }
+a.build-card { text-decoration:none; color:inherit; display:block; cursor:pointer; }
+.build-card { background:var(--paper); border:2px solid var(--border); border-radius:12px; padding:2rem; text-align:center; transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s; }
+.build-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px var(--shadow); border-color:var(--accent); }
 .build-tier { font-size:0.82rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); margin-bottom:0.5rem; }
 .build-pages { font-size:0.9rem; color:var(--muted); margin-bottom:0.75rem; }
-.build-price { font-family:'DM Serif Display',serif; font-size:2.5rem; margin-bottom:1rem; }
+.build-price { font-family:'DM Serif Display',serif; font-size:2.5rem; margin-bottom:1rem; color:var(--ink); }
 .build-card p { font-size:0.9rem; color:var(--slate); line-height:1.6; }
+.build-cta { display:block; margin-top:1.25rem; font-size:0.85rem; font-weight:600; color:var(--accent); transition:color 0.2s; }
+.build-card:hover .build-cta { color:var(--accent-dark); }
 
 /* Monthly pricing grid */
+#content-plans { scroll-margin-top:100px; }
 .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:1.5rem; }
 .pricing-card { background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:2.5rem 2rem; position:relative; transition:transform 0.2s,box-shadow 0.2s; }
 .pricing-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px var(--shadow); }
