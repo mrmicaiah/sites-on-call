@@ -181,16 +181,16 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 /* Modal */
 .modal-overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(15,17,20,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem; }
 .modal-overlay.open { display:flex; animation:modalFadeIn 0.25s ease; }
-.modal-card { background:var(--paper); border-radius:16px; padding:2.5rem; max-width:520px; width:100%; position:relative; box-shadow:0 24px 80px rgba(15,17,20,0.2); max-height:90vh; overflow-y:auto; }
+.modal-card { background:var(--paper); border-radius:16px; padding:2.5rem; max-width:580px; width:100%; position:relative; box-shadow:0 24px 80px rgba(15,17,20,0.2); max-height:90vh; overflow-y:auto; }
 .modal-close { position:absolute; top:1rem; right:1.25rem; background:none; border:none; font-size:1.6rem; color:var(--muted); cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:8px; transition:background 0.15s,color 0.15s; }
 .modal-close:hover { background:var(--cream); color:var(--ink); }
 .modal-header { margin-bottom:1.75rem; }
 .modal-header h3 { font-family:'DM Serif Display',serif; font-size:1.6rem; margin-bottom:0.35rem; }
 .modal-header p { color:var(--slate); font-size:0.92rem; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.75rem; }
-.form-group { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.5rem; }
+.form-group { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.5rem; min-width:0; }
 .form-group label { font-size:0.82rem; font-weight:600; color:var(--ink); }
-.form-group input,.form-group textarea { padding:0.7rem 0.9rem; border:1.5px solid var(--border); border-radius:8px; font-size:0.95rem; font-family:'Outfit',sans-serif; background:white; transition:border-color 0.2s; outline:none; color:var(--ink); }
+.form-group input,.form-group textarea { width:100%; min-width:0; padding:0.7rem 0.9rem; border:1.5px solid var(--border); border-radius:8px; font-size:0.95rem; font-family:'Outfit',sans-serif; background:white; transition:border-color 0.2s; outline:none; color:var(--ink); }
 .form-group input:focus,.form-group textarea:focus { border-color:var(--accent); }
 .form-group textarea { resize:vertical; min-height:80px; }
 .form-group input::placeholder,.form-group textarea::placeholder { color:var(--muted); }
