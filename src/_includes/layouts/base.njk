@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title | default("Sites On Call — Free Website Design & Strategic Content Growth") }}</title>
-  <meta name="description" content="{{ description | default("We design your website for free. Then our team of writers creates strategic content that drives organic traffic and grows your business every month.") }}">
+  <title>{{ title | default("Sites On Call — Websites for Contractors in North Alabama") }}</title>
+  <meta name="description" content="{{ description | default("Websites and SEO content for contractors tired of Angi, HomeAdvisor, and expensive Google Ads. Build an asset you own. No contracts.") }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
   
   {# Open Graph tags #}
   <meta property="og:title" content="{{ title | default('Sites On Call') }}">
-  <meta property="og:description" content="{{ description | default('Free website design with strategic content growth.') }}">
+  <meta property="og:description" content="{{ description | default('Websites for contractors who are done paying for leads.') }}">
   <meta property="og:type" content="{{ ogType | default('website') }}">
   <meta property="og:url" content="https://sitesoncall.com{{ page.url }}">
   {% if image %}
@@ -27,12 +27,12 @@
     <div class="nav-inner">
       <a href="/" class="nav-logo">Sites On <span>Call</span></a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="/#how-it-works">How It Works</a></li>
-        <li><a href="/#projects">Projects</a></li>
         <li><a href="/#pricing">Pricing</a></li>
-        <li><a href="/articles/">Articles</a></li>
+        <li><a href="/#how-it-works">How It Works</a></li>
+        <li><a href="/#projects">Work</a></li>
+        <li><a href="/#about">About</a></li>
         <li><a href="/#faq">FAQ</a></li>
-        <li><a href="javascript:void(0)" onclick="openContactModal()" class="nav-cta">Get Your Free Site</a></li>
+        <li><a href="javascript:void(0)" onclick="openContactModal()" class="nav-cta">Get Started</a></li>
       </ul>
       <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
         <span></span>
@@ -51,20 +51,20 @@
     <div class="modal-card">
       <button class="modal-close" onclick="closeContactModal()" aria-label="Close">&times;</button>
       <div class="modal-header">
-        <h3>Let's build your site</h3>
-        <p>Tell us a little about your business and we'll be in touch within 24 hours.</p>
+        <h3>Let's talk about your website</h3>
+        <p>Tell me about your business. I'll get back to you within 24 hours.</p>
       </div>
       <div id="formContent">
         <form id="contactForm">
           <div class="form-row">
             <div class="form-group">
               <label for="cf-name">Your name *</label>
-              <input type="text" id="cf-name" name="name" placeholder="Jane Smith" required>
+              <input type="text" id="cf-name" name="name" placeholder="John Smith" required>
               <span class="form-error">Please enter your name</span>
             </div>
             <div class="form-group">
               <label for="cf-email">Email *</label>
-              <input type="email" id="cf-email" name="email" placeholder="jane@example.com" required>
+              <input type="email" id="cf-email" name="email" placeholder="john@example.com" required>
               <span class="form-error">Please enter a valid email</span>
             </div>
           </div>
@@ -76,12 +76,12 @@
             </div>
             <div class="form-group">
               <label for="cf-phone">Phone <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-              <input type="tel" id="cf-phone" name="phone" placeholder="(555) 123-4567">
+              <input type="tel" id="cf-phone" name="phone" placeholder="(256) 555-1234">
             </div>
           </div>
           <div class="form-group">
-            <label for="cf-message">What can we help with? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-            <textarea id="cf-message" name="message" rows="3" placeholder="I need a website for my gutter installation business..."></textarea>
+            <label for="cf-message">What do you need? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <textarea id="cf-message" name="message" rows="3" placeholder="I need a website for my HVAC business. Currently spending way too much on Angi..."></textarea>
           </div>
           <button type="submit" class="btn-primary" id="cfSubmit" style="width:100%;justify-content:center;margin-top:0.75rem">
             Send Message 
@@ -93,8 +93,8 @@
         <div style="width:64px;height:64px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h3 style="margin-bottom:0.5rem">We got your message!</h3>
-        <p style="color:var(--slate);line-height:1.7">We'll be in touch within 24 hours to discuss your project.</p>
+        <h3 style="margin-bottom:0.5rem">Got it!</h3>
+        <p style="color:var(--slate);line-height:1.7">I'll be in touch within 24 hours to talk about your project.</p>
       </div>
     </div>
   </div>
@@ -103,9 +103,9 @@
     <div class="footer-inner">
       <div class="footer-logo">Sites On <span>Call</span></div>
       <ul class="footer-links">
-        <li><a href="/#how-it-works">How It Works</a></li>
         <li><a href="/#pricing">Pricing</a></li>
-        <li><a href="/articles/">Articles</a></li>
+        <li><a href="/#how-it-works">How It Works</a></li>
+        <li><a href="/#about">About</a></li>
         <li><a href="/#faq">FAQ</a></li>
         <li><a href="javascript:void(0)" onclick="openContactModal()">Contact</a></li>
       </ul>
