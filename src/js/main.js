@@ -273,6 +273,45 @@ if (dateInput) {
   };
   
   const API_URL = 'https://email-bot-server.micaiah-tasks.workers.dev/api/subscribe';
+  const LEAD_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxhOwJ6Yb9pWj4q-7ZUXEjAAO557TZWZzsJHhPz8sJG7L7-936te-RQhAD51XTwVALrkQ/exec';
+  
+  // Map package values to Lead Tracker format
+  function mapPackageInterest(pkg) {
+    if (!pkg) return 'Not Sure';
+    if (pkg.includes('starter')) return 'Starter';
+    if (pkg.includes('standard')) return 'Standard';
+    if (pkg.includes('growth')) return 'Growth';
+    if (pkg === 'website-only') return 'Not Sure';
+    return 'Not Sure';
+  }
+  
+  // Send to Lead Tracker Google Sheet
+  async function sendToLeadTracker(formData) {
+    const payload = {
+      businessName: formData.business || '',
+      ownerName: formData.name || '',
+      phone: formData.phone || '',
+      email: formData.email || '',
+      industry: '', // Not collected in form
+      city: '', // Not collected in form
+      preferredCallDate: formData.call_date || '',
+      preferredCallTime: formData.call_time || '',
+      packageInterest: mapPackageInterest(formData.package),
+      notes: formData.message || ''
+    };
+    
+    try {
+      await fetch(LEAD_TRACKER_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Google Apps Script requires this
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.error('Lead Tracker error:', err);
+      // Don't block form submission if Lead Tracker fails
+    }
+  }
   
   document.querySelector(CONFIG.formSelector)?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -309,6 +348,22 @@ if (dateInput) {
     btn.disabled = true;
     btn.textContent = 'Sending…';
     
+    // Collect all form data
+    const formData = {
+      email: email,
+      name: name,
+      business: business,
+      phone: phone,
+      package: form.querySelector('[name="package"]')?.value.trim() || '',
+      call_date: form.querySelector('[name="call_date"]')?.value.trim() || '',
+      call_time: form.querySelector('[name="call_time"]')?.value.trim() || '',
+      message: form.querySelector('[name="message"]')?.value.trim() || ''
+    };
+    
+    // Send to Lead Tracker (Google Sheet) - fire and forget
+    sendToLeadTracker(formData);
+    
+    // Send to Courier (email system)
     const payload = {
       email: email,
       list: CONFIG.list,
