@@ -34,43 +34,179 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// Pricing toggle (Monthly / Annual)
+// ============================================
+// PRICING SYSTEM: Site Size + Monthly/Annual
+// ============================================
+
+// State
+let selectedSiteSize = 'standard'; // 'standard', 'large', 'custom'
+let currentPlan = 'monthly'; // 'monthly', 'annual'
+
+// Pricing data
+const PRICING = {
+  standard: {
+    pages: '10',
+    addon: 0,
+    starter: 1788,
+    standard: 3588,
+    growth: 5388
+  },
+  large: {
+    pages: '20',
+    addon: 750,
+    starter: 2538,
+    standard: 4338,
+    growth: 6138
+  }
+};
+
+// DOM elements
+const buildCards = document.querySelectorAll('.build-card');
 const pricingToggle = document.getElementById('pricingToggle');
 const monthlyPricing = document.getElementById('monthlyPricing');
 const annualPricing = document.getElementById('annualPricing');
-const annualUpgradeNote = document.getElementById('annualUpgradeNote');
+const customSiteMessage = document.getElementById('customSiteMessage');
+const annualToggleBtn = pricingToggle?.querySelector('[data-plan="annual"]');
 
+// Format number with commas
+function formatPrice(num) {
+  return num.toLocaleString('en-US');
+}
+
+// Update annual card prices and text based on site size
+function updateAnnualCards() {
+  if (selectedSiteSize === 'custom') return; // Don't update for custom
+  
+  const pricing = PRICING[selectedSiteSize];
+  const pages = pricing.pages;
+  
+  // Update each annual card
+  annualPricing.querySelectorAll('.pricing-card').forEach(card => {
+    const plan = card.dataset.plan;
+    const newPrice = pricing[plan];
+    
+    // Update price
+    const priceEl = card.querySelector('.annual-price');
+    if (priceEl) priceEl.textContent = formatPrice(newPrice);
+    
+    // Update description
+    const descEl = card.querySelector('.annual-desc');
+    if (descEl) {
+      descEl.textContent = descEl.textContent.replace(/\d+-page/, pages + '-page');
+    }
+    
+    // Update feature list item
+    const featureEl = card.querySelector('.annual-site-feature');
+    if (featureEl) {
+      featureEl.textContent = `Includes ${pages}-page website FREE`;
+    }
+  });
+}
+
+// Handle site size selection
+function selectSiteSize(size) {
+  selectedSiteSize = size;
+  
+  // Update build card UI
+  buildCards.forEach(card => {
+    const isSelected = card.dataset.size === size;
+    card.classList.toggle('selected', isSelected);
+    const cta = card.querySelector('.build-cta');
+    if (cta) {
+      cta.textContent = isSelected ? 'Selected ✓' : 'Select & Continue ↓';
+    }
+  });
+  
+  // Handle custom site special case
+  if (size === 'custom') {
+    // If currently on annual, switch to monthly
+    if (currentPlan === 'annual') {
+      switchToMonthly();
+    }
+    // Disable annual toggle
+    if (annualToggleBtn) {
+      annualToggleBtn.disabled = true;
+      annualToggleBtn.title = 'Annual prepay not available for custom sites';
+    }
+  } else {
+    // Enable annual toggle
+    if (annualToggleBtn) {
+      annualToggleBtn.disabled = false;
+      annualToggleBtn.title = '';
+    }
+    // Update annual cards with new pricing
+    updateAnnualCards();
+  }
+}
+
+// Switch to monthly view
+function switchToMonthly() {
+  currentPlan = 'monthly';
+  pricingToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  pricingToggle.querySelector('[data-plan="monthly"]').classList.add('active');
+  monthlyPricing.style.display = 'grid';
+  annualPricing.style.display = 'none';
+  customSiteMessage.style.display = 'none';
+}
+
+// Switch to annual view
+function switchToAnnual() {
+  currentPlan = 'annual';
+  pricingToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  pricingToggle.querySelector('[data-plan="annual"]').classList.add('active');
+  monthlyPricing.style.display = 'none';
+  
+  if (selectedSiteSize === 'custom') {
+    // Show custom message instead of annual cards
+    annualPricing.style.display = 'none';
+    customSiteMessage.style.display = 'block';
+  } else {
+    // Show annual cards
+    annualPricing.style.display = 'grid';
+    customSiteMessage.style.display = 'none';
+    
+    // Re-observe for reveal animations
+    annualPricing.querySelectorAll('.reveal').forEach(el => {
+      el.classList.remove('visible');
+      observer.observe(el);
+    });
+  }
+}
+
+// Build card click handlers
+buildCards.forEach(card => {
+  card.addEventListener('click', (e) => {
+    e.preventDefault();
+    selectSiteSize(card.dataset.size);
+    // Scroll to content plans
+    document.getElementById('content-plans').scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Pricing toggle click handlers
 if (pricingToggle) {
   pricingToggle.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      
       const plan = btn.dataset.plan;
-      pricingToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      
       if (plan === 'annual') {
-        monthlyPricing.style.display = 'none';
-        annualPricing.style.display = 'grid';
-        if (annualUpgradeNote) annualUpgradeNote.style.display = 'block';
+        switchToAnnual();
       } else {
-        monthlyPricing.style.display = 'grid';
-        annualPricing.style.display = 'none';
-        if (annualUpgradeNote) annualUpgradeNote.style.display = 'none';
+        switchToMonthly();
       }
-      
-      // Re-observe for reveal animations on the newly visible cards
-      annualPricing.querySelectorAll('.reveal').forEach(el => {
-        el.classList.remove('visible');
-        observer.observe(el);
-      });
-      monthlyPricing.querySelectorAll('.reveal').forEach(el => {
-        el.classList.remove('visible');
-        observer.observe(el);
-      });
     });
   });
 }
 
-// Contact modal
+// Initialize: ensure first card is selected
+selectSiteSize('standard');
+
+
+// ============================================
+// CONTACT MODAL
+// ============================================
+
 const modal = document.getElementById('contactModal');
 
 function openContactModal() {
