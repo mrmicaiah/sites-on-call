@@ -34,6 +34,39 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+// Pricing toggle (Monthly / Annual)
+const pricingToggle = document.getElementById('pricingToggle');
+const monthlyPricing = document.getElementById('monthlyPricing');
+const annualPricing = document.getElementById('annualPricing');
+
+if (pricingToggle) {
+  pricingToggle.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const plan = btn.dataset.plan;
+      pricingToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if (plan === 'annual') {
+        monthlyPricing.style.display = 'none';
+        annualPricing.style.display = 'grid';
+      } else {
+        monthlyPricing.style.display = 'grid';
+        annualPricing.style.display = 'none';
+      }
+      
+      // Re-observe for reveal animations on the newly visible cards
+      annualPricing.querySelectorAll('.reveal').forEach(el => {
+        el.classList.remove('visible');
+        observer.observe(el);
+      });
+      monthlyPricing.querySelectorAll('.reveal').forEach(el => {
+        el.classList.remove('visible');
+        observer.observe(el);
+      });
+    });
+  });
+}
+
 // Contact modal
 const modal = document.getElementById('contactModal');
 
@@ -61,6 +94,32 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modal.classList.contains('open')) closeContactModal();
 });
 
+// Date picker: restrict to weekdays only (Mon-Fri)
+const dateInput = document.getElementById('cf-date');
+if (dateInput) {
+  // Set min date to today
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
+  
+  // Validate on change - if weekend selected, find next weekday
+  dateInput.addEventListener('change', () => {
+    const selected = new Date(dateInput.value + 'T12:00:00');
+    const day = selected.getDay();
+    if (day === 0) { // Sunday - move to Monday
+      selected.setDate(selected.getDate() + 1);
+    } else if (day === 6) { // Saturday - move to Monday
+      selected.setDate(selected.getDate() + 2);
+    }
+    const newYyyy = selected.getFullYear();
+    const newMm = String(selected.getMonth() + 1).padStart(2, '0');
+    const newDd = String(selected.getDate()).padStart(2, '0');
+    dateInput.value = `${newYyyy}-${newMm}-${newDd}`;
+  });
+}
+
 // Contact form submission
 (function() {
   const CONFIG = {
@@ -69,7 +128,7 @@ document.addEventListener('keydown', (e) => {
     funnel: 'contact-form',
     formSelector: '#contactForm',
     tags: ['new-lead'],
-    customFields: ['business', 'phone', 'message'],
+    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time'],
     successMessage: 'Thanks! We\'ll be in touch within 24 hours.',
     errorMessage: 'Something went wrong. Please try again or email us at hello@sitesoncall.com.'
   };
@@ -87,6 +146,7 @@ document.addEventListener('keydown', (e) => {
     const email = form.querySelector('[name="email"]').value.trim();
     const name = form.querySelector('[name="name"]').value.trim();
     const business = form.querySelector('[name="business"]').value.trim();
+    const phone = form.querySelector('[name="phone"]').value.trim();
     let hasError = false;
     
     if (!name) {
@@ -99,6 +159,10 @@ document.addEventListener('keydown', (e) => {
     }
     if (!business) {
       form.querySelector('[name="business"]').closest('.form-group').classList.add('has-error');
+      hasError = true;
+    }
+    if (!phone) {
+      form.querySelector('[name="phone"]').closest('.form-group').classList.add('has-error');
       hasError = true;
     }
     if (hasError) return;
