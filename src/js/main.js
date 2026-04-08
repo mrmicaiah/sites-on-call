@@ -38,6 +38,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 const pricingToggle = document.getElementById('pricingToggle');
 const monthlyPricing = document.getElementById('monthlyPricing');
 const annualPricing = document.getElementById('annualPricing');
+const annualUpgradeNote = document.getElementById('annualUpgradeNote');
 
 if (pricingToggle) {
   pricingToggle.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -49,9 +50,11 @@ if (pricingToggle) {
       if (plan === 'annual') {
         monthlyPricing.style.display = 'none';
         annualPricing.style.display = 'grid';
+        if (annualUpgradeNote) annualUpgradeNote.style.display = 'block';
       } else {
         monthlyPricing.style.display = 'grid';
         annualPricing.style.display = 'none';
+        if (annualUpgradeNote) annualUpgradeNote.style.display = 'none';
       }
       
       // Re-observe for reveal animations on the newly visible cards
