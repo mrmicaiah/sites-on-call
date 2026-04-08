@@ -150,9 +150,19 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
     </div>
 
     <div class="reveal" id="content-plans">
-      <h3 class="pricing-section-header">Monthly Content Plans <span>(Optional)</span></h3>
-      <p class="pricing-section-desc">This is where the magic happens. Consistent content = consistent growth in Google. But it's 100% optional — some folks just want the website.</p>
-      <div class="pricing-grid">
+      <h3 class="pricing-section-header">Content Plans</h3>
+      <p class="pricing-section-desc">This is where the magic happens. Consistent content = consistent growth in Google. Choose monthly flexibility or prepay annually and get your website FREE.</p>
+      
+      {# Pricing Toggle #}
+      <div class="pricing-toggle-wrap">
+        <div class="pricing-toggle" id="pricingToggle">
+          <button type="button" class="toggle-btn active" data-plan="monthly">Monthly</button>
+          <button type="button" class="toggle-btn" data-plan="annual">Annual <span class="toggle-badge">Free Website</span></button>
+        </div>
+      </div>
+
+      {# Monthly Pricing (default visible) #}
+      <div class="pricing-grid" id="monthlyPricing">
         <div class="pricing-card reveal">
           <div class="pricing-tier">Starter</div>
           <div class="pricing-amount">
@@ -189,6 +199,56 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
           <p class="pricing-desc">For contractors serious about dominating their local market. Maximum content, maximum growth.</p>
           <ul class="pricing-features">
             <li>8 blog posts per month</li>
+            <li>Hosting included</li>
+            <li>Full site maintenance</li>
+            <li>Monthly strategy call</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="javascript:void(0)" onclick="openContactModal()" class="btn-secondary">Get Started</a>
+        </div>
+      </div>
+
+      {# Annual Pricing (hidden by default) #}
+      <div class="pricing-grid" id="annualPricing" style="display:none">
+        <div class="pricing-card reveal">
+          <div class="pricing-tier">Starter Annual</div>
+          <div class="pricing-amount">
+            <span class="dollar">$</span><span class="price">1,788</span><span class="period">/year</span>
+          </div>
+          <p class="pricing-desc">12 months of content + a FREE Standard Website ($750 value). Pay once, get everything.</p>
+          <ul class="pricing-features">
+            <li><strong>FREE Standard Site (10 pages)</strong></li>
+            <li>2 blog posts per month (24/year)</li>
+            <li>Hosting included</li>
+            <li>Basic site maintenance</li>
+            <li>Email support</li>
+          </ul>
+          <a href="javascript:void(0)" onclick="openContactModal()" class="btn-secondary">Get Started</a>
+        </div>
+        <div class="pricing-card featured reveal">
+          <div class="pricing-tier">Standard Annual</div>
+          <div class="pricing-amount">
+            <span class="dollar">$</span><span class="price">3,588</span><span class="period">/year</span>
+          </div>
+          <p class="pricing-desc">The full package. 12 months of serious content + your website included FREE.</p>
+          <ul class="pricing-features">
+            <li><strong>FREE Standard Site (10 pages)</strong></li>
+            <li>4 blog posts per month (48/year)</li>
+            <li>Hosting included</li>
+            <li>Full site maintenance</li>
+            <li>Monthly check-in call</li>
+          </ul>
+          <a href="javascript:void(0)" onclick="openContactModal()" class="btn-primary">Get Started</a>
+        </div>
+        <div class="pricing-card reveal">
+          <div class="pricing-tier">Growth Annual</div>
+          <div class="pricing-amount">
+            <span class="dollar">$</span><span class="price">5,388</span><span class="period">/year</span>
+          </div>
+          <p class="pricing-desc">Maximum content, maximum growth, and your website is on the house.</p>
+          <ul class="pricing-features">
+            <li><strong>FREE Standard Site (10 pages)</strong></li>
+            <li>8 blog posts per month (96/year)</li>
             <li>Hosting included</li>
             <li>Full site maintenance</li>
             <li>Monthly strategy call</li>
