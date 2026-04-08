@@ -83,6 +83,7 @@ section { padding:6rem 2rem; }
 .toggle-btn { background:none; border:none; padding:0.7rem 1.5rem; font-size:0.95rem; font-weight:500; font-family:'Outfit',sans-serif; color:var(--slate); cursor:pointer; border-radius:8px; transition:all 0.2s; display:inline-flex; align-items:center; gap:0.5rem; }
 .toggle-btn:hover { color:var(--ink); }
 .toggle-btn.active { background:var(--ink); color:white; }
+.toggle-btn:disabled { opacity:0.5; cursor:not-allowed; }
 .toggle-badge { background:var(--green); color:white; font-size:0.7rem; font-weight:600; padding:0.2rem 0.5rem; border-radius:4px; text-transform:uppercase; letter-spacing:0.03em; }
 .toggle-btn.active .toggle-badge { background:var(--green-light); color:var(--green); }
 
@@ -91,6 +92,8 @@ section { padding:6rem 2rem; }
 a.build-card { text-decoration:none; color:inherit; display:block; cursor:pointer; }
 .build-card { background:var(--paper); border:2px solid var(--border); border-radius:12px; padding:2rem; text-align:center; transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s; }
 .build-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px var(--shadow); border-color:var(--accent); }
+.build-card.selected { border-color:var(--green); background:var(--green-light); }
+.build-card.selected .build-cta { color:var(--green); }
 .build-tier { font-size:0.82rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); margin-bottom:0.5rem; }
 .build-pages { font-size:0.9rem; color:var(--muted); margin-bottom:0.75rem; }
 .build-price { font-family:'DM Serif Display',serif; font-size:2.5rem; margin-bottom:1rem; color:var(--ink); }
@@ -118,6 +121,11 @@ a.build-card { text-decoration:none; color:inherit; display:block; cursor:pointe
 .pricing-card .btn-primary,.pricing-card .btn-secondary { width:100%; justify-content:center; }
 .pricing-note { text-align:center; margin-top:1.5rem; color:var(--muted); font-size:0.88rem; }
 .pricing-note strong { color:var(--ink); }
+
+/* Custom site message */
+.custom-site-message { background:var(--paper); border:2px dashed var(--border); border-radius:12px; padding:2.5rem; text-align:center; margin-top:1.5rem; }
+.custom-site-message p { color:var(--slate); margin-bottom:1.5rem; line-height:1.7; }
+.custom-site-message strong { color:var(--ink); }
 
 /* Pricing promises */
 .pricing-promises { display:flex; justify-content:center; gap:3rem; margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border); flex-wrap:wrap; }
