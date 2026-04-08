@@ -14,15 +14,15 @@ description: "Tips, guides, and insights about web design, SEO, and content mark
 
 <section>
   <div class="section-inner">
-    {% if articles.length > 0 %}
+    {% if collections.posts.length > 0 %}
       <div class="articles-grid">
-        {% for article in articles %}
+        {% for post in collections.posts %}
           <article class="article-card">
-            <a href="{{ article.url }}">
+            <a href="{{ post.url }}">
               <div class="article-card-content">
-                <div class="article-card-date">{{ article.publishedAt | readableDate }}</div>
-                <h2 class="article-card-title">{{ article.title }}</h2>
-                <p class="article-card-excerpt">{{ article.excerpt | excerpt }}</p>
+                <div class="article-card-date">{{ post.date | readableDate }}</div>
+                <h2 class="article-card-title">{{ post.data.title }}</h2>
+                <p class="article-card-excerpt">{{ post.data.excerpt | excerpt }}</p>
               </div>
             </a>
           </article>
