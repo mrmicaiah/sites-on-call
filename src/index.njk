@@ -123,22 +123,22 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
     <div class="reveal">
       <h3 class="pricing-section-header">Website Build <span>(One-Time)</span></h3>
       <p class="pricing-section-desc">Pick your site size, then choose a content plan below.</p>
-      <div class="build-pricing-grid">
-        <a href="#content-plans" class="build-card">
+      <div class="build-pricing-grid" id="buildPricingGrid">
+        <a href="#content-plans" class="build-card selected" data-size="standard" data-pages="10">
           <div class="build-tier">Standard Site</div>
           <div class="build-pages">Up to 10 pages</div>
           <div class="build-price">$750</div>
           <p>Perfect for most contractors. Home page, about, contact, plus service pages for what you do.</p>
-          <span class="build-cta">Select & Continue ↓</span>
+          <span class="build-cta">Selected ✓</span>
         </a>
-        <a href="#content-plans" class="build-card">
+        <a href="#content-plans" class="build-card" data-size="large" data-pages="20">
           <div class="build-tier">Large Site</div>
           <div class="build-pages">Up to 20 pages</div>
           <div class="build-price">$1,500</div>
           <p>For contractors with lots of services or multiple locations. More pages, more opportunities to rank.</p>
           <span class="build-cta">Select & Continue ↓</span>
         </a>
-        <a href="#content-plans" class="build-card">
+        <a href="#content-plans" class="build-card" data-size="custom" data-pages="20+">
           <div class="build-tier">Custom Site</div>
           <div class="build-pages">20+ pages</div>
           <div class="build-price">Starting at $2,000</div>
@@ -210,14 +210,14 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
 
       {# Annual Pricing (hidden by default) #}
       <div class="pricing-grid" id="annualPricing" style="display:none">
-        <div class="pricing-card reveal">
+        <div class="pricing-card reveal" data-plan="starter" data-base-price="1788">
           <div class="pricing-tier">Starter Annual</div>
           <div class="pricing-amount">
-            <span class="dollar">$</span><span class="price">1,788</span><span class="period">/year</span>
+            <span class="dollar">$</span><span class="price annual-price">1,788</span><span class="period">/year</span>
           </div>
-          <p class="pricing-desc">12 months of content + a FREE 10-page website. Pay once, get everything.</p>
+          <p class="pricing-desc annual-desc">12 months of content + a FREE 10-page website. Pay once, get everything.</p>
           <ul class="pricing-features">
-            <li><strong>Includes 10-page website FREE</strong></li>
+            <li><strong class="annual-site-feature">Includes 10-page website FREE</strong></li>
             <li>2 blog posts per month (24/year)</li>
             <li>Hosting included</li>
             <li>Basic site maintenance</li>
@@ -225,14 +225,14 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
           </ul>
           <a href="javascript:void(0)" onclick="openContactModal()" class="btn-secondary">Get Started</a>
         </div>
-        <div class="pricing-card featured reveal">
+        <div class="pricing-card featured reveal" data-plan="standard" data-base-price="3588">
           <div class="pricing-tier">Standard Annual</div>
           <div class="pricing-amount">
-            <span class="dollar">$</span><span class="price">3,588</span><span class="period">/year</span>
+            <span class="dollar">$</span><span class="price annual-price">3,588</span><span class="period">/year</span>
           </div>
-          <p class="pricing-desc">The full package. 12 months of serious content + your 10-page website FREE.</p>
+          <p class="pricing-desc annual-desc">The full package. 12 months of serious content + your 10-page website FREE.</p>
           <ul class="pricing-features">
-            <li><strong>Includes 10-page website FREE</strong></li>
+            <li><strong class="annual-site-feature">Includes 10-page website FREE</strong></li>
             <li>4 blog posts per month (48/year)</li>
             <li>Hosting included</li>
             <li>Full site maintenance</li>
@@ -240,14 +240,14 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
           </ul>
           <a href="javascript:void(0)" onclick="openContactModal()" class="btn-primary">Get Started</a>
         </div>
-        <div class="pricing-card reveal">
+        <div class="pricing-card reveal" data-plan="growth" data-base-price="5388">
           <div class="pricing-tier">Growth Annual</div>
           <div class="pricing-amount">
-            <span class="dollar">$</span><span class="price">5,388</span><span class="period">/year</span>
+            <span class="dollar">$</span><span class="price annual-price">5,388</span><span class="period">/year</span>
           </div>
-          <p class="pricing-desc">Maximum content, maximum growth, and your 10-page website is on the house.</p>
+          <p class="pricing-desc annual-desc">Maximum content, maximum growth, and your 10-page website is on the house.</p>
           <ul class="pricing-features">
-            <li><strong>Includes 10-page website FREE</strong></li>
+            <li><strong class="annual-site-feature">Includes 10-page website FREE</strong></li>
             <li>8 blog posts per month (96/year)</li>
             <li>Hosting included</li>
             <li>Full site maintenance</li>
@@ -257,7 +257,12 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
           <a href="javascript:void(0)" onclick="openContactModal()" class="btn-secondary">Get Started</a>
         </div>
       </div>
-      <p class="pricing-note annual-upgrade-note" id="annualUpgradeNote" style="display:none"><strong>Need a larger site?</strong> Add $750 for a 20-page site, or contact us for custom builds.</p>
+
+      {# Custom site message (hidden by default) #}
+      <div class="custom-site-message" id="customSiteMessage" style="display:none">
+        <p><strong>Custom sites require custom pricing.</strong> Contact us and we'll put together a package that includes your annual content plan + custom website build.</p>
+        <a href="javascript:void(0)" onclick="openContactModal()" class="btn-primary">Contact Us for Custom Pricing</a>
+      </div>
     </div>
     
     <div class="pricing-promises reveal">
