@@ -14,26 +14,24 @@ description: "Tips, guides, and insights about web design, SEO, and content mark
 
 <section>
   <div class="section-inner">
-    {% if collections.posts.length > 0 %}
-      <div class="articles-grid">
-        {% for post in collections.posts %}
-          <article class="article-card">
-            <a href="{{ post.url }}">
-              <div class="article-card-content">
-                <div class="article-card-date">{{ post.date | readableDate }}</div>
-                <h2 class="article-card-title">{{ post.data.title }}</h2>
-                <p class="article-card-excerpt">{{ post.data.excerpt | excerpt }}</p>
-              </div>
-            </a>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-state">
-        <h3>Coming Soon</h3>
-        <p>We're working on helpful articles about web design, SEO, and growing your local business online. Check back soon!</p>
-      </div>
-    {% endif %}
+    <div class="articles-grid">
+      {% for post in collections.posts %}
+        <article class="article-card">
+          <a href="{{ post.url }}">
+            <div class="article-card-content">
+              <div class="article-card-date">{{ post.date | readableDate }}</div>
+              <h2 class="article-card-title">{{ post.data.title }}</h2>
+              <p class="article-card-excerpt">{{ post.data.excerpt }}</p>
+            </div>
+          </a>
+        </article>
+      {% else %}
+        <div class="empty-state">
+          <h3>Coming Soon</h3>
+          <p>We're working on helpful articles about web design, SEO, and growing your local business online. Check back soon!</p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 </section>
 
