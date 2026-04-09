@@ -14,6 +14,9 @@ description: "Tips, guides, and insights about web design, SEO, and content mark
 
 <section>
   <div class="section-inner">
+    <!-- DEBUG: Collection count = {{ collections.posts | length }} -->
+    <!-- DEBUG: All collections = {{ collections | keys }} -->
+    
     <div class="articles-grid">
       {% for post in collections.posts %}
         <article class="article-card">
@@ -28,7 +31,7 @@ description: "Tips, guides, and insights about web design, SEO, and content mark
       {% else %}
         <div class="empty-state">
           <h3>Coming Soon</h3>
-          <p>We're working on helpful articles about web design, SEO, and growing your local business online. Check back soon!</p>
+          <p>Posts collection has {{ collections.posts | length }} items.</p>
         </div>
       {% endfor %}
     </div>
