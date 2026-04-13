@@ -227,6 +227,114 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 @keyframes successPop { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
 #formSuccess.show { animation:successPop 0.35s ease; }
 
+/* ========================================
+   SNAPSHOT OFFER TOGGLE/CARD
+   ======================================== */
+.snapshot-offer { margin:1rem 0 1.25rem; }
+.snapshot-offer .snapshot-toggle {
+  display:flex;
+  align-items:flex-start;
+  gap:1rem;
+  padding:1rem 1.25rem;
+  background:var(--cream);
+  border:2px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  transition:border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.snapshot-offer .snapshot-toggle:hover {
+  border-color:var(--accent);
+  background:var(--accent-light);
+}
+.snapshot-offer .snapshot-toggle.checked {
+  border-color:var(--green);
+  background:var(--green-light);
+  box-shadow:0 4px 16px rgba(58,125,92,0.1);
+}
+.snapshot-offer input[type="checkbox"] {
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.snapshot-offer .toggle-indicator {
+  width:22px;
+  height:22px;
+  flex-shrink:0;
+  border:2px solid var(--border);
+  border-radius:6px;
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:2px;
+  transition:border-color 0.2s, background 0.2s;
+}
+.snapshot-offer .snapshot-toggle:hover .toggle-indicator {
+  border-color:var(--accent);
+}
+.snapshot-offer .snapshot-toggle.checked .toggle-indicator {
+  background:var(--green);
+  border-color:var(--green);
+}
+.snapshot-offer .toggle-indicator svg {
+  width:14px;
+  height:14px;
+  stroke:white;
+  stroke-width:3;
+  opacity:0;
+  transform:scale(0.5);
+  transition:opacity 0.15s, transform 0.15s;
+}
+.snapshot-offer .snapshot-toggle.checked .toggle-indicator svg {
+  opacity:1;
+  transform:scale(1);
+}
+.snapshot-offer .toggle-content {
+  flex:1;
+}
+.snapshot-offer .toggle-title {
+  font-weight:600;
+  font-size:0.95rem;
+  color:var(--ink);
+  margin-bottom:0.2rem;
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+}
+.snapshot-offer .toggle-title .free-badge {
+  font-size:0.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  background:var(--green);
+  color:white;
+  padding:0.15rem 0.45rem;
+  border-radius:4px;
+}
+.snapshot-offer .snapshot-toggle.checked .toggle-title .free-badge {
+  background:var(--green);
+}
+.snapshot-offer .toggle-desc {
+  font-size:0.85rem;
+  color:var(--slate);
+  line-height:1.5;
+}
+
+/* Article CTA link style */
+.snapshot-cta-link {
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  color:var(--accent);
+  font-weight:600;
+  text-decoration:none;
+  transition:gap 0.2s;
+}
+.snapshot-cta-link:hover {
+  gap:0.75rem;
+  text-decoration:underline;
+}
+
 /* Responsive */
 @media(max-width:900px) {
   .problem-grid { grid-template-columns:1fr; max-width:480px; margin-left:auto; margin-right:auto; }

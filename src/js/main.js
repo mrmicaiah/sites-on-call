@@ -209,10 +209,39 @@ selectSiteSize('standard');
 
 const modal = document.getElementById('contactModal');
 
-function openContactModal() {
+// Snapshot toggle interaction
+const snapshotToggle = document.getElementById('snapshotToggle');
+const snapshotCheckbox = document.getElementById('cf-snapshot');
+
+if (snapshotToggle && snapshotCheckbox) {
+  // Update visual state based on checkbox
+  function updateSnapshotToggleState() {
+    snapshotToggle.classList.toggle('checked', snapshotCheckbox.checked);
+  }
+  
+  // Handle clicks on the toggle card
+  snapshotToggle.addEventListener('click', (e) => {
+    // Don't double-toggle if clicking directly on checkbox
+    if (e.target === snapshotCheckbox) return;
+    snapshotCheckbox.checked = !snapshotCheckbox.checked;
+    updateSnapshotToggleState();
+  });
+  
+  // Handle direct checkbox changes
+  snapshotCheckbox.addEventListener('change', updateSnapshotToggleState);
+}
+
+function openContactModal(precheckSnapshot = false) {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   navLinks.classList.remove('open');
+  
+  // Pre-check snapshot if requested (e.g., from article CTA)
+  if (precheckSnapshot && snapshotCheckbox) {
+    snapshotCheckbox.checked = true;
+    if (snapshotToggle) snapshotToggle.classList.add('checked');
+  }
+  
   setTimeout(() => document.getElementById('cf-name').focus(), 200);
 }
 
@@ -267,7 +296,7 @@ if (dateInput) {
     funnel: 'contact-form',
     formSelector: '#contactForm',
     tags: ['new-lead'],
-    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time'],
+    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time', 'wants_snapshot'],
     successMessage: 'Thanks! We\'ll be in touch within 24 hours.',
     errorMessage: 'Something went wrong. Please try again or email us at hello@sitesoncall.com.'
   };
@@ -297,7 +326,8 @@ if (dateInput) {
       preferredCallDate: formData.call_date || '',
       preferredCallTime: formData.call_time || '',
       packageInterest: mapPackageInterest(formData.package),
-      notes: formData.message || ''
+      notes: formData.message || '',
+      wantsSnapshot: formData.wants_snapshot ? 'Yes' : 'No'
     };
     
     try {
@@ -357,7 +387,8 @@ if (dateInput) {
       package: form.querySelector('[name="package"]')?.value.trim() || '',
       call_date: form.querySelector('[name="call_date"]')?.value.trim() || '',
       call_time: form.querySelector('[name="call_time"]')?.value.trim() || '',
-      message: form.querySelector('[name="message"]')?.value.trim() || ''
+      message: form.querySelector('[name="message"]')?.value.trim() || '',
+      wants_snapshot: form.querySelector('[name="wants_snapshot"]')?.checked || false
     };
     
     // Send to Lead Tracker (Google Sheet) - fire and forget
@@ -376,7 +407,14 @@ if (dateInput) {
     
     CONFIG.customFields.forEach(field => {
       const el = form.querySelector('[name="' + field + '"]');
-      if (el && el.value.trim()) payload.metadata[field] = el.value.trim();
+      if (el) {
+        // Handle checkbox vs other inputs
+        if (el.type === 'checkbox') {
+          payload.metadata[field] = el.checked ? 'yes' : 'no';
+        } else if (el.value.trim()) {
+          payload.metadata[field] = el.value.trim();
+        }
+      }
     });
     
     try {
