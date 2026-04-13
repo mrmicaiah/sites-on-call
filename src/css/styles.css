@@ -228,35 +228,35 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 #formSuccess.show { animation:successPop 0.35s ease; }
 
 /* ========================================
-   SNAPSHOT OFFER TOGGLE/CARD
+   FORM TOGGLE CARDS (Snapshot, Schedule)
    ======================================== */
-.snapshot-offer { margin:1rem 0 1.25rem; }
-.snapshot-offer .snapshot-toggle {
+.form-toggle-offer { margin:0.75rem 0; }
+.form-toggle-offer .form-toggle {
   display:flex;
   align-items:flex-start;
   gap:1rem;
-  padding:1rem 1.25rem;
+  padding:0.9rem 1.1rem;
   background:var(--cream);
   border:2px solid var(--border);
   border-radius:10px;
   cursor:pointer;
   transition:border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
-.snapshot-offer .snapshot-toggle:hover {
+.form-toggle-offer .form-toggle:hover {
   border-color:var(--accent);
   background:var(--accent-light);
 }
-.snapshot-offer .snapshot-toggle.checked {
+.form-toggle-offer .form-toggle.checked {
   border-color:var(--green);
   background:var(--green-light);
   box-shadow:0 4px 16px rgba(58,125,92,0.1);
 }
-.snapshot-offer input[type="checkbox"] {
+.form-toggle-offer input[type="checkbox"] {
   position:absolute;
   opacity:0;
   pointer-events:none;
 }
-.snapshot-offer .toggle-indicator {
+.form-toggle-offer .toggle-indicator {
   width:22px;
   height:22px;
   flex-shrink:0;
@@ -269,14 +269,14 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   margin-top:2px;
   transition:border-color 0.2s, background 0.2s;
 }
-.snapshot-offer .snapshot-toggle:hover .toggle-indicator {
+.form-toggle-offer .form-toggle:hover .toggle-indicator {
   border-color:var(--accent);
 }
-.snapshot-offer .snapshot-toggle.checked .toggle-indicator {
+.form-toggle-offer .form-toggle.checked .toggle-indicator {
   background:var(--green);
   border-color:var(--green);
 }
-.snapshot-offer .toggle-indicator svg {
+.form-toggle-offer .toggle-indicator svg {
   width:14px;
   height:14px;
   stroke:white;
@@ -285,39 +285,53 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   transform:scale(0.5);
   transition:opacity 0.15s, transform 0.15s;
 }
-.snapshot-offer .snapshot-toggle.checked .toggle-indicator svg {
+.form-toggle-offer .form-toggle.checked .toggle-indicator svg {
   opacity:1;
   transform:scale(1);
 }
-.snapshot-offer .toggle-content {
+.form-toggle-offer .toggle-content {
   flex:1;
 }
-.snapshot-offer .toggle-title {
+.form-toggle-offer .toggle-title {
   font-weight:600;
-  font-size:0.95rem;
+  font-size:0.92rem;
   color:var(--ink);
-  margin-bottom:0.2rem;
+  margin-bottom:0.15rem;
   display:flex;
   align-items:center;
   gap:0.5rem;
+  flex-wrap:wrap;
 }
-.snapshot-offer .toggle-title .free-badge {
-  font-size:0.68rem;
+.form-toggle-offer .toggle-title .free-badge {
+  font-size:0.65rem;
   font-weight:700;
   text-transform:uppercase;
   letter-spacing:0.04em;
   background:var(--green);
   color:white;
-  padding:0.15rem 0.45rem;
+  padding:0.12rem 0.4rem;
   border-radius:4px;
 }
-.snapshot-offer .snapshot-toggle.checked .toggle-title .free-badge {
-  background:var(--green);
-}
-.snapshot-offer .toggle-desc {
-  font-size:0.85rem;
+.form-toggle-offer .toggle-desc {
+  font-size:0.82rem;
   color:var(--slate);
-  line-height:1.5;
+  line-height:1.45;
+}
+
+/* Schedule fields container */
+.schedule-fields {
+  margin-top:0.5rem;
+  margin-bottom:0.5rem;
+  padding:1rem;
+  background:var(--green-light);
+  border-radius:8px;
+  border:1px solid rgba(58,125,92,0.2);
+}
+.schedule-fields .form-row {
+  margin-bottom:0;
+}
+.schedule-fields .form-group {
+  margin-bottom:0;
 }
 
 /* Article CTA link style */
@@ -360,6 +374,7 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .form-row { grid-template-columns:1fr; }
   .pricing-toggle { flex-direction:column; }
   .toggle-btn { justify-content:center; }
+  .schedule-fields .form-row { grid-template-columns:1fr; }
 }
 
 /* ========================================

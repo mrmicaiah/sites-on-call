@@ -53,7 +53,7 @@
       <button class="modal-close" onclick="closeContactModal()" aria-label="Close">&times;</button>
       <div class="modal-header">
         <h3>Let's talk about your website</h3>
-        <p>Tell me about your business and pick a time to chat. I'll confirm within 24 hours.</p>
+        <p>Tell me about your business. I'll be in touch within 24 hours.</p>
       </div>
       <div id="formContent">
         <form id="contactForm">
@@ -83,17 +83,54 @@
           </div>
           
           {# Snapshot Offer Toggle #}
-          <div class="form-group snapshot-offer">
-            <label class="snapshot-toggle" id="snapshotToggle">
+          <div class="form-group form-toggle-offer snapshot-offer">
+            <label class="form-toggle" id="snapshotToggle">
               <input type="checkbox" id="cf-snapshot" name="wants_snapshot" value="yes">
               <span class="toggle-indicator">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
               <span class="toggle-content">
                 <span class="toggle-title">Send me a free Online Presence Snapshot <span class="free-badge">Free</span></span>
-                <span class="toggle-desc">I'll show you what's working, what's broken, and who's outranking you on Google — no strings attached.</span>
+                <span class="toggle-desc">I'll show you what's working, what's broken, and who's outranking you on Google.</span>
               </span>
             </label>
+          </div>
+          
+          {# Schedule Call Toggle #}
+          <div class="form-group form-toggle-offer schedule-offer">
+            <label class="form-toggle" id="scheduleToggle">
+              <input type="checkbox" id="cf-schedule" name="wants_call" value="yes">
+              <span class="toggle-indicator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="toggle-content">
+                <span class="toggle-title">Schedule a phone call</span>
+                <span class="toggle-desc">Pick a time and I'll call you to discuss your project.</span>
+              </span>
+            </label>
+          </div>
+          
+          {# Schedule Fields (hidden by default) #}
+          <div class="schedule-fields" id="scheduleFields" style="display:none">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cf-date">Preferred date <span style="color:var(--muted);font-weight:400">(Mon-Fri)</span></label>
+                <input type="date" id="cf-date" name="call_date">
+              </div>
+              <div class="form-group">
+                <label for="cf-time">Preferred time <span style="color:var(--muted);font-weight:400">(Central)</span></label>
+                <select id="cf-time" name="call_time">
+                  <option value="">Select a time...</option>
+                  <option value="9:00 AM">9:00 AM</option>
+                  <option value="10:00 AM">10:00 AM</option>
+                  <option value="11:00 AM">11:00 AM</option>
+                  <option value="1:00 PM">1:00 PM</option>
+                  <option value="2:00 PM">2:00 PM</option>
+                  <option value="3:00 PM">3:00 PM</option>
+                  <option value="4:00 PM">4:00 PM</option>
+                </select>
+              </div>
+            </div>
           </div>
           
           <div class="form-group">
@@ -109,26 +146,9 @@
               <option value="website-only">Just the website</option>
             </select>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cf-date">Preferred call date <span style="color:var(--muted);font-weight:400">(Mon-Fri)</span></label>
-              <input type="date" id="cf-date" name="call_date">
-            </div>
-            <div class="form-group">
-              <label for="cf-time">Preferred call time <span style="color:var(--muted);font-weight:400">(Central)</span></label>
-              <select id="cf-time" name="call_time">
-                <option value="">Select a time...</option>
-                <option value="1:00 PM">1:00 PM</option>
-                <option value="1:45 PM">1:45 PM</option>
-                <option value="2:30 PM">2:30 PM</option>
-                <option value="3:15 PM">3:15 PM</option>
-                <option value="4:00 PM">4:00 PM</option>
-              </select>
-            </div>
-          </div>
           <div class="form-group">
-            <label for="cf-message">Anything else we should know? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-            <textarea id="cf-message" name="message" rows="3" placeholder="I need a website for my HVAC business. Currently spending way too much on Angi..."></textarea>
+            <label for="cf-message">Anything else? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <textarea id="cf-message" name="message" rows="2" placeholder="I need a website for my HVAC business..."></textarea>
           </div>
           <button type="submit" class="btn-primary" id="cfSubmit" style="width:100%;justify-content:center;margin-top:0.75rem">
             Send Message 
@@ -141,7 +161,7 @@
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <h3 style="margin-bottom:0.5rem">Got it!</h3>
-        <p style="color:var(--slate);line-height:1.7">I'll be in touch within 24 hours to confirm your call time.</p>
+        <p style="color:var(--slate);line-height:1.7">I'll be in touch within 24 hours.</p>
       </div>
     </div>
   </div>

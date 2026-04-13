@@ -209,27 +209,36 @@ selectSiteSize('standard');
 
 const modal = document.getElementById('contactModal');
 
-// Snapshot toggle interaction
-const snapshotToggle = document.getElementById('snapshotToggle');
-const snapshotCheckbox = document.getElementById('cf-snapshot');
-
-if (snapshotToggle && snapshotCheckbox) {
-  // Update visual state based on checkbox
-  function updateSnapshotToggleState() {
-    snapshotToggle.classList.toggle('checked', snapshotCheckbox.checked);
+// Generic toggle handler
+function setupFormToggle(toggleId, checkboxId, fieldsId) {
+  const toggle = document.getElementById(toggleId);
+  const checkbox = document.getElementById(checkboxId);
+  const fields = fieldsId ? document.getElementById(fieldsId) : null;
+  
+  if (!toggle || !checkbox) return;
+  
+  function updateState() {
+    const isChecked = checkbox.checked;
+    toggle.classList.toggle('checked', isChecked);
+    if (fields) {
+      fields.style.display = isChecked ? 'block' : 'none';
+    }
   }
   
-  // Handle clicks on the toggle card
-  snapshotToggle.addEventListener('click', (e) => {
-    // Don't double-toggle if clicking directly on checkbox
-    if (e.target === snapshotCheckbox) return;
-    snapshotCheckbox.checked = !snapshotCheckbox.checked;
-    updateSnapshotToggleState();
+  toggle.addEventListener('click', (e) => {
+    if (e.target === checkbox) return;
+    checkbox.checked = !checkbox.checked;
+    updateState();
   });
   
-  // Handle direct checkbox changes
-  snapshotCheckbox.addEventListener('change', updateSnapshotToggleState);
+  checkbox.addEventListener('change', updateState);
+  
+  return { toggle, checkbox, fields, updateState };
 }
+
+// Setup toggles
+const snapshotToggle = setupFormToggle('snapshotToggle', 'cf-snapshot');
+const scheduleToggle = setupFormToggle('scheduleToggle', 'cf-schedule', 'scheduleFields');
 
 function openContactModal(precheckSnapshot = false) {
   modal.classList.add('open');
@@ -237,9 +246,9 @@ function openContactModal(precheckSnapshot = false) {
   navLinks.classList.remove('open');
   
   // Pre-check snapshot if requested (e.g., from article CTA)
-  if (precheckSnapshot && snapshotCheckbox) {
-    snapshotCheckbox.checked = true;
-    if (snapshotToggle) snapshotToggle.classList.add('checked');
+  if (precheckSnapshot && snapshotToggle) {
+    snapshotToggle.checkbox.checked = true;
+    snapshotToggle.updateState();
   }
   
   setTimeout(() => document.getElementById('cf-name').focus(), 200);
@@ -296,7 +305,7 @@ if (dateInput) {
     funnel: 'contact-form',
     formSelector: '#contactForm',
     tags: ['new-lead'],
-    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time', 'wants_snapshot'],
+    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time', 'wants_snapshot', 'wants_call'],
     successMessage: 'Thanks! We\'ll be in touch within 24 hours.',
     errorMessage: 'Something went wrong. Please try again or email us at hello@sitesoncall.com.'
   };
@@ -327,7 +336,8 @@ if (dateInput) {
       preferredCallTime: formData.call_time || '',
       packageInterest: mapPackageInterest(formData.package),
       notes: formData.message || '',
-      wantsSnapshot: formData.wants_snapshot ? 'Yes' : 'No'
+      wantsSnapshot: formData.wants_snapshot ? 'Yes' : 'No',
+      wantsCall: formData.wants_call ? 'Yes' : 'No'
     };
     
     try {
@@ -388,7 +398,8 @@ if (dateInput) {
       call_date: form.querySelector('[name="call_date"]')?.value.trim() || '',
       call_time: form.querySelector('[name="call_time"]')?.value.trim() || '',
       message: form.querySelector('[name="message"]')?.value.trim() || '',
-      wants_snapshot: form.querySelector('[name="wants_snapshot"]')?.checked || false
+      wants_snapshot: form.querySelector('[name="wants_snapshot"]')?.checked || false,
+      wants_call: form.querySelector('[name="wants_call"]')?.checked || false
     };
     
     // Send to Lead Tracker (Google Sheet) - fire and forget
