@@ -134,7 +134,7 @@ You found time to argue with Angi's customer service about lead quality.
 
 If you added up all the hours you spent chasing garbage leads, you'd have plenty of time to build something that actually works long-term.
 
-The difference is this: Time spent chasing Angi leads disappears forever. Time spent building your online presence compounds. That blog post you write about "signs your water heater is about to fail" will generate leads for years. That Google Business Profile you optimize will keep showing up in local searches whether you're paying attention or not.
+The difference is this: Time spent chasing Angi leads disappears forever. Time spent building your online presence compounds. That blog post you write about "signs your water heater is about to fail" will generate leads for years. That [Google Business Profile you optimize](/articles/google-business-profile-for-contractors/) will keep showing up in local searches whether you're paying attention or not.
 
 One is a treadmill. The other is building equity.
 
@@ -199,6 +199,8 @@ Two years from now, what do you want to have?
 
 $24,000 paid to Angi and nothing to show for it? Or a website with 50 pages of content, 150 reviews, and customers who know your name?
 
+I wrote a more complete breakdown of [how to think about contractor leads](/articles/contractor-leads/) — when bought leads make sense, when to build your own, and how to balance both. Worth reading if you're trying to figure out your mix.
+
 ## The Real Reason Contractors Stay Stuck on Angi
 
 I'm going to say something that might sting.
@@ -213,7 +215,7 @@ But here's what I've learned from watching contractors in North Alabama for year
 
 The ones who figure this out don't just make more money. They build businesses they can sell. They take vacations without their phone blowing up. They stop competing on price with every other contractor chasing the same Angi leads.
 
-They become the contractor everyone else wishes they were.
+They become the contractor [everyone else wishes they were](/articles/why-some-contractors-stay-broke-while-others-build-empires/).
 
 And the ones who stay on the Angi treadmill? They work just as hard. They just don't get anywhere.
 
@@ -227,7 +229,7 @@ What I do is help contractors get there faster. I build the website for free. No
 
 Compare that to $952 a month for Angi leads that might not even be worth answering.
 
-But even if you don't work with me — even if you build the website yourself, figure out SEO on your own, and handle all your own marketing — do something.
+But even if you don't work with me — even if you build the website yourself, figure out [local SEO](/articles/local-seo-for-contractors/) on your own, and handle all your own marketing — do something.
 
 Anything is better than giving Angi $47,000 over three years and having nothing but a bad taste in your mouth to show for it.
 

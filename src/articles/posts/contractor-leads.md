@@ -28,9 +28,9 @@ But there's more than one way to fill your pipeline. And the contractors who fig
 
 Let's simplify this. There are really only three sources of new customers:
 
-**1. Bought leads.** You pay a service — Angi, HomeAdvisor, Thumbtack, Networx, whatever — and they send you people who say they need your service. You're paying for access to potential customers.
+**1. Bought leads.** You pay a service — [Angi, HomeAdvisor](/articles/angi-leads/), Thumbtack, Networx, whatever — and they send you people who say they need your service. You're paying for access to potential customers.
 
-**2. Built leads.** You invest in your own marketing — website, SEO, Google Business Profile, content, social media — and people find you directly. You're paying for infrastructure that generates customers over time.
+**2. Built leads.** You invest in your own marketing — website, SEO, [Google Business Profile](/articles/google-business-profile-for-contractors/), content, social media — and people find you directly. You're paying for infrastructure that generates customers over time.
 
 **3. Earned leads.** Word of mouth, referrals, repeat customers. You're not paying anything directly — these come from doing good work and being easy to find.
 
@@ -38,7 +38,7 @@ Every contractor has some mix of these three. The question is what your mix shou
 
 I've talked to contractors who are 90% bought leads. They're busy but stressed, because one price hike could destroy their margins.
 
-I've talked to contractors who are 90% referrals. They're comfortable but limited, because word of mouth doesn't scale predictably.
+I've talked to contractors who are 90% referrals. They're comfortable but limited, because [word of mouth doesn't scale predictably](/articles/why-word-of-mouth-isnt-enough/).
 
 And I've talked to contractors who've built a balanced system — some bought, some built, lots of earned — and they sleep better at night. Not because they're making more money (though often they are), but because no single source controls their fate.
 
@@ -114,11 +114,11 @@ This is not free. It costs time, and sometimes money. But unlike bought leads, t
 
 **A website that ranks.** When someone in Hartselle types "HVAC repair Hartselle" into Google, does your website show up? If not, those searches are going to your competitors — or to lead services who then sell those people back to you at a markup.
 
-A real website — not a one-page template, but a site with your services, your service areas, your work, and helpful content — is a lead generation machine that works 24 hours a day.
+A [real website](/articles/contractor-website-design/) — not a one-page template, but a site with your services, your service areas, your work, and helpful content — is a lead generation machine that works 24 hours a day.
 
 **A Google Business Profile that dominates.** That map pack at the top of local search results? Three contractors show up there. If you're not one of them, you're invisible.
 
-Getting into that map pack requires reviews, activity, accuracy, and consistency. It's not magic. It's work. But it's work that pays dividends for years.
+Getting into that map pack requires reviews, activity, accuracy, and consistency. It's not magic. It's work. But it's work that pays dividends for years. I wrote a [complete guide to optimizing your Google Business Profile](/articles/google-business-profile-for-contractors/) if you want the step-by-step.
 
 **Content that answers questions.** A roofer in Decatur I know wrote a 1,200-word article called "How to Know If Your Roof Needs Repairs or Full Replacement." That single article brings him 40-60 visitors per month. He's gotten at least 11 customers directly from it in the past 18 months.
 
@@ -176,7 +176,7 @@ Optimize your Google Business Profile. Post weekly. Add photos. Respond to every
 
 Start content. One article per month. Answer the questions customers actually ask you on jobs.
 
-This isn't an overnight fix. But 6 months of steady building creates a foundation that generates leads for years.
+This isn't an overnight fix. But 6 months of steady building creates a foundation that generates leads for years. If you want the technical details on how [local SEO actually works](/articles/local-seo-for-contractors/), I wrote a playbook for that too.
 
 **Phase 3: Shift the mix (Months 6-18)**
 

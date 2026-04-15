@@ -16,7 +16,7 @@ tags:
 
 ## This Isn't a Motivation Article
 
-If you need convincing that online visibility matters, go read our other article about why contractors stay broke. This isn't that.
+If you need convincing that online visibility matters, go read our other article about [why contractors stay broke](/articles/why-some-contractors-stay-broke-while-others-build-empires/). This isn't that.
 
 This is the mechanic's manual. The wiring diagram. The stuff that actually moves rankings — explained by someone who's audited hundreds of contractor websites and seen what separates page 1 from page 47.
 
@@ -85,7 +85,7 @@ This takes an afternoon. Most contractors never do it. The ones who do see ranki
 
 ## Google Business Profile: The Fields Nobody Fills Out
 
-Your Google Business Profile (GBP) is the single most important factor in local search. It's also free. And most contractors fill out about 30% of it.
+Your [Google Business Profile](/articles/google-business-profile-for-contractors/) (GBP) is the single most important factor in local search. It's also free. And most contractors fill out about 30% of it.
 
 Let me walk you through the fields that actually matter:
 
@@ -241,7 +241,7 @@ Do this once. Takes 4-6 hours. Check back every 6 months to make sure nothing go
 
 ## Your Website: The Technical Stuff That Actually Moves Rankings
 
-Your website needs to send local signals. Here's exactly what to include:
+Your [website](/articles/contractor-website-design/) needs to send local signals. Here's exactly what to include:
 
 ### NAP on Every Page
 Your business name, address, and phone number should be in the footer of every page. Same exact format as everywhere else.

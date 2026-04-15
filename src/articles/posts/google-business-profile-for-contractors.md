@@ -340,6 +340,8 @@ Google cross-references your information across the entire internet. When it fin
 
 Do an audit. Search your business name and check every directory listing you find. Fix the inconsistencies. Yes, this is tedious. Do it anyway.
 
+If you want the deep dive on NAP and all the other technical [local SEO factors](/articles/local-seo-for-contractors/), I wrote a whole playbook on that.
+
 ### The Phone Number Problem
 
 Here's something most contractors don't know: Google tracks whether people who click your phone number actually stay on the call.
@@ -496,7 +498,7 @@ This is your digital storefront. And unlike a physical storefront that requires 
 
 But "free" doesn't mean "automatic." You have to build it. You have to maintain it. You have to treat it like the valuable business asset it is.
 
-The contractors who understand this—who invest an hour a week into their Google profile—are the ones whose phones ring without paying for leads.
+The contractors who understand this—who invest an hour a week into their Google profile—are the ones whose phones ring without paying for leads. This connects to the bigger question of [where your leads should come from](/articles/contractor-leads/) and why building your own presence beats renting customers from lead services.
 
 Everyone else is wondering why the guy with half their experience is getting twice their calls.
 

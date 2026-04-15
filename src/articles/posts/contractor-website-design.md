@@ -161,6 +161,8 @@ Here's what each service page needs:
 
 One page per service. It's more work upfront. It pays off forever.
 
+This is part of a broader [local SEO strategy](/articles/local-seo-for-contractors/) — the more pages you have targeting specific services and locations, the more opportunities Google has to show you in search results.
+
 ---
 
 ## Mobile First (This Isn't Optional)
@@ -382,6 +384,8 @@ Phone number visible without scrolling. Real photos. Clear service pages. Trust 
 That's contractor website design. Not pretty. Not clever. Effective.
 
 Build the machine. Let it work.
+
+And once your website is solid, don't forget the other half of the equation: [your Google Business Profile](/articles/google-business-profile-for-contractors/). Together, they're how you stop paying for leads and start owning your customers.
 
 ---
 
