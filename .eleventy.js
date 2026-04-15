@@ -4,6 +4,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/js");
   eleventyConfig.addPassthroughCopy("src/images");
   eleventyConfig.addPassthroughCopy("src/CNAME");
+  eleventyConfig.addPassthroughCopy("src/robots.txt");
 
   // Demo sites - copied as-is, no 11ty processing
   eleventyConfig.addPassthroughCopy("src/demos");
