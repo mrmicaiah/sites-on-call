@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
-title: "Sites On Call — Stop Paying for Leads. Start Owning Them."
-description: "Websites and SEO content for contractors tired of Angi, HomeAdvisor, and expensive Google Ads. Build an asset you own. No contracts. Serving North Alabama."
+title: "Contractor Web Design & SEO in North Alabama | Sites On Call"
+description: "Web design and SEO for contractors in Huntsville, Madison, Decatur & Athens. Stop paying for leads — build a website that brings calls to you. Free site with annual plans."
 ---
 
 <section class="hero">
@@ -122,6 +122,20 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
       <div class="section-label">Pricing</div>
       <h2 class="section-title">Straightforward pricing.<br>No games.</h2>
       <p class="section-subtitle" style="margin-left:auto;margin-right:auto">One-time website build + optional monthly content. You own everything. Cancel anytime.</p>
+    </div>
+    
+    {# Founding Client Banner #}
+    <div class="founding-client-banner reveal">
+      <div class="founding-banner-content">
+        <div class="founding-banner-badge">Limited</div>
+        <div class="founding-banner-text">
+          <h3>🚀 Founding Client Program</h3>
+          <p><strong>3 spots available.</strong> Get 50% off your first 6 months of content. You agree to be a case study with real numbers — I get proof, you get results at half price. <a href="#founding" class="founding-banner-link">Learn more ↓</a></p>
+        </div>
+        <button class="btn-primary btn-sm founding-banner-cta" onclick="openContactModal(); document.getElementById('cf-package').value='founding-client'; document.getElementById('cf-message').value='I\'m interested in the Founding Client Program.';">
+          Apply Now
+        </button>
+      </div>
     </div>
     
     <div class="reveal">
@@ -327,52 +341,118 @@ description: "Websites and SEO content for contractors tired of Angi, HomeAdviso
   </div>
 </section>
 
-<section class="how-it-works" id="projects">
+{# NEW: Building Something New Section #}
+<section class="founding-section" id="founding">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Honest</div>
+      <h2 class="section-title">Building Something New</h2>
+    </div>
+    
+    <div class="founding-content reveal">
+      <div class="founding-text">
+        <p class="founding-lead">I'm not going to show you a wall of logos and pretend I've been doing this for twenty years.</p>
+        
+        <p>Here's the truth: Sites On Call is new. I started this business because I watched too many contractors get ripped off by agencies that promised the world and delivered a template.</p>
+        
+        <p>I'm building this the same way I'll help you build yours — by doing the work, tracking the results, and being honest about what's happening.</p>
+        
+        <p>Right now, I'm looking for <strong>3 contractors</strong> willing to be founding clients. You get my full attention and a significant discount. I get real case studies with real numbers. We grow together.</p>
+        
+        <p class="founding-emphasis">Spots are limited because I'd rather do great work for a few people than mediocre work for many.</p>
+      </div>
+      
+      <div class="founding-cta-box">
+        <div class="founding-cta-content">
+          <h3>Founding Client Program</h3>
+          <ul class="founding-benefits">
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>50% off first 6 months of content</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Priority support & monthly strategy calls</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>You agree to be a case study (with real numbers)</span>
+            </li>
+          </ul>
+          <p class="spots-remaining"><strong>3 spots available</strong></p>
+          <button class="btn-primary founding-cta-btn" onclick="openContactModal(); document.getElementById('cf-package').value='founding-client'; document.getElementById('cf-message').value='I\'m interested in the Founding Client Program.';">
+            Apply to Be a Founding Client
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# NEW: How I Think Section #}
+<section class="how-it-works articles-showcase" id="how-i-think">
   <div class="section-inner">
     <div class="reveal" style="text-align:center">
-      <div class="section-label">Recent Work</div>
-      <h2 class="section-title">Sites we've built for<br>contractors like you</h2>
+      <div class="section-label">Proof</div>
+      <h2 class="section-title">How I Think</h2>
+      <p class="section-subtitle" style="margin-left:auto;margin-right:auto">I write about contractor marketing because I actually think about it. Here's how I approach the problems you're dealing with.</p>
     </div>
-    <div class="projects-grid">
-      <div class="project-card reveal">
-        <a href="https://bluerivergutters.com" target="_blank" rel="noopener">
-          <div class="project-thumb">
-            <img src="https://api.microlink.io/?url=https://bluerivergutters.com&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1280&viewport.height=800&overlay.browser=none" alt="Blue River Gutters website" loading="lazy">
-          </div>
-          <div class="project-info">
-            <span class="project-tag">Gutter Services</span>
-            <h4>Blue River Gutters</h4>
-            <p>Full-service gutter company in Huntsville. Seamless gutters, guards, cleaning, and underground drains.</p>
-            <span class="project-link">Visit site <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
-          </div>
-        </a>
-      </div>
-      <div class="project-card reveal">
-        <a href="https://builtbydenny.com" target="_blank" rel="noopener">
-          <div class="project-thumb">
-            <img src="https://api.microlink.io/?url=https://builtbydenny.com&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1280&viewport.height=800&overlay.browser=none" alt="Built by Denny website" loading="lazy">
-          </div>
-          <div class="project-info">
-            <span class="project-tag">VA Construction</span>
-            <h4>Built by Denny</h4>
-            <p>VA SAH Grant contractor specializing in wheelchair accessible home construction for disabled veterans.</p>
-            <span class="project-link">Visit site <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
-          </div>
-        </a>
-      </div>
-      <div class="project-card reveal">
-        <a href="https://contractorsparty.com" target="_blank" rel="noopener">
-          <div class="project-thumb">
-            <img src="https://api.microlink.io/?url=https://contractorsparty.com&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1280&viewport.height=800&overlay.browser=none" alt="Contractors Party website" loading="lazy">
-          </div>
-          <div class="project-info">
-            <span class="project-tag">Events</span>
-            <h4>Contractors Party</h4>
-            <p>Outdoor home show connecting homeowners with local contractors in North Alabama.</p>
-            <span class="project-link">Visit site <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
-          </div>
-        </a>
-      </div>
+    
+    <div class="featured-articles-grid reveal">
+      <a href="/articles/contractor-leads/" class="featured-article-card">
+        <span class="article-category">Strategy</span>
+        <h3>Contractor Leads: Buy Them, Build Them, or Both?</h3>
+        <p>Every contractor needs leads. But where should they come from — paid services, your own marketing, or referrals? Here's how to think about it without wasting money or time.</p>
+        <span class="read-link">
+          Read article
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </span>
+      </a>
+      
+      <a href="/articles/local-seo-for-contractors/" class="featured-article-card">
+        <span class="article-category">Technical</span>
+        <h3>Local SEO for Contractors: The Technical Playbook</h3>
+        <p>The step-by-step mechanics of how local search actually works — NAP consistency, Google Business Profile optimization, citations, schema markup, and the audit checklist.</p>
+        <span class="read-link">
+          Read article
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </span>
+      </a>
+      
+      <a href="/articles/google-business-profile-for-contractors/" class="featured-article-card">
+        <span class="article-category">Guide</span>
+        <h3>Google Business Profile for Contractors: The Complete Guide</h3>
+        <p>Google Business Profile is the most valuable free tool in marketing. Here's why most contractors screw it up — and how to fix it.</p>
+        <span class="read-link">
+          Read article
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </span>
+      </a>
+    </div>
+    
+    <div class="all-articles-link reveal">
+      <a href="/articles/" class="btn-secondary">
+        See all articles
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
     </div>
   </div>
 </section>

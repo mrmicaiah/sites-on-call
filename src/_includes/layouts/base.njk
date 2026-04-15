@@ -21,6 +21,83 @@
   
   {# Canonical URL #}
   <link rel="canonical" href="https://sitesoncall.com{{ page.url }}">
+  
+  {# LocalBusiness Schema - Only on homepage #}
+  {% if page.url == '/' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://sitesoncall.com/#organization",
+    "name": "Sites On Call",
+    "description": "Web design and SEO services for contractors in North Alabama. We help plumbers, HVAC technicians, roofers, and other service businesses stop paying for leads and start owning their online presence.",
+    "url": "https://sitesoncall.com",
+    "telephone": "+1-205-672-6673",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Huntsville",
+      "addressRegion": "AL",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 34.7304,
+      "longitude": -86.5861
+    },
+    "areaServed": [
+      { "@type": "City", "name": "Huntsville", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Madison", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Decatur", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Athens", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Hartselle", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Cullman", "containedInPlace": { "@type": "State", "name": "Alabama" } },
+      { "@type": "City", "name": "Florence", "containedInPlace": { "@type": "State", "name": "Alabama" } }
+    ],
+    "priceRange": "$$",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "17:00"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Web Design & SEO Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Contractor Website Design",
+            "description": "Professional websites for contractors that convert visitors into calls"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Monthly SEO Content",
+            "description": "Blog posts and content marketing to help contractors rank on Google"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Local SEO",
+            "description": "Google Business Profile optimization and local search visibility for North Alabama contractors"
+          }
+        }
+      ]
+    },
+    "founder": {
+      "@type": "Person",
+      "name": "Irene",
+      "jobTitle": "Owner"
+    }
+  }
+  </script>
+  {% endif %}
 </head>
 <body>
   <nav id="navbar">
@@ -29,7 +106,7 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="/#pricing">Pricing</a></li>
         <li><a href="/#how-it-works">How It Works</a></li>
-        <li><a href="/#projects">Work</a></li>
+        <li><a href="/the-build/">The Build</a></li>
         <li><a href="/articles/">Articles</a></li>
         <li><a href="/#about">About</a></li>
         <li><a href="/#faq">FAQ</a></li>
@@ -137,6 +214,7 @@
             <label for="cf-package">Which package interests you?</label>
             <select id="cf-package" name="package">
               <option value="">Not sure yet</option>
+              <option value="founding-client">🚀 Founding Client Program (50% off)</option>
               <option value="starter">Starter ($149/mo)</option>
               <option value="standard">Standard ($299/mo)</option>
               <option value="growth">Growth ($449/mo)</option>
@@ -172,6 +250,7 @@
       <ul class="footer-links">
         <li><a href="/#pricing">Pricing</a></li>
         <li><a href="/#how-it-works">How It Works</a></li>
+        <li><a href="/the-build/">The Build</a></li>
         <li><a href="/articles/">Articles</a></li>
         <li><a href="/#about">About</a></li>
         <li><a href="/#faq">FAQ</a></li>
