@@ -8,9 +8,6 @@ eleventyExcludeFromCollections: true
   {%- if page.url and page.url != "/sitemap.xml" %}
   <url>
     <loc>https://sitesoncall.com{{ page.url }}</loc>
-    {%- if page.date %}
-    <lastmod>{{ page.date | date: "%Y-%m-%d" }}</lastmod>
-    {%- endif %}
   </url>
   {%- endif %}
   {%- endfor %}
