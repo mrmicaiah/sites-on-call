@@ -15,6 +15,12 @@ module.exports = function(eleventyConfig) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   });
 
+  // ISO date filter for schema markup (e.g., "2026-05-21")
+  eleventyConfig.addFilter("htmlDateString", (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
+  });
+
   // Year filter for copyright
   eleventyConfig.addFilter("year", () => {
     return new Date().getFullYear();
