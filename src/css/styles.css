@@ -920,6 +920,148 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 
 /* ========================================
+   LOCATION PAGES
+   ======================================== */
+.location-hero {
+  padding: 9rem 2rem 3.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--paper) 100%);
+}
+.location-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 140%;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% 0%, var(--accent-light) 0%, transparent 60%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.location-hero .section-inner {
+  position: relative;
+  z-index: 1;
+}
+.location-hero .section-label {
+  margin-bottom: 1.25rem;
+}
+.location-hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  max-width: 780px;
+  margin: 0 auto 1.5rem;
+  animation: fadeUp 0.8s ease both;
+}
+.location-hero .location-intro {
+  font-size: 1.1rem;
+  color: var(--slate);
+  max-width: 640px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.8;
+  animation: fadeUp 0.8s ease 0.1s both;
+}
+.location-hero .hero-actions {
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+
+/* Location body — main long-form content area */
+.location-body {
+  background: var(--paper);
+  padding: 5rem 2rem;
+}
+.location-body .section-inner {
+  max-width: 1100px;
+}
+
+/* Typography container for the article-style content */
+.location-content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.location-content h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 3rem 0 1.25rem;
+}
+.location-content h2:first-child {
+  margin-top: 0;
+}
+.location-content h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 2.25rem 0 0.75rem;
+}
+.location-content p {
+  font-size: 1.05rem;
+  color: var(--slate);
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+}
+.location-content p strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.location-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.location-content a:hover {
+  color: var(--accent-dark);
+}
+
+/* Trades / pricing list inside flowing prose */
+.trades-list-block {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem 0;
+  border-left: 2px solid var(--border);
+}
+.trades-list-block li {
+  position: relative;
+  padding: 0.55rem 0 0.55rem 1.5rem;
+  font-size: 1rem;
+  color: var(--slate);
+  line-height: 1.7;
+}
+.trades-list-block li::before {
+  content: '→';
+  position: absolute;
+  left: 0.5rem;
+  top: 0.55rem;
+  color: var(--accent);
+  font-weight: 600;
+  line-height: 1.7;
+}
+.trades-list-block li strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.trades-list-block li + li {
+  border-top: 1px solid var(--border);
+}
+
+/* Bottom CTA block */
+.location-cta-block {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 @media(max-width:900px) {
@@ -935,6 +1077,10 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .founding-cta-box { position: static; }
   .featured-articles-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .location-content h2 { margin-top: 2.5rem; }
+  .location-cta-block { flex-direction: column; align-items: stretch; }
+  .location-cta-block .btn-primary,
+  .location-cta-block .btn-secondary { justify-content: center; }
 }
 @media(max-width:768px) {
   .founding-banner-content { flex-direction:column; text-align:center; gap:1rem; }
@@ -959,4 +1105,11 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .article-cta-icon { margin:0 auto; }
   .article-cta-content .btn-primary { width:100%; justify-content:center; }
   .metrics-grid { grid-template-columns: 1fr; }
+  .location-hero { padding: 7rem 1.5rem 2.5rem; }
+  .location-hero h1 { font-size: 2rem; }
+  .location-body { padding: 3rem 1.25rem; }
+  .location-content h2 { font-size: 1.5rem; margin-top: 2.25rem; }
+  .location-content h3 { font-size: 1.15rem; }
+  .location-content p { font-size: 1rem; }
+  .trades-list-block li { font-size: 0.95rem; }
 }
