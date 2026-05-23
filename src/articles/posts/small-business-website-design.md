@@ -131,7 +131,7 @@ A good service page includes:
 
 A plumber should have pages for: water heater installation, water heater repair, drain cleaning, sewer line repair, garbage disposal installation, faucet repair, toilet repair, pipe leak repair, and so on.
 
-Each page is another fishing line in the water.
+Each page is another fishing line in the water. (If you're specifically running a contractor business, I've broken down the [exact anatomy of a contractor website that converts](/articles/contractor-website-design/) — phone placement, trust stack, the whole thing.)
 
 ### 3. Location Pages (If You Serve Multiple Areas)
 
@@ -230,7 +230,7 @@ Nothing kills trust faster than a security warning. Most hosting companies inclu
 
 Your website and your Google Business Profile should work together. Same business name, same address, same phone number.
 
-Link your website to your Google profile. Embed a Google Map on your contact page. This helps Google connect the dots and improves your local rankings.
+Link your website to your Google profile. Embed a Google Map on your contact page. This helps Google connect the dots and improves your local rankings. There's a [full setup-and-optimization playbook for Google Business Profile](/articles/google-business-profile-for-contractors/) that covers the fields most businesses leave half-filled.
 
 ---
 
@@ -347,7 +347,7 @@ Once your website is established, your cost per lead should drop dramatically co
 Paid ads: $30-$100+ per lead depending on industry
 Organic (website): $5-$20 per lead once established
 
-The catch is "once established." It takes time. But once it's working, it keeps working—even when you're not actively paying.
+The catch is "once established." It takes time. But once it's working, it keeps working—even when you're not actively paying. Lead services like [Angi work the opposite way](/articles/angi-leads/) — the moment you stop the payment, the leads disappear with it.
 
 ---
 
