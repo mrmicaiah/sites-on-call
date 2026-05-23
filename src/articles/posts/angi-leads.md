@@ -225,7 +225,7 @@ I should tell you: I build websites for contractors. That's what I do. So obviou
 
 But here's the thing — I'm not the only one saying this. Talk to any successful contractor who's been in business more than 15 years. Ask them how their best customers find them. It's not Angi. It's reputation. It's referrals. It's showing up when people search online.
 
-What I do is help contractors get there faster. I build the website for free. No upfront cost. If you want ongoing content and growth, that's where I charge — $49 a month at the low end.
+What I do is help contractors get there faster. I build the website for free. No upfront cost. If you want ongoing content and growth, that's where I charge — $149 a month at the low end.
 
 Compare that to $952 a month for Angi leads that might not even be worth answering.
 
