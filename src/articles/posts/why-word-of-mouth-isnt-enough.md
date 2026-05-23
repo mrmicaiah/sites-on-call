@@ -436,9 +436,9 @@ Why free? Because the website isn't the product. **Ongoing content creation is.*
 
 Once you have the foundation, you can grow it yourself if you want. Or you can let us keep building content for you:
 
-- **Starter ($49/month):** 2 blog posts per month, occasional updates
-- **Standard ($199/month):** 8 blog posts per month, new service/location pages
-- **Enterprise ($699/month):** Full content machine, 20 blog posts per month, aggressive growth
+- **Starter ($149/month):** 2 blog posts per month, occasional updates
+- **Standard ($299/month):** 4 blog posts per month, new service/location pages
+- **Growth ($449/month):** 8 blog posts per month, aggressive growth
 
 No contracts. Cancel anytime. If the content isn't generating leads, you stop paying.
 
