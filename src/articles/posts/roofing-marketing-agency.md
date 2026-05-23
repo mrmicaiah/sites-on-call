@@ -317,7 +317,7 @@ And honestly? Most of the roofers I talk to don't need full-service marketing.
 
 What they need is a solid website that ranks for local searches. A Google Business Profile that's optimized and active. And maybe — maybe — some help with content so their pile of dirt keeps growing.
 
-That's not a $3,000/month engagement. That's $49-$199/month for most people.
+That's not a $3,000/month engagement. That's $149-$449/month for most people.
 
 If you're a roofing company doing $3M+ in revenue with multiple crews and real growth goals, maybe a full-service agency makes sense. But if you're doing $500K-$1.5M? You might be better off with a simpler setup and keeping more of that money.
 
