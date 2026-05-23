@@ -36,7 +36,7 @@ Let's get clear on the job.
 
 Your website has one purpose: **turn strangers into phone calls.**
 
-That's it. Not "build your brand." Not "establish your online presence." Not "look professional." Those are side effects. The job is phone calls.
+That's it. Not "build your brand." Not "establish your online presence." Not "look professional." Those are side effects. The job is phone calls — the kind you own, instead of [renting customers from lead services](/articles/angi-leads/) every month.
 
 A stranger searches "plumber near me." They find your site. They have a problem — a leaking pipe, a broken water heater, a clogged drain. They need someone to fix it. Today if possible.
 
@@ -367,7 +367,7 @@ Templates also tend to be:
 
 If you're just starting out and have zero budget, a template is better than nothing. But know what you're getting. And plan to upgrade when you can afford to.
 
-A custom site from a good developer costs $2,000-5,000. That's a real investment. But it's a real asset. Five years from now, it's still working for you. Five years from now, that Wix template still looks like everyone else's Wix template.
+A custom site from a good developer costs $2,000-5,000. That's a real investment. But it's a real asset. Five years from now, it's still working for you. Five years from now, that Wix template still looks like everyone else's Wix template. The contractors who [treat their site as an asset instead of a placeholder](/articles/why-some-contractors-stay-broke-while-others-build-empires/) are the ones still getting calls from it in year five.
 
 ---
 
