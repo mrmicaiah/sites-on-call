@@ -422,7 +422,7 @@ The question is: which one do you want?
 
 At Sites On Call, we build websites for small businesses—for free. No upfront cost.
 
-We do the initial build at no charge because we know most small businesses can't drop $5,000 on a website. Then, if you want us to keep adding content—the service pages, the blog posts, the stuff that actually makes Google pay attention—we have monthly plans starting at $49.
+We do the initial build at no charge because we know most small businesses can't drop $5,000 on a website. Then, if you want us to keep adding content—the service pages, the blog posts, the stuff that actually makes Google pay attention—we have monthly plans starting at $149.
 
 No contracts. No pressure. You can see what we build before you decide anything.
 
