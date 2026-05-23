@@ -102,7 +102,7 @@ Stop. Get a website first. You don't need an agency to do this. You need a websi
 
 A surprising number of agency pitches happen to contractors who don't even have a basic site. The agency says "we'll build your site, then run marketing on it." Sure they will — for $3,500 setup plus $2,000 a month. You can have a perfectly competent contractor site built for $750 to $1,500 by somebody who specializes in exactly that.
 
-(Yes, that's what we do. But the broader point stands regardless of who builds it. Pay for the website. Don't pay an agency $25K a year to be the website-having business that pays the agency $25K a year.)
+(Yes, that's what we do. But the broader point stands regardless of who builds it. Pay for the website. Don't pay an agency $25K a year to be the website-having business that pays the agency $25K a year. If you want to know what a contractor website actually needs to do its job, I went deep on that in [Contractor Website Design: What Your Site Needs to Generate Leads](/articles/contractor-website-design/).)
 
 ### Your Phone Already Rings Plenty
 
@@ -114,7 +114,7 @@ The exception: you want to *replace* low-margin work with higher-margin work. Th
 
 If you're spending $1,500 a month on lead services, you are already doing marketing. Badly, expensively, but you're doing it. Adding an agency on top of that is doubling down on the cost without addressing the underlying problem — you don't own any of the assets that generate the leads.
 
-The right move here is usually to redirect the Angi money into building owned assets (website, content, Google Business Profile) so that in six to twelve months you can stop renting customers from Angi. An agency can help with that. But often you can do it yourself or with a focused service provider for a fraction of the price.
+The right move here is usually to redirect the Angi money into building owned assets (website, content, Google Business Profile) so that in six to twelve months you can stop renting customers from Angi. An agency can help with that. But often you can do it yourself or with a focused service provider for a fraction of the price. I broke down the actual math on lead services in [Angi Leads: The Real Cost of Renting Your Customers](/articles/angi-leads/) — worth reading before you decide to add agency fees on top of lead-service fees.
 
 ### You Just Want To Feel Like You're Doing Something
 
@@ -170,13 +170,13 @@ The 80/20 of contractor marketing is straightforward:
 
 **Have a website.** It needs to load fast, work on phones, clearly say what you do, where you do it, and how to call you. That's it. You do not need a "conversion-optimized funnel."
 
-**Claim and complete your Google Business Profile.** Add every service you offer. Add photos every week. Respond to every review within 48 hours. This is free and it's the single highest-leverage marketing activity for a local service business.
+**Claim and complete your Google Business Profile.** Add every service you offer. Add photos every week. Respond to every review within 48 hours. This is free and it's the single highest-leverage marketing activity for a local service business. I wrote out the full setup-and-optimization playbook in [Google Business Profile for Contractors](/articles/google-business-profile-for-contractors/) — it's the one thing I'd do first if I were starting from scratch.
 
 **Ask every happy customer for a review.** Make it easy by texting them a direct link. Do it the day the job ends, not three weeks later when they've forgotten about you.
 
 **Publish content consistently.** Whether you write it yourself, dictate it into your phone while driving, or pay a freelancer $75 per article — you need new content showing up regularly. Google rewards activity. Two articles a month for a year will outperform 24 articles in one month every single time.
 
-**Show up on local platforms.** Nextdoor. Local Facebook groups. Chamber of Commerce. The community pages where homeowners in your area actually hang out and ask for recommendations.
+**Show up on local platforms.** Nextdoor. Local Facebook groups. Chamber of Commerce. The community pages where homeowners in your area actually hang out and ask for recommendations. Most of this falls under what I'd call [local SEO for contractors](/articles/local-seo-for-contractors/) — the unsexy basics that quietly determine who shows up when somebody searches "plumber near me."
 
 That list doesn't require a $2,000-per-month retainer. It requires showing up consistently for a year.
 
