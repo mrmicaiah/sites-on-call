@@ -275,7 +275,7 @@ Which one are you going to be?
 
 At Sites On Call, we build websites for contractors—for free. No upfront cost.
 
-We do the initial build at no charge because we know most contractors can't drop $5,000 on a website. Then, if you want us to keep adding content—the stuff that actually makes Google pay attention—we have monthly plans starting at $49.
+We do the initial build at no charge because we know most contractors can't drop $5,000 on a website. Then, if you want us to keep adding content—the stuff that actually makes Google pay attention—we have monthly plans starting at $149.
 
 No contracts. No pressure. You can see what we build before you decide anything.
 
