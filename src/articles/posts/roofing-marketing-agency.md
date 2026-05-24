@@ -135,14 +135,14 @@ Ask them: "What's different about marketing a roofing company versus a general c
 
 For a roofing company, national rankings don't matter. You don't care if someone in Phoenix finds your website. You care about homeowners in your service area.
 
-That means local SEO:
+That means [local SEO](/articles/local-seo-for-contractors/):
 - Google Business Profile optimization (and they should know that "Google Business Profile" replaced "Google My Business" — if they still call it GMB, they're behind)
 - Local service pages (not one "roofing services" page, but pages for each city you serve)
 - Review strategy (because reviews drive local rankings)
 - NAP consistency (Name, Address, Phone number exactly the same across every listing)
 - Local link building (getting mentioned on local news sites, chambers of commerce, community organizations)
 
-Ask them what their local SEO process looks like. If they can't walk you through it step by step, they're winging it.
+Ask them what their local SEO process looks like. If they can't walk you through it step by step, they're winging it. And if you want to know what proper Google Business Profile work actually involves — so you can tell when an agency is doing it vs. faking it — I wrote out [the full GBP optimization process for contractors](/articles/google-business-profile-for-contractors/).
 
 ### 3. They set up tracking properly from day one.
 
@@ -281,7 +281,7 @@ A good agency is essentially renting you expertise and accountability. They know
 
 A bad agency is renting you busy work and excuses. They'll do stuff — send reports, schedule posts, make changes — but none of it will move the needle because they don't actually know what they're doing.
 
-The difference is hard to spot before you've worked with them. That's why the vetting process matters so much.
+The difference is hard to spot before you've worked with them. That's why the vetting process matters so much. The same questions and red flags apply to every trade — I covered the general principles in my piece on [what to ask before hiring a contractor marketing agency](/articles/contractor-marketing-agency/) if you want a checklist that isn't roofing-specific.
 
 ## When to Walk Away (Even After You've Started)
 
@@ -335,7 +335,7 @@ If you're currently shopping for an agency — or suspicious of the one you have
 
 **4. Call one of their references.** Just one. Have a real conversation. Ask the uncomfortable questions.
 
-**5. Google your own company.** Search "[your company name]" and "[roofing + your city]." Do you show up? Does your website look good? What would a homeowner think if they landed on it?
+**5. Google your own company.** Search "[your company name]" and "[roofing + your city]." Do you show up? Does your website look good? What would a homeowner think if they landed on it? If you've never thought about [what Google actually shows people when they search your business](/articles/what-google-sees-when-someone-searches-your-business/), that's the first audit to run — and it's free.
 
 If the answers concern you, it's time to have a conversation — either with your current agency or with someone new.
 
