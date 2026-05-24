@@ -302,7 +302,7 @@ Let me give you the honest ranking of channels for plumbers, based on what I've 
 
 **Tier 4 — Generally avoid:**
 
-10. **Angi / HomeAdvisor / Networx** — High cost per acquired customer, no equity built, see my [Angi Leads breakdown](/articles/angi-leads/)
+10. **Angi / HomeAdvisor / Networx** — High cost per acquired customer, no equity built (see the lead service trap link above)
 11. **Yellow Pages / phone book** — Dead. Stop paying for this.
 12. **Billboards / TV / radio** — Wrong scale and intent for most plumbers
 13. **Spam-y SEO services** — Usually worse than doing nothing
