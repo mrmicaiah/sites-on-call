@@ -188,6 +188,8 @@ Notice what's not in this list: a full-service marketing agency. Not at any poin
 
 This isn't because agencies are bad. It's because the fundamentals matter more than the sophistication. A plumber with a great Google Business Profile, a solid website, 100 reviews, and a steady drip of content will outperform a plumber with mediocre fundamentals and a $3,000/month agency. Every single time.
 
+The fundamentals I'm describing here — the website, the GBP, the reviews, the content — are the same ones I broke down in detail in [my plumber marketing playbook](/articles/plumber-marketing/). Worth reading alongside this if you want the channel-by-channel walkthrough.
+
 ## The Trap of "But We Don't Have Time For That"
 
 I hear this constantly. "I don't have time to update my Google Business Profile every week. That's why I'm paying an agency."
@@ -226,7 +228,7 @@ For most plumbers in North Alabama, that means a real website (which I happen to
 
 That's it. That's the whole strategy for most of the plumbers I talk to. Total monthly cost: $0-$449. Not $2,500. Not $3,500.
 
-If you're at the scale where a full agency makes sense — Stage 3 or Stage 4 from earlier — great. Hire the right one. Vet them carefully. Watch the math obsessively.
+If you're at the scale where a full agency makes sense — Stage 3 or Stage 4 from earlier — great. Hire the right one. Vet them carefully. Watch the math obsessively. The same vetting questions apply across every trade — I went through them in detail in my piece on [what to ask before hiring a contractor marketing agency](/articles/contractor-marketing-agency/).
 
 But most of you aren't at that scale yet. Don't get sold a Stage 4 package when you're still figuring out Stage 1.
 
