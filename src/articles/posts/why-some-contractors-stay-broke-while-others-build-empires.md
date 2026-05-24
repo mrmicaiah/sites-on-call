@@ -33,7 +33,7 @@ The difference is how they think about where their customers come from.
 
 Let me tell you about two guys I talked to last month. Both plumbers. Both in the same metro area. Both been in business about ten years.
 
-The first guy—let's call him Pete—pays $2,200 a month for leads. HomeAdvisor, Angi, Thumbtack. He's been doing it for years.
+The first guy—let's call him Pete—pays $2,200 a month for leads. HomeAdvisor, [Angi](/articles/angi-leads/), Thumbtack. He's been doing it for years.
 
 I asked him how it's working.
 
@@ -87,7 +87,7 @@ I hear this all the time: "I had a website. It didn't do anything."
 
 And usually, they're right. Their website *didn't* do anything.
 
-Because they built it wrong.
+Because [they built it wrong](/articles/contractor-website-design/).
 
 Here's what most contractors do. They pay someone $500-$2,000 to build a website. It has their name, their phone number, a stock photo of a guy in a hard hat, and maybe a list of services.
 
@@ -245,7 +245,7 @@ Not stock photos. Your work. Before and after. In progress. The ugly stuff you f
 
 **5. Reviews and testimonials.**
 
-Get them on Google. Get them on your website. Make it easy for people to see that you do good work.
+[Get them on Google](/articles/google-business-profile-for-contractors/). Get them on your website. Make it easy for people to see that you do good work.
 
 **6. Consistency.**
 
