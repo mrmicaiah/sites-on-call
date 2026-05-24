@@ -211,7 +211,7 @@ Okay, let's get tactical.
 
 If a website is the answer, why do so many contractors have websites that don't generate any leads?
 
-Because they built the wrong kind of website.
+Because [they built the wrong kind of website](/articles/contractor-website-design/).
 
 Most contractor websites are what I call **digital business cards**. They have:
 - A homepage with a stock photo of a handshake
@@ -371,7 +371,7 @@ This is what actually moves the needle. Each piece of content is a new opportuni
 ### Step 3: Local Optimization
 
 Make sure Google knows you exist:
-- Google Business Profile (fully optimized, with posts and photos)
+- [Google Business Profile (fully optimized, with posts and photos)](/articles/local-seo-for-contractors/)
 - Consistent name, address, phone across all directories
 - Getting reviews (and responding to them)
 
