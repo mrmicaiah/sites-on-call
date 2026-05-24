@@ -15,4 +15,4 @@ npm run dev
 npm run build
 ```
 
-Last rebuild trigger: April 8, 2026
+Last rebuild trigger: May 24, 2026 (GA4 install)
