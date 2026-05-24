@@ -22,24 +22,15 @@ eleventyExcludeFromCollections: true
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  {%- set locationSlugs = ["huntsville", "decatur", "madison"] %}
+  {%- for slug in locationSlugs %}
   <url>
-    <loc>https://sitesoncall.com/locations/huntsville/</loc>
+    <loc>https://sitesoncall.com/locations/{{ slug }}/</loc>
     <lastmod>{{ page.date | htmlDateString }}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-  <url>
-    <loc>https://sitesoncall.com/locations/decatur/</loc>
-    <lastmod>{{ page.date | htmlDateString }}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://sitesoncall.com/locations/madison/</loc>
-    <lastmod>{{ page.date | htmlDateString }}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
+  {%- endfor %}
   {%- for article in articles %}
   <url>
     <loc>https://sitesoncall.com{{ article.url }}</loc>
