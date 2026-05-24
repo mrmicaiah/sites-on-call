@@ -56,7 +56,7 @@ NAP stands for Name, Address, Phone. It's the most boring part of local SEO. It'
 
 Here's how it works:
 
-Google cross-references your business information across the entire internet. Your website. Your Google Business Profile. Yelp. Facebook. BBB. YellowPages. Angi. Every directory that mentions you.
+Google cross-references [your business information across the entire internet](/articles/what-google-sees-when-someone-searches-your-business/). Your website. Your Google Business Profile. Yelp. Facebook. BBB. YellowPages. Angi. Every directory that mentions you.
 
 If your information matches everywhere, Google thinks: "This is a real, established business."
 
