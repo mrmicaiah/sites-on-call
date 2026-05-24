@@ -74,7 +74,7 @@ I've seen established contractors — guys doing $800K a year in revenue — who
 
 ## Why NAP Consistency Matters (And What That Even Means)
 
-NAP stands for Name, Address, Phone number. Boring, I know. But Google uses this information across dozens of websites to verify that your business is real and legitimate.
+NAP stands for Name, Address, Phone number. Boring, I know. But Google uses this information [across dozens of websites to verify that your business is real and legitimate](/articles/local-seo-for-contractors/).
 
 When your NAP is inconsistent — your Google listing says "123 Main Street" but Yelp says "123 Main St" and the BBB says "123 Main Street, Suite A" — Google gets confused.
 
@@ -106,7 +106,7 @@ The algorithm didn't change. He stopped asking for reviews after he hit 100.
 
 "I have a website" isn't a yes-or-no question. It's a spectrum.
 
-On one end: a professional, mobile-friendly site with dedicated pages for each service you offer, a clear way to contact you, and fresh content that gives Google a reason to keep indexing it.
+On one end: [a professional, mobile-friendly site](/articles/contractor-website-design/) with dedicated pages for each service you offer, a clear way to contact you, and fresh content that gives Google a reason to keep indexing it.
 
 On the other end: a single page you paid your nephew $200 to make in 2018, with a stock photo of someone else's work truck and a contact form that emails an address you no longer check.
 
@@ -150,7 +150,7 @@ Not theory. Not "best practices." The actual, specific reality of your online pr
 
 Here's what I look at:
 
-**Google Business Profile**: Is it claimed? Is the information accurate? Are you in the right categories? When was the last post? What do your reviews say — and when did the last one come in?
+**[Google Business Profile](/articles/google-business-profile-for-contractors/)**: Is it claimed? Is the information accurate? Are you in the right categories? When was the last post? What do your reviews say — and when did the last one come in?
 
 **Website Status**: Does it exist? Does it load? Does it work on mobile? Does it have real content or just a landing page? Is the contact information current?
 
