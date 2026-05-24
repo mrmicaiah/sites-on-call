@@ -74,7 +74,7 @@ There are two places you can show up:
 
 **The Local Pack** — That map with three businesses that shows up at the top of local searches. This is powered by your Google Business Profile. It's free to have, but you have to actually maintain it.
 
-**Organic Results** — The regular search results below the map. This is powered by your website. The more content you have, the more pages, the more relevance signals Google sees, the higher you rank.
+**Organic Results** — The regular search results below the map. This is powered by your website. The more content you have, the more pages, the more relevance signals Google sees, the higher you rank. The mechanics of how Google decides who shows up in local searches are worth understanding — I broke them down in detail in my [local SEO guide for contractors](/articles/local-seo-for-contractors/).
 
 Most electricians I talk to in North Alabama have a Google Business Profile that was set up in 2018 and hasn't been touched since. Wrong phone number. Photos from when they drove a different truck. No posts in two years. Zero response to reviews.
 
@@ -90,7 +90,7 @@ Here's what Google wants to see:
 
 **Questions answered.** There's a Q&A section on your profile. People ask questions. Answer them. If no one's asked anything, answer common questions yourself. "How long does a panel upgrade take?" "What areas do you serve?"
 
-I know an electrician in Limestone County who went from 2-3 calls a week from Google to 8-12 calls a week just by actually maintaining his profile. No advertising. No SEO magic. Just showing Google that he's active and relevant.
+I know an electrician in Limestone County who went from 2-3 calls a week from Google to 8-12 calls a week just by actually maintaining his profile. No advertising. No SEO magic. Just showing Google that he's active and relevant. If you want the full step-by-step on what to fix, I wrote a [complete guide to optimizing your Google Business Profile](/articles/google-business-profile-for-contractors/) that walks through every field.
 
 ### Channel #2: Your Website
 
@@ -121,7 +121,7 @@ Don't just list services. Explain what's involved. What does a panel upgrade inc
 
 **How to contact you.** Phone number on every page. Click-to-call on mobile. Contact form that actually works. Live chat if you want to get fancy — but only if someone's actually monitoring it.
 
-I've talked to electrical contractors who get 70% of their leads from their website. I've talked to others who get zero. The difference isn't magic. It's whether the website was built to generate leads or just built to exist.
+I've talked to electrical contractors who get 70% of their leads from their website. I've talked to others who get zero. The difference isn't magic. It's whether the website was built to generate leads or just built to exist. If you want a checklist of what a lead-generating contractor site actually needs, I covered it page by page in my [contractor website design guide](/articles/contractor-website-design/).
 
 ### Channel #3: Reputation (Reviews + Referrals)
 
@@ -163,7 +163,7 @@ Now let me save you some money by telling you what typically doesn't work for el
 
 **Billboards** — Same problem as TV. Brand awareness is great, but you're paying a lot to reach people who don't need you right now. Local service businesses almost never get ROI from billboards.
 
-**Lead services (Angi, Thumbtack, etc.)** — I've written about this elsewhere, but the short version: these services keep you on a treadmill. You pay for leads, some are garbage, you're competing with 3-4 other contractors for the same customer, and you never build any equity. Every dollar you spend is gone forever. It's renting customers instead of owning them.
+**Lead services (Angi, Thumbtack, etc.)** — I went deep on the [real cost of renting your customers from lead services](/articles/angi-leads/), but the short version: these services keep you on a treadmill. You pay for leads, some are garbage, you're competing with 3-4 other contractors for the same customer, and you never build any equity. Every dollar you spend is gone forever. It's renting customers instead of owning them.
 
 If you must use lead services, use them as training wheels while you build your own lead generation. Don't make them your whole strategy.
 
