@@ -35,6 +35,42 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ============================================
+// GA4 EVENT TRACKING
+// ============================================
+
+// Safe wrapper - won't throw if gtag isn't loaded yet
+function trackEvent(eventName, params = {}) {
+  if (typeof gtag === 'function') {
+    gtag('event', eventName, params);
+  }
+}
+
+// Track all SMS link clicks (tap-to-text on the phone number)
+document.querySelectorAll('a[href^="sms:"]').forEach(link => {
+  link.addEventListener('click', () => {
+    trackEvent('sms_click', {
+      phone_number: link.getAttribute('href').replace('sms:', ''),
+      link_text: link.textContent.trim().slice(0, 50),
+      link_location: link.closest('section')?.id || 'unknown'
+    });
+  });
+});
+
+// Track founding client button clicks
+document.querySelectorAll('.founding-banner-cta, .founding-cta-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    trackEvent('founding_client_click', {
+      button_location: btn.closest('section')?.id || 'banner'
+    });
+  });
+});
+
+// Track contact modal opens (any way it opens)
+const _originalOpenContactModal = window.openContactModal;
+// Will be wrapped after openContactModal is defined below — see end of file
+
+
+// ============================================
 // PRICING SYSTEM: Site Size + Monthly/Annual
 // ============================================
 
@@ -137,6 +173,9 @@ function selectSiteSize(size) {
     // Update annual cards with new pricing
     updateAnnualCards();
   }
+  
+  // Track site size selection
+  trackEvent('site_size_select', { size: size });
 }
 
 // Switch to monthly view
@@ -195,12 +234,19 @@ if (pricingToggle) {
       } else {
         switchToMonthly();
       }
+      trackEvent('pricing_plan_toggle', { plan: plan });
     });
   });
 }
 
-// Initialize: ensure first card is selected
-selectSiteSize('standard');
+// Initialize: ensure first card is selected (without firing event)
+(function initSiteSize() {
+  selectedSiteSize = 'standard';
+  buildCards.forEach(card => {
+    const isSelected = card.dataset.size === 'standard';
+    card.classList.toggle('selected', isSelected);
+  });
+})();
 
 
 // ============================================
@@ -250,6 +296,11 @@ function openContactModal(precheckSnapshot = false) {
     snapshotToggle.checkbox.checked = true;
     snapshotToggle.updateState();
   }
+  
+  // Track modal open
+  trackEvent('contact_modal_open', {
+    pre_check_snapshot: precheckSnapshot ? 'yes' : 'no'
+  });
   
   setTimeout(() => document.getElementById('cf-name').focus(), 200);
 }
@@ -383,7 +434,10 @@ if (dateInput) {
       form.querySelector('[name="phone"]').closest('.form-group').classList.add('has-error');
       hasError = true;
     }
-    if (hasError) return;
+    if (hasError) {
+      trackEvent('form_validation_error', { form_name: 'contact' });
+      return;
+    }
     
     btn.disabled = true;
     btn.textContent = 'Sending…';
@@ -440,12 +494,22 @@ if (dateInput) {
         const success = document.getElementById('formSuccess');
         success.style.display = 'block';
         success.classList.add('show');
+        
+        // GA4 conversion event — generate_lead is the standard GA4 lead event
+        trackEvent('generate_lead', {
+          form_name: 'contact',
+          package_interest: mapPackageInterest(formData.package),
+          wants_snapshot: formData.wants_snapshot ? 'yes' : 'no',
+          wants_call: formData.wants_call ? 'yes' : 'no'
+        });
       } else {
+        trackEvent('form_submit_error', { form_name: 'contact', error: data.error || 'unknown' });
         throw new Error(data.error || CONFIG.errorMessage);
       }
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
+      trackEvent('form_submit_error', { form_name: 'contact', error: err.message || 'network' });
       alert(err.message || CONFIG.errorMessage);
     }
   });
