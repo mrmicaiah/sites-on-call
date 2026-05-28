@@ -22,6 +22,9 @@ nav.scrolled { box-shadow:0 2px 20px var(--shadow); }
 .hero h1 em { font-style:italic; color:var(--accent); }
 .hero p { font-size:1.1rem; color:var(--slate); max-width:580px; margin:0 auto 2.5rem; line-height:1.8; animation:fadeUp 0.8s ease 0.1s both; }
 .hero-actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; animation:fadeUp 0.8s ease 0.2s both; }
+.hero-scorecard-link { display:inline-flex; align-items:center; gap:0.5rem; margin-top:1.5rem; color:var(--accent); font-weight:600; font-size:0.95rem; text-decoration:none; transition:gap 0.2s,color 0.2s; animation:fadeUp 0.8s ease 0.3s both; }
+.hero-scorecard-link:hover { gap:0.75rem; color:var(--accent-dark); }
+.hero-scorecard-link svg { stroke:var(--accent); }
 
 /* Scroll indicator */
 .scroll-indicator { display:flex; flex-direction:column; align-items:center; gap:0.5rem; text-decoration:none; color:var(--muted); font-size:0.8rem; font-weight:500; margin-top:3rem; animation:fadeUp 0.8s ease 0.4s both; transition:color 0.2s; }
@@ -214,7 +217,7 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 #formSuccess.show { animation:successPop 0.35s ease; }
 
 /* ========================================
-   FORM TOGGLE CARDS (Snapshot, Schedule)
+   FORM TOGGLE CARDS (Scorecard, Schedule)
    ======================================== */
 .form-toggle-offer { margin:0.75rem 0; }
 .form-toggle-offer .form-toggle {
@@ -866,7 +869,7 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 
 /* ========================================
-   ARTICLE CTA CARD (Snapshot Offer)
+   ARTICLE CTA CARD (Scorecard Offer)
    ======================================== */
 .article-cta {
   padding: 0 2rem 4rem;
