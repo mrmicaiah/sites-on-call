@@ -1,0 +1,20 @@
+# Eleventy will skip these files during the build.
+#
+# These four folder-style city index pages conflict with the newer flat
+# `<city>.njk` files in the same locations directory (both want to write to
+# /locations/<city>/). The flat files are the live, production city pages —
+# see the May 2026 entry in /the-build/ for context.
+#
+# The folder versions are older drafts (all marked `noindex: true`) that were
+# part of a deeper trade-hub architecture (e.g. /locations/athens/plumber/).
+# Their content is preserved here on disk in case it's worth pulling forward
+# later; they just aren't built or shipped.
+#
+# To resurrect one of them, remove its line below AND set permalink: false (or
+# delete) the corresponding flat file in src/locations/<city>.njk so the two
+# don't fight over the same URL again.
+
+src/locations/athens/index.njk
+src/locations/decatur/index.njk
+src/locations/huntsville/index.njk
+src/locations/madison/index.njk
