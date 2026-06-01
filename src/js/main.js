@@ -286,10 +286,72 @@ function setupFormToggle(toggleId, checkboxId, fieldsId) {
 const snapshotToggle = setupFormToggle('snapshotToggle', 'cf-snapshot');
 const scheduleToggle = setupFormToggle('scheduleToggle', 'cf-schedule', 'scheduleFields');
 
+// Capture original submit button HTML so we can restore it when a returning
+// submitter sends another request from the same modal session.
+const cfSubmitBtn = document.getElementById('cfSubmit');
+const originalSubmitBtnHTML = cfSubmitBtn ? cfSubmitBtn.innerHTML : '';
+
+// Reset the form for a follow-up request from the same person, keeping their
+// contact info (name/email/business/phone) so they don't have to retype it.
+function submitAnotherRequest() {
+  const form = document.getElementById('contactForm');
+  const formContent = document.getElementById('formContent');
+  const formSuccess = document.getElementById('formSuccess');
+  if (!form || !formContent || !formSuccess) return;
+  
+  // Clear request-specific fields only (preserve identity fields)
+  ['package', 'message', 'call_date', 'call_time'].forEach(name => {
+    const el = form.querySelector('[name="' + name + '"]');
+    if (el) el.value = '';
+  });
+  
+  // Reset the scorecard + schedule toggles
+  if (snapshotToggle) {
+    snapshotToggle.checkbox.checked = false;
+    snapshotToggle.updateState();
+  }
+  if (scheduleToggle) {
+    scheduleToggle.checkbox.checked = false;
+    scheduleToggle.updateState();
+  }
+  
+  // Clear any leftover validation error state
+  form.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+  
+  // Restore the submit button (it was left in the "Sending…" disabled state)
+  if (cfSubmitBtn) {
+    cfSubmitBtn.disabled = false;
+    cfSubmitBtn.innerHTML = originalSubmitBtnHTML;
+  }
+  
+  // Swap the success card back out for the form
+  formSuccess.style.display = 'none';
+  formSuccess.classList.remove('show');
+  formContent.style.display = 'block';
+  
+  // Drop the user on the package selector — first field they actually need to set
+  setTimeout(() => {
+    const pkg = document.getElementById('cf-package');
+    if (pkg) pkg.focus();
+  }, 100);
+  
+  trackEvent('submit_another_request', { form_name: 'contact' });
+}
+
+window.submitAnotherRequest = submitAnotherRequest;
+
 function openContactModal(precheckSnapshot = false) {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   navLinks.classList.remove('open');
+  
+  // If the previous submission's success card is still showing (because the
+  // user closed and reopened the modal), reset the form for another request
+  // while keeping their contact info intact.
+  const formSuccess = document.getElementById('formSuccess');
+  if (formSuccess && formSuccess.style.display === 'block') {
+    submitAnotherRequest();
+  }
   
   // Pre-check snapshot if requested (e.g., from article CTA)
   if (precheckSnapshot && snapshotToggle) {
@@ -302,7 +364,17 @@ function openContactModal(precheckSnapshot = false) {
     pre_check_snapshot: precheckSnapshot ? 'yes' : 'no'
   });
   
-  setTimeout(() => document.getElementById('cf-name').focus(), 200);
+  // If contact info is already filled in (returning submitter), skip past it
+  // to the package selector. Otherwise focus the name field as usual.
+  setTimeout(() => {
+    const nameField = document.getElementById('cf-name');
+    if (nameField && nameField.value.trim()) {
+      const pkg = document.getElementById('cf-package');
+      (pkg || nameField).focus();
+    } else if (nameField) {
+      nameField.focus();
+    }
+  }, 200);
 }
 
 function closeContactModal() {
@@ -490,6 +562,12 @@ if (dateInput) {
       });
       const data = await resp.json();
       if (resp.ok) {
+        // Personalize the success message with the submitter's first name
+        const successNameEl = document.getElementById('successName');
+        if (successNameEl) {
+          const firstName = name.split(/\s+/)[0];
+          successNameEl.textContent = firstName ? ', ' + firstName : '';
+        }
         document.getElementById('formContent').style.display = 'none';
         const success = document.getElementById('formSuccess');
         success.style.display = 'block';
