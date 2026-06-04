@@ -418,7 +418,7 @@ function wireCard(l, listLen){
   [...document.querySelectorAll('.cc-rbtn')].forEach(b=>{
     b.addEventListener('click', ()=>{
       const act = b.dataset.act;
-      if(act==="good"){ openSheet(l); return; }
+      if(act==="good"){ markDone(l, 'good'); openSheet(l); return; }
       markDone(l, act);
     });
   });
