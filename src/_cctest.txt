@@ -1,1 +1,1 @@
-test-content-12345
+This file intentionally left blank — superseded by uploaded coldcall.njk. Safe to delete.
