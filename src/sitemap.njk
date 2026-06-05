@@ -28,11 +28,7 @@ eleventyExcludeFromCollections: true
     <loc>https://sitesoncall.com{{ loc.url }}</loc>
     <lastmod>{{ page.date | htmlDateString }}</lastmod>
     <changefreq>monthly</changefreq>
-    {%- if (loc.url | split("/") | length) <= 4 %}
-    <priority>0.9</priority>
-    {%- else %}
     <priority>0.8</priority>
-    {%- endif %}
   </url>
   {%- endif %}
   {%- endfor %}
