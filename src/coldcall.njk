@@ -273,6 +273,7 @@ const CC_PRICE = 'Honestly nothing \u2014 the scorecard\u2019s free no matter wh
 
 // TOUCH 2 — next-day text
 const CC_TEXT_DAY2 = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call \u2014 left you a voicemail yesterday. We\u2019re a new North Alabama company just getting started this spring, and we\u2019re giving local contractors a free Online Presence Scorecard \u2014 basically what comes up when people search Google for your business, and who\u2019s showing up instead. No cost, no strings, just getting our name out there. Want one? Just reply with your email and Irene will send it over in a day or two.';
+const CC_TEXT_NOANS = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call \u2014 tried to reach you by phone but couldn\u2019t catch you. We\u2019re a new North Alabama company just getting started this spring, and we\u2019re giving local contractors a free Online Presence Scorecard \u2014 basically what comes up when people search Google for your business, and who\u2019s showing up instead. No cost, no strings, just getting our name out there. Want one? Just reply with your email and Irene will send it over in a day or two.';
 
 // TOUCH 3 — second call (skip a day after the text)
 const CC_SCRIPT_CALL2 = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call again \u2014 left you a message about that free Online Presence Scorecard. Didn\u2019t want it to slip through the cracks. Like I mentioned, we\u2019re a new company out of North Alabama just getting our name out, and we\u2019re putting these together free for local contractors \u2014 it shows exactly how you look online when folks search for a '+CC_TRADE+' around you. Want me to grab your email and get that going?';
@@ -306,6 +307,18 @@ function loadState(){
     if(!s.pending) s.pending={};
     // backfill records for leads marked done before history existed
     Object.keys(s.done).forEach(id=>{ if(!s.recs[id]){ s.recs[id]={id:Number(id)||id, result:s.done[id], notes:'', when:''}; } });
+    // ONE-TIME migration: pull old voicemail/no-answer dispositions into the follow-up queue.
+    if(!s.migratedFollowups){
+      const t=ccTodayKey();
+      Object.keys(s.done).forEach(id=>{
+        const r=s.done[id];
+        if((r==='vm' || r==='noanswer') && !s.pending[id]){
+          s.pending[id] = { id:Number(id)||id, nextAction:(r==='vm'?'text':'text-noans'), due:t };
+          delete s.done[id];   // it's no longer "done" — it's a pending follow-up now
+        }
+      });
+      s.migratedFollowups=true;
+    }
     return s;
   } }catch(e){}
   return { done:{}, recs:{}, pending:{}, filter:"All" };
@@ -320,7 +333,7 @@ function ccFmtDue(key){ try{ const d=new Date(key+'T12:00:00'); return d.toLocal
 function ccDueToday(){
   const today=ccTodayKey();
   return CC_LEADS.filter(l=> ccState.pending && ccState.pending[l.id] && ccState.pending[l.id].due<=today)
-                 .filter(l => ccState.filter==="All" || l.city===ccState.filter)
+                 .filter(l => ccState.filter==="All" || l.c===ccState.filter)
                  .sort((a,b)=> ccState.pending[a.id].due.localeCompare(ccState.pending[b.id].due));
 }
 
@@ -344,12 +357,12 @@ try{ if((localStorage.getItem('soc_cc_ok')==='1') || (sessionStorage.getItem('so
 /* ============ APP ============ */
 function activeLeads(){
   return CC_LEADS.filter(l => !(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending))
-                 .filter(l => ccState.filter==="All" || l.city===ccState.filter)
+                 .filter(l => ccState.filter==="All" || l.c===ccState.filter)
                  .filter(l => !ccQSearch || l.b.toLowerCase().includes(ccQSearch));
 }
 function cityCounts(){
   const m = {};
-  CC_LEADS.forEach(l=>{ if(!(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)) m[l.city]=(m[l.city]||0)+1; });
+  CC_LEADS.forEach(l=>{ if(!(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)) m[l.c]=(m[l.c]||0)+1; });
   return m;
 }
 function initApp(){
@@ -447,8 +460,8 @@ function renderDuePanel(){
   }
   const due = ccDueToday();
   if(due.length===0){ panel.innerHTML=''; return; }
-  const flag = { text:['cc-flag-text','📲 Send text'], finaltext:['cc-flag-final','📲 Send FINAL text'], callback:['cc-flag-cb','📞 Call back'] };
-  const why  = { text:'voicemail left — text today', finaltext:'first text sent — final text today', callback:'asked for a call back' };
+  const flag = { text:['cc-flag-text','📲 Send text'], 'text-noans':['cc-flag-text','📲 Send text'], finaltext:['cc-flag-final','📲 Send FINAL text'], callback:['cc-flag-cb','📞 Call back'] };
+  const why  = { text:'voicemail left — text today', 'text-noans':'no answer — text today', finaltext:'first text sent — final text today', callback:'asked for a call back' };
   let rows = '';
   due.forEach(l=>{
     const p = ccState.pending[l.id]; const f = flag[p.nextAction]||flag.text;
@@ -584,9 +597,10 @@ function ccReschedule(id, days){
 /* dispositions from the FRESH card: route vm/callback into pending */
 function dispositionFresh(l, act){
   if(act==='good'){ markDone(l,'good'); openSheet(l); return; }
-  if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }          // VM -> text +1
+  if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }            // VM -> text +1
+  if(act==='noanswer'){ ccSetPending(l,'text-noans',1,'noanswer'); return; } // no answer -> text +1
   if(act==='callback'){ ccSetPending(l,'callback',1,'callback'); return; } // call back +1
-  markDone(l, act);  // noanswer / notint / dnc -> done as before
+  markDone(l, act);  // notint / dnc -> done as before
 }
 /* escalate an exhausted lead to the sheet, flagged as snapshot (not deep-dive) */
 function ccEscalateSnapshot(l){
@@ -616,9 +630,10 @@ function openFollowUp(l){
   const ov = document.createElement('div');
   ov.className='cc-sheet-ov'; ov.id='ccFollowOv';
   let scriptLabel, scriptBody, actions;
-  if(p.nextAction==='text'){
+  if(p.nextAction==='text' || p.nextAction==='text-noans'){
+    const isNoAns = (p.nextAction==='text-noans');
     scriptLabel='💬 Touch 2 · next-day text (copy &amp; send from your phone)';
-    scriptBody=CC_TEXT_DAY2;
+    scriptBody= isNoAns ? CC_TEXT_NOANS : CC_TEXT_DAY2;
     actions='<button class="cc-rbtn cc-good-btn" data-fact="good">They replied — Good lead</button>'+
             '<button class="cc-rbtn cc-vm" data-fact="textsent">✓ Text sent</button>';
   } else if(p.nextAction==='finaltext'){
