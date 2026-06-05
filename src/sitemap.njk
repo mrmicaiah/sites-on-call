@@ -22,14 +22,19 @@ eleventyExcludeFromCollections: true
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  {%- set locationSlugs = ["huntsville", "decatur", "madison", "athens", "hartselle", "cullman", "florence", "muscle-shoals", "sheffield"] %}
-  {%- for slug in locationSlugs %}
+  {%- for loc in collections.locations %}
+  {%- if not loc.data.noindex %}
   <url>
-    <loc>https://sitesoncall.com/locations/{{ slug }}/</loc>
+    <loc>https://sitesoncall.com{{ loc.url }}</loc>
     <lastmod>{{ page.date | htmlDateString }}</lastmod>
     <changefreq>monthly</changefreq>
+    {%- if (loc.url | split("/") | length) <= 4 %}
     <priority>0.9</priority>
+    {%- else %}
+    <priority>0.8</priority>
+    {%- endif %}
   </url>
+  {%- endif %}
   {%- endfor %}
   {%- for article in articles %}
   <url>

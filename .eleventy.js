@@ -41,6 +41,14 @@ module.exports = function(eleventyConfig) {
       .sort((a, b) => b.date - a.date);
   });
 
+  // Locations collection - all city hubs, flat-file city pages, and trade pages.
+  // Globs the entire locations tree so new pages flow into the sitemap automatically.
+  // The sitemap filters out any page with noindex:true at render time.
+  eleventyConfig.addCollection("locations", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("src/locations/**/*.njk")
+      .sort((a, b) => (a.url || "").localeCompare(b.url || ""));
+  });
+
   return {
     dir: {
       input: "src",
