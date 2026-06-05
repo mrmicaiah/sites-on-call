@@ -129,6 +129,28 @@ eleventyExcludeFromCollections: true
     color:var(--cc-slate); border-radius:9px; cursor:pointer; }
   .cc-tab.cc-tab-on{ background:#fff; color:var(--cc-navy); box-shadow:0 1px 3px rgba(10,37,64,.12); }
 
+  /* ---- Follow-up engine: due panel ---- */
+  #ccQSearchWrap{ margin:0 0 12px; }
+  #ccDuePanel{ margin:0 0 16px; }
+  #ccDuePanel:empty{ display:none; }
+  .cc-duehead{ font-size:.9rem; font-weight:800; color:var(--cc-navy); margin:0 0 8px; }
+  .cc-duelist{ border:1px solid #eccfa0; border-radius:12px; overflow:hidden; background:#fff; }
+  .cc-duerow{ display:flex; align-items:center; gap:10px; padding:11px 13px; border-bottom:1px solid #f0e6d4; }
+  .cc-duerow:last-child{ border-bottom:0; }
+  .cc-dueflag{ font-size:.68rem; font-weight:800; padding:4px 9px; border-radius:7px; white-space:nowrap; }
+  .cc-flag-text{ background:#fbeeda; color:#b4690e; }
+  .cc-flag-final{ background:#fceaea; color:#a32d2d; }
+  .cc-flag-cb{ background:#e6f1fb; color:#185fa5; }
+  .cc-dueinfo{ flex:1; min-width:0; }
+  .cc-duebiz{ font-weight:700; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cc-duemeta{ font-size:.76rem; color:var(--cc-muted); }
+  .cc-dueopen{ font:inherit; font-size:.8rem; font-weight:600; border:1px solid var(--cc-line); background:#fff; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; }
+  .cc-dueopen:hover{ background:var(--cc-bg); }
+  .cc-sheet-x{ float:right; font-size:1.5rem; line-height:1; border:0; background:0; color:var(--cc-muted); cursor:pointer; padding:0; }
+  .cc-resched{ margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .cc-resched-lbl{ font-size:.78rem; color:var(--cc-muted); }
+  .cc-resched button{ font:inherit; font-size:.78rem; border:1px dashed var(--cc-line); background:#fff; border-radius:7px; padding:6px 10px; cursor:pointer; }
+  .cc-resched button:hover{ background:var(--cc-bg); }
   /* ---- History view ---- */
   .cc-search{ width:100%; padding:13px 15px; font-size:1rem; border:1.5px solid var(--cc-line);
     border-radius:12px; box-sizing:border-box; margin:14px 0 6px; outline:none; }
@@ -273,19 +295,34 @@ function pickVoicemail(l){
 let ccState = loadState();      // { done:{id:result}, recs:{id:{result,notes,when,...}}, filter:"All" }
 let ccCursor = 0;
 let ccCurrentSheet = null;
+let ccCurrentFollow = null;
 let ccView = "queue";           // "queue" | "history"
 let ccEditId = null;            // lead id being edited in history
+let ccQSearch = "";             // queue search term (lowercased)
 
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem(CC_STORE_KEY)); if(s && s.done){
     if(!s.recs) s.recs={};
+    if(!s.pending) s.pending={};
     // backfill records for leads marked done before history existed
     Object.keys(s.done).forEach(id=>{ if(!s.recs[id]){ s.recs[id]={id:Number(id)||id, result:s.done[id], notes:'', when:''}; } });
     return s;
   } }catch(e){}
-  return { done:{}, recs:{}, filter:"All" };
+  return { done:{}, recs:{}, pending:{}, filter:"All" };
 }
 function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccState)); }catch(e){} }
+
+/* ===== follow-up engine: date helpers (real calendar, no time travel) ===== */
+function ccTodayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ccAddDays(key, n){ const d=new Date(key+'T12:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ccFmtDue(key){ try{ const d=new Date(key+'T12:00:00'); return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return key; } }
+/* pending[id] = { id, nextAction:'text'|'finaltext'|'callback', due:'YYYY-MM-DD' } */
+function ccDueToday(){
+  const today=ccTodayKey();
+  return CC_LEADS.filter(l=> ccState.pending && ccState.pending[l.id] && ccState.pending[l.id].due<=today)
+                 .filter(l => ccState.filter==="All" || l.city===ccState.filter)
+                 .sort((a,b)=> ccState.pending[a.id].due.localeCompare(ccState.pending[b.id].due));
+}
 
 /* ============ GATE ============ */
 function ccUnlock(){
@@ -306,12 +343,13 @@ try{ if((localStorage.getItem('soc_cc_ok')==='1') || (sessionStorage.getItem('so
 
 /* ============ APP ============ */
 function activeLeads(){
-  return CC_LEADS.filter(l => !(l.id in ccState.done))
-                 .filter(l => ccState.filter==="All" || l.city===ccState.filter);
+  return CC_LEADS.filter(l => !(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending))
+                 .filter(l => ccState.filter==="All" || l.city===ccState.filter)
+                 .filter(l => !ccQSearch || l.b.toLowerCase().includes(ccQSearch));
 }
 function cityCounts(){
   const m = {};
-  CC_LEADS.forEach(l=>{ if(!(l.id in ccState.done)) m[l.city]=(m[l.city]||0)+1; });
+  CC_LEADS.forEach(l=>{ if(!(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)) m[l.city]=(m[l.city]||0)+1; });
   return m;
 }
 function initApp(){
@@ -352,17 +390,22 @@ function updateCounts(){
   const goodN = Object.values(ccState.done).filter(r=>r==="good").length;
   document.getElementById('ccDone').textContent = doneN;
   document.getElementById('ccGoodCount').textContent = goodN;
-  document.getElementById('ccLeft').textContent = activeLeads().length;
+  // "Left" shows TRUE fresh remaining, ignoring the queue search filter
+  const trueFresh = CC_LEADS.filter(l => !(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)).length;
+  document.getElementById('ccLeft').textContent = trueFresh;
 }
 function render(){
   updateCounts();
+  renderDuePanel();
+  renderQSearch();
   const list = activeLeads();
   const stage = document.getElementById('ccStage');
   const prog = document.getElementById('ccProgress');
   if(list.length===0){
-    stage.innerHTML = '<div class="cc-empty"><h2>All done here 🎉</h2><p>No leads left'+(ccState.filter!=="All"?(' in '+esc(ccState.filter)):'')+'.</p><button class="cc-reset" id="ccResetBtn">Reset all progress</button></div>';
+    const msg = ccQSearch ? ('No fresh leads match \u201c'+esc(ccQSearch)+'\u201d.') : ('No fresh leads left'+(ccState.filter!=="All"?(' in '+esc(ccState.filter)):'')+'.');
+    stage.innerHTML = '<div class="cc-empty"><h2>'+(ccQSearch?'No match':'All caught up 🎉')+'</h2><p>'+msg+'</p>'+(ccQSearch?'':'<button class="cc-reset" id="ccResetBtn">Reset all progress</button>')+'</div>';
     prog.textContent='';
-    document.getElementById('ccResetBtn').addEventListener('click', ccReset);
+    const rb=document.getElementById('ccResetBtn'); if(rb) rb.addEventListener('click', ccReset);
     return;
   }
   if(ccCursor >= list.length) ccCursor = 0;
@@ -371,6 +414,55 @@ function render(){
   stage.innerHTML = cardHtml(l);
   prog.textContent = 'Card '+(ccCursor+1)+' of '+list.length;
   wireCard(l, list.length);
+}
+/* ===== queue search box (mirrors History search styling) ===== */
+function renderQSearch(){
+  let box = document.getElementById('ccQSearchWrap');
+  const stage = document.getElementById('ccStage');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'ccQSearchWrap';
+    box.innerHTML = '<input class="cc-search" id="ccQSearchInput" type="text" placeholder="Search the queue by business name…">';
+    stage.parentNode.insertBefore(box, stage);
+    const inp = document.getElementById('ccQSearchInput');
+    inp.addEventListener('input', e=>{
+      ccQSearch = e.target.value.trim().toLowerCase();
+      const pos = e.target.selectionStart;
+      ccCursor = 0; render();
+      const ni = document.getElementById('ccQSearchInput');
+      if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(_){ } }
+    });
+  }
+  const inp = document.getElementById('ccQSearchInput');
+  if(inp && inp.value !== ccQSearch && document.activeElement!==inp){ inp.value = ccQSearch; }
+}
+/* ===== due-today follow-up panel ===== */
+function renderDuePanel(){
+  let panel = document.getElementById('ccDuePanel');
+  const stage = document.getElementById('ccStage');
+  if(!panel){
+    panel = document.createElement('div');
+    panel.id = 'ccDuePanel';
+    stage.parentNode.insertBefore(panel, stage);
+  }
+  const due = ccDueToday();
+  if(due.length===0){ panel.innerHTML=''; return; }
+  const flag = { text:['cc-flag-text','📲 Send text'], finaltext:['cc-flag-final','📲 Send FINAL text'], callback:['cc-flag-cb','📞 Call back'] };
+  const why  = { text:'voicemail left — text today', finaltext:'first text sent — final text today', callback:'asked for a call back' };
+  let rows = '';
+  due.forEach(l=>{
+    const p = ccState.pending[l.id]; const f = flag[p.nextAction]||flag.text;
+    rows += '<div class="cc-duerow" data-due-id="'+l.id+'">'+
+      '<span class="cc-dueflag '+f[0]+'">'+f[1]+'</span>'+
+      '<div class="cc-dueinfo"><div class="cc-duebiz">'+esc(l.b)+'</div>'+
+        '<div class="cc-duemeta">'+esc(l.c)+' · '+esc(l.t)+' · '+(why[p.nextAction]||'')+'</div></div>'+
+      '<button class="cc-dueopen" data-due-id="'+l.id+'">Open ›</button></div>';
+  });
+  panel.innerHTML = '<div class="cc-duehead">⏰ Due today — do these first ('+due.length+')</div>'+
+    '<div class="cc-duelist">'+rows+'</div>';
+  [...panel.querySelectorAll('.cc-dueopen')].forEach(b=>{
+    b.addEventListener('click', ()=>{ const l=CC_LEADS.find(x=>String(x.id)===String(b.dataset.dueId)); if(l) openFollowUp(l); });
+  });
 }
 function scriptBlock(l){
   const call = pickScript(l);     // HTML string (contains safe <span> placeholders)
@@ -446,11 +538,10 @@ function wireCard(l, listLen){
     body.classList.toggle('cc-collapsed');
     vmBtn.classList.toggle('cc-open', !body.classList.contains('cc-collapsed'));
   }); }
-  [...document.querySelectorAll('.cc-rbtn')].forEach(b=>{
+  [...document.querySelectorAll('#ccStage .cc-rbtn')].forEach(b=>{
     b.addEventListener('click', ()=>{
       const act = b.dataset.act;
-      if(act==="good"){ markDone(l, 'good'); openSheet(l); return; }
-      markDone(l, act);
+      dispositionFresh(l, act);
     });
   });
   const prev = document.getElementById('ccPrev');
@@ -472,10 +563,114 @@ function markDone(l, result, extra){
   buildFilters();   // city counts shift
   render();
 }
+/* ===== follow-up engine: route a disposition into pending or done ===== */
+function ccSetPending(l, nextAction, days, resultLabel){
+  if(!ccState.pending) ccState.pending={};
+  const today = ccTodayKey();
+  ccState.pending[l.id] = { id:l.id, nextAction:nextAction, due:ccAddDays(today,days) };
+  if(!ccState.recs) ccState.recs={};
+  const prev = ccState.recs[l.id]||{};
+  ccState.recs[l.id] = Object.assign({}, prev, { id:l.id, result:resultLabel,
+    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
+    notes: prev.notes||'' });
+  saveState(); buildFilters(); ccCursor=0; render();
+}
+function ccClearPending(id){ if(ccState.pending) delete ccState.pending[id]; }
+function ccReschedule(id, days){
+  if(!ccState.pending || !ccState.pending[id]) return;
+  ccState.pending[id].due = ccAddDays(ccTodayKey(), days);
+  saveState(); render();
+}
+/* dispositions from the FRESH card: route vm/callback into pending */
+function dispositionFresh(l, act){
+  if(act==='good'){ markDone(l,'good'); openSheet(l); return; }
+  if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }          // VM -> text +1
+  if(act==='callback'){ ccSetPending(l,'callback',1,'callback'); return; } // call back +1
+  markDone(l, act);  // noanswer / notint / dnc -> done as before
+}
+/* escalate an exhausted lead to the sheet, flagged as snapshot (not deep-dive) */
+function ccEscalateSnapshot(l){
+  ccClearPending(l.id);
+  ccState.done[l.id]='exhausted';
+  if(!ccState.recs) ccState.recs={};
+  const prev=ccState.recs[l.id]||{};
+  ccState.recs[l.id]=Object.assign({},prev,{ id:l.id, result:'exhausted',
+    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}), notes:prev.notes||'' });
+  saveState(); buildFilters(); render();
+  // fire to sheet with lead_type snapshot (reuses the same endpoint as good leads)
+  try{
+    if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
+      const payload = { date:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
+        business:l.b, phone:l.pd||'', trade:l.t, city:l.c,
+        hasWebsite:(l.hs?'Yes':'No'), problem:(l.pr||''),
+        lead_type:'snapshot', status:'Snapshot — phone sequence exhausted' };
+      fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
+    }
+  }catch(e){}
+}
+/* the follow-up action card (text / final text / call back) */
+function openFollowUp(l){
+  const p = ccState.pending && ccState.pending[l.id];
+  if(!p){ return; }
+  ccCurrentFollow = l;
+  const ov = document.createElement('div');
+  ov.className='cc-sheet-ov'; ov.id='ccFollowOv';
+  let scriptLabel, scriptBody, actions;
+  if(p.nextAction==='text'){
+    scriptLabel='💬 Touch 2 · next-day text (copy &amp; send from your phone)';
+    scriptBody=CC_TEXT_DAY2;
+    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">They replied — Good lead</button>'+
+            '<button class="cc-rbtn cc-vm" data-fact="textsent">✓ Text sent</button>';
+  } else if(p.nextAction==='finaltext'){
+    scriptLabel='💬 Touch 4 · final text';
+    scriptBody=CC_TEXT_FINAL;
+    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">They replied — Good lead</button>'+
+            '<button class="cc-rbtn cc-dnc" data-fact="finalsent" style="grid-column:1 / -1">✓ Final text sent → send to my list (snapshot)</button>';
+  } else { // callback
+    scriptLabel='📞 Touch 3 · call back';
+    scriptBody=pickScript(l);
+    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">✓ Good lead</button>'+
+            '<button class="cc-rbtn cc-vm" data-fact="vm">Left voicemail</button>'+
+            '<button class="cc-rbtn cc-cb" data-fact="callback">Call back again</button>'+
+            '<button class="cc-rbtn cc-ni" data-fact="notint">Not interested</button>'+
+            '<button class="cc-rbtn cc-dnc" data-fact="dnc" style="grid-column:1 / -1">Bad / Do not call</button>';
+  }
+  const callable = l.p && l.p.length===10;
+  ov.innerHTML = '<div class="cc-sheet"><button class="cc-sheet-x" id="ccFollowX">×</button>'+
+    '<h2 class="cc-biz" style="margin-top:4px">'+esc(l.b)+'</h2>'+
+    '<div class="cc-meta"><span class="cc-pill cc-city">'+esc(l.c)+'</span><span class="cc-pill">'+esc(l.t)+'</span>'+(l.r?'<span class="cc-pill cc-rate">★ '+esc(l.r)+'</span>':'')+'</div>'+
+    (callable?'<a class="cc-call" href="tel:'+l.p+'">'+esc(l.pd)+'</a>':'')+
+    '<div class="cc-script"><div class="cc-script-label">'+scriptLabel+'</div><div class="cc-script-body">'+scriptBody+'</div></div>'+
+    '<div class="cc-results">'+actions+'</div>'+
+    '<div class="cc-resched"><span class="cc-resched-lbl">Not today? Push it:</span>'+
+      '<button data-resched="1">+1 day</button><button data-resched="3">+3 days</button><button data-resched="7">+1 week</button></div>'+
+    '</div>';
+  document.body.appendChild(ov);
+  document.body.style.overflow='hidden';
+  document.getElementById('ccFollowX').addEventListener('click', closeFollow);
+  ov.addEventListener('click', e=>{ if(e.target.id==='ccFollowOv') closeFollow(); });
+  [...ov.querySelectorAll('[data-fact]')].forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const act=b.dataset.fact;
+      closeFollow();
+      if(act==='good'){ ccClearPending(l.id); markDone(l,'good'); openSheet(l); return; }
+      if(act==='textsent'){ ccSetPending(l,'finaltext',5,'text-sent'); return; }  // text -> final text +5
+      if(act==='finalsent'){ ccEscalateSnapshot(l); return; }
+      if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }
+      if(act==='callback'){ ccSetPending(l,'callback',1,'callback'); return; }
+      // notint / dnc from a callback -> done
+      ccClearPending(l.id); markDone(l, act);
+    });
+  });
+  [...ov.querySelectorAll('[data-resched]')].forEach(b=>{
+    b.addEventListener('click', ()=>{ const d=Number(b.dataset.resched)||1; closeFollow(); ccReschedule(l.id, d); });
+  });
+}
+function closeFollow(){ const ov=document.getElementById('ccFollowOv'); if(ov) ov.remove(); document.body.style.overflow=''; ccCurrentFollow=null; }
 function ccReset(){
   if(confirm("Reset ALL progress? This clears every result on this device.")){
-    ccState = { done:{}, recs:{}, filter:"All" };
-    saveState(); buildFilters(); ccCursor=0;
+    ccState = { done:{}, recs:{}, pending:{}, filter:"All" };
+    ccQSearch=""; saveState(); buildFilters(); ccCursor=0;
     if(ccView==='history'){ renderHistory(); } else { render(); }
   }
 }
@@ -755,3 +950,4 @@ function saveEdit(id){
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 {% endraw %}
+
