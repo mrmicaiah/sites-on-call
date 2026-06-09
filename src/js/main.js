@@ -261,9 +261,6 @@ const modal = document.getElementById('contactModal');
 // the checkbox 'change' event. We therefore do NOT manually flip the checkbox in JS
 // (doing so double-toggles and cancels out the native flip — the bug that made the
 // boxes appear dead). We only listen for 'change' and update the visual state.
-// NOTE: this fix also requires removing `pointer-events:none` from
-// `.form-toggle-offer input[type="checkbox"]` in styles.css, otherwise the native
-// label click cannot reach the checkbox in Safari.
 function setupFormToggle(toggleId, checkboxId, fieldsId) {
   const toggle = document.getElementById(toggleId);
   const checkbox = document.getElementById(checkboxId);
@@ -441,7 +438,9 @@ if (dateInput) {
   };
   
   const API_URL = 'https://email-bot-server.micaiah-tasks.workers.dev/api/subscribe';
-  const LEAD_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbxhOwJ6Yb9pWj4q-7ZUXEjAAO557TZWZzsJHhPz8sJG7L7-936te-RQhAD51XTwVALrkQ/exec';
+  // Cold Call Leads Apps Script (same sheet Gloria's call tool writes to).
+  // Web form rows are stamped Source = "Web Form"; cold-call rows default to "Cold Call".
+  const LEAD_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbySuUc1-9uz9X7XIU1a39Ydob8eaDq89XmDeUd-RakTh81idxFx0gfTfIR6fEiVplPd/exec';
   
   // Map package values to Lead Tracker format
   function mapPackageInterest(pkg) {
@@ -453,23 +452,48 @@ if (dateInput) {
     return 'Not Sure';
   }
   
-  // Send to Lead Tracker Google Sheet
+  // Build a human-readable Notes blob from the form-only fields that the
+  // Cold Call Leads sheet has no dedicated columns for (package interest,
+  // scorecard/call requests, scheduling, free-text message).
+  function buildSheetNotes(formData) {
+    const parts = [];
+    if (formData.package) parts.push('Package: ' + mapPackageInterest(formData.package));
+    parts.push('Wants scorecard: ' + (formData.wants_snapshot ? 'Yes' : 'No'));
+    if (formData.wants_call) {
+      let callLine = 'Wants call: Yes';
+      if (formData.call_date || formData.call_time) {
+        callLine += ' (' + [formData.call_date, formData.call_time].filter(Boolean).join(' ') + ')';
+      }
+      parts.push(callLine);
+    }
+    if (formData.message) parts.push('Message: ' + formData.message);
+    return parts.join(' | ');
+  }
+
+  // Send to the Cold Call Leads sheet (same sheet Gloria's call tool feeds).
+  // Field names MUST match what the Apps Script doPost reads:
+  // d.date, d.interest, d.business, d.contact, d.decisionMaker, d.phone,
+  // d.email, d.trade, d.city, d.hasWebsite, d.problem, d.followUp,
+  // d.notes, d.status, d.source.
   async function sendToLeadTracker(formData) {
     const payload = {
-      businessName: formData.business || '',
-      ownerName: formData.name || '',
+      date: new Date().toLocaleString('en-US'),
+      interest: '',                              // Gloria's call-temperature field; N/A for web
+      business: formData.business || '',         // Business column
+      contact: formData.name || '',              // Contact column (person's name)
+      decisionMaker: '',                         // Not collected on the web form
       phone: formData.phone || '',
       email: formData.email || '',
-      industry: '', // Not collected in form
-      city: '', // Not collected in form
-      preferredCallDate: formData.call_date || '',
-      preferredCallTime: formData.call_time || '',
-      packageInterest: mapPackageInterest(formData.package),
-      notes: formData.message || '',
-      wantsSnapshot: formData.wants_snapshot ? 'Yes' : 'No',
-      wantsCall: formData.wants_call ? 'Yes' : 'No'
+      trade: '',                                 // Not collected on the web form
+      city: '',                                  // Not collected on the web form
+      hasWebsite: '',                            // Not collected on the web form
+      problem: '',                               // Gloria's call-observation field; N/A for web
+      followUp: '',
+      notes: buildSheetNotes(formData),          // Package / scorecard / call / message packed here
+      status: 'New',
+      source: 'Web Form'                         // Stamps the Source column (R)
     };
-    
+
     try {
       await fetch(LEAD_TRACKER_URL, {
         method: 'POST',
@@ -479,7 +503,7 @@ if (dateInput) {
       });
     } catch (err) {
       console.error('Lead Tracker error:', err);
-      // Don't block form submission if Lead Tracker fails
+      // Don't block form submission if the sheet write fails
     }
   }
   
