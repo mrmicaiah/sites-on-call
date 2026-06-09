@@ -256,6 +256,14 @@ if (pricingToggle) {
 const modal = document.getElementById('contactModal');
 
 // Generic toggle handler
+// The form toggles are a <label> wrapping a visually-hidden <input type="checkbox">.
+// A label natively toggles its wrapped checkbox on ANY click inside it, which fires
+// the checkbox 'change' event. We therefore do NOT manually flip the checkbox in JS
+// (doing so double-toggles and cancels out the native flip — the bug that made the
+// boxes appear dead). We only listen for 'change' and update the visual state.
+// NOTE: this fix also requires removing `pointer-events:none` from
+// `.form-toggle-offer input[type="checkbox"]` in styles.css, otherwise the native
+// label click cannot reach the checkbox in Safari.
 function setupFormToggle(toggleId, checkboxId, fieldsId) {
   const toggle = document.getElementById(toggleId);
   const checkbox = document.getElementById(checkboxId);
@@ -271,13 +279,12 @@ function setupFormToggle(toggleId, checkboxId, fieldsId) {
     }
   }
   
-  toggle.addEventListener('click', (e) => {
-    if (e.target === checkbox) return;
-    checkbox.checked = !checkbox.checked;
-    updateState();
-  });
-  
+  // React to the real checkbox state (set by the native label click, keyboard,
+  // or programmatic change). No manual flipping — let the browser do it.
   checkbox.addEventListener('change', updateState);
+  
+  // Sync the visual state on load in case the box starts checked.
+  updateState();
   
   return { toggle, checkbox, fields, updateState };
 }
