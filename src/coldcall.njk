@@ -151,6 +151,8 @@ eleventyExcludeFromCollections: true
   .cc-tab{ flex:1; padding:10px; font-size:.92rem; font-weight:700; border:0; background:transparent;
     color:var(--cc-slate); border-radius:9px; cursor:pointer; }
   .cc-tab.cc-tab-on{ background:#fff; color:var(--cc-navy); box-shadow:0 1px 3px rgba(10,37,64,.12); }
+  .cc-tab.cc-tab-backup{ flex:0 0 auto; color:var(--cc-green-d); font-size:.85rem; }
+  .cc-tab.cc-tab-backup:hover{ background:#dcfce7; }
 
   /* ---- Follow-up engine: due panel ---- */
   #ccQSearchWrap{ margin:0 0 12px; }
@@ -244,6 +246,7 @@ eleventyExcludeFromCollections: true
     <div class="cc-tabs">
       <button class="cc-tab cc-tab-on" id="ccTabQueue">Queue</button>
       <button class="cc-tab" id="ccTabHistory">History</button>
+      <button class="cc-tab cc-tab-backup" id="ccTabBackup" title="Download a backup file of all your progress">⬇ Backup</button>
     </div>
     <div class="cc-filters" id="ccFilters"></div>
   </div>
@@ -409,6 +412,44 @@ function loadState(){
 }
 function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccState)); }catch(e){} }
 
+/* ===== BACKUP: download all progress as a JSON file =====
+   Exports ccState (done/recs/pending/filter) plus a readable per-lead
+   summary keyed by id. This file is the safety net AND the future
+   import/migration source — keep it. */
+function ccBackup(){
+  try{
+    saveState(); // make sure the latest is captured before we read it
+    const stamp = ccTodayKey();
+    // Build a readable index so the file isn't just opaque IDs.
+    const leadIndex = {};
+    CC_LEADS.forEach(l=>{ leadIndex[l.id] = { b:l.b, pd:l.pd, c:l.c, t:l.t }; });
+    const payload = {
+      _type: 'sites-on-call-coldcall-backup',
+      _version: 1,
+      _exported: new Date().toISOString(),
+      _storeKey: CC_STORE_KEY,
+      counts: {
+        done: Object.keys(ccState.done||{}).length,
+        pending: Object.keys(ccState.pending||{}).length,
+        good: Object.values(ccState.done||{}).filter(r=>r==='good').length
+      },
+      state: ccState,        // the actual progress — done / recs / pending / filter
+      leadIndex: leadIndex   // id -> {business, phone, city, trade} for human readability
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'coldcall-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+    ccToast('✓ Backup downloaded ('+payload.counts.done+' done, '+payload.counts.pending+' in follow-up)', 'ok');
+  }catch(e){
+    ccToast('Backup failed — try again', 'warn');
+  }
+}
+
 /* ===== follow-up engine: date helpers (real calendar, no time travel) ===== */
 function ccTodayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function ccAddDays(key, n){ const d=new Date(key+'T12:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -462,6 +503,7 @@ function initApp(){
   ccSetupMuteToggle();
   document.getElementById('ccTabQueue').addEventListener('click', ()=>switchView('queue'));
   document.getElementById('ccTabHistory').addEventListener('click', ()=>switchView('history'));
+  document.getElementById('ccTabBackup').addEventListener('click', ccBackup);
   buildFilters();
   ccCursor = 0;
   switchView('queue');
