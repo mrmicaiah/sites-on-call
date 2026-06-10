@@ -413,6 +413,18 @@ function loadState(){
 }
 function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccState)); }catch(e){} }
 
+/* ===== PHASE 2: mirror progress events to the Sheet (durability) =====
+   localStorage stays the source of truth; this is a fire-and-forget mirror so
+   a cleared browser can reload progress from the Sheet. Same no-cors pattern as
+   the outcome-log post — we can't confirm receipt, only that the request fired. */
+function ccFireEvent(ev){
+  try{
+    if(!CC_SHEET_URL || CC_SHEET_URL.indexOf('__SHEET')>=0) return;
+    const payload = Object.assign({ kind:'event', ts:new Date().toISOString(), caller:'' }, ev);
+    fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
+  }catch(e){}
+}
+
 /* ===== BACKUP: download all progress as a JSON file =====
    Exports ccState (done/recs/pending/filter) plus a readable per-lead
    summary keyed by id. This file is the safety net AND the future
@@ -472,6 +484,44 @@ function ccUnlock(){
   ccBootLeads();
 }
 
+/* ===== PHASE 2: reconcile local progress with the Sheet on boot =====
+   Durability payoff: if this browser was cleared (local empty) but the Sheet
+   has events, adopt the Sheet's progress so nothing is lost. If local already
+   has progress, keep local (it's the live source of truth during a shift) —
+   the Sheet is the mirror, not the master, for an active browser. Always
+   proceeds to `done()` even if the fetch fails, so a network hiccup never
+   blocks Gloria from working off her local copy. */
+function ccReconcileProgress(done){
+  const localDone = Object.keys((ccState&&ccState.done)||{}).length;
+  const localPend = Object.keys((ccState&&ccState.pending)||{}).length;
+  const localCount = localDone + localPend;
+  const url = CC_SHEET_URL + (CC_SHEET_URL.indexOf('?')<0?'?':'&') + 'progress=1&_=' + Date.now();
+  let settled = false;
+  const finish = ()=>{ if(settled) return; settled=true; done(); };
+  // safety timeout: never hang the app on a slow Apps Script call
+  const t = setTimeout(finish, 8000);
+  fetch(url, { method:'GET' })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data && data.ok && data.state){
+        const sheetDone = Object.keys(data.state.done||{}).length;
+        const sheetPend = Object.keys(data.state.pending||{}).length;
+        // Adopt the Sheet ONLY when local is empty/blank (e.g. cleared browser).
+        // An active browser with its own progress keeps local — we don't let a
+        // stale Sheet read clobber a live shift.
+        if(localCount === 0 && (sheetDone + sheetPend) > 0){
+          ccState.done = data.state.done || {};
+          ccState.recs = data.state.recs || {};
+          ccState.pending = data.state.pending || {};
+          saveState();
+          ccToast('✓ Restored '+sheetDone+' calls from the cloud', 'ok');
+        }
+      }
+    })
+    .catch(()=>{})
+    .finally(()=>{ clearTimeout(t); finish(); });
+}
+
 /* ===== Load the lead list live from the Leads tab (Google Apps Script doGet) =====
    The 461 leads are no longer baked into this file — they live in the Sheet so they
    can be edited without a code change. ccState (Gloria's progress) still loads from
@@ -489,7 +539,7 @@ function ccBootLeads(){
       // belt-and-suspenders: keep ids numeric and the list in id order
       CC_LEADS.forEach(l=>{ l.id = Number(l.id); });
       CC_LEADS.sort((a,b)=> a.id - b.id);
-      initApp();
+      ccReconcileProgress(initApp);  // pull Sheet progress, then start
     })
     .catch(err => {
       if(stage) stage.innerHTML = '<div class="cc-empty"><h2>Couldn\u2019t load leads</h2>'
@@ -742,6 +792,7 @@ function markDone(l, result, extra){
     notes: (extra && extra.notes!=null) ? extra.notes : (prev.notes||'')
   });
   saveState();
+  ccFireEvent({ leadId:l.id, eventKind:'done', result:result, notes:(ccState.recs[l.id]||{}).notes||'' });
   buildFilters();   // city counts shift
   render();
 }
@@ -755,13 +806,17 @@ function ccSetPending(l, nextAction, days, resultLabel){
   ccState.recs[l.id] = Object.assign({}, prev, { id:l.id, result:resultLabel,
     when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
     notes: prev.notes||'' });
-  saveState(); buildFilters(); ccCursor=0; render();
+  saveState();
+  ccFireEvent({ leadId:l.id, eventKind:'pending', nextAction:nextAction, due:ccState.pending[l.id].due, notes:(ccState.recs[l.id]||{}).notes||'' });
+  buildFilters(); ccCursor=0; render();
 }
 function ccClearPending(id){ if(ccState.pending) delete ccState.pending[id]; }
 function ccReschedule(id, days){
   if(!ccState.pending || !ccState.pending[id]) return;
   ccState.pending[id].due = ccAddDays(ccTodayKey(), days);
-  saveState(); render();
+  saveState();
+  ccFireEvent({ leadId:Number(id)||id, eventKind:'pending', nextAction:ccState.pending[id].nextAction, due:ccState.pending[id].due, notes:(ccState.recs && ccState.recs[id]||{}).notes||'' });
+  render();
 }
 /* dispositions from the FRESH card: route vm/callback into pending */
 function dispositionFresh(l, act){
@@ -780,6 +835,7 @@ function ccEscalateSnapshot(l){
   ccState.recs[l.id]=Object.assign({},prev,{ id:l.id, result:'exhausted',
     when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}), notes:prev.notes||'' });
   saveState(); buildFilters(); render();
+  ccFireEvent({ leadId:l.id, eventKind:'done', result:'exhausted', notes:(ccState.recs[l.id]||{}).notes||'' });
   // fire to sheet with lead_type snapshot (reuses the same endpoint as good leads)
   try{
     if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
@@ -860,6 +916,7 @@ function ccReset(){
   if(confirm("Reset ALL progress? This clears every result on this device.")){
     ccState = { done:{}, recs:{}, pending:{}, filter:"All" };
     ccQSearch=""; saveState(); buildFilters(); ccCursor=0;
+    ccFireEvent({ leadId:'', eventKind:'reset' });
     if(ccView==='history'){ renderHistory(); } else { render(); }
   }
 }
@@ -1122,7 +1179,9 @@ function reopenLead(id){
   if(confirm('Put "'+l.b+'" back in the call queue?')){
     delete ccState.done[id];
     if(ccState.recs) delete ccState.recs[id];
-    saveState(); buildFilters(); renderHistory();
+    saveState();
+    ccFireEvent({ leadId:Number(id)||id, eventKind:'undo' });
+    buildFilters(); renderHistory();
   }
 }
 function saveEdit(id){
@@ -1134,7 +1193,9 @@ function saveEdit(id){
   ccState.recs[id] = Object.assign({}, prev, { id:Number(id)||id, result:res, notes:notes,
     when: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}) });
   ccEditId = null;
-  saveState(); buildFilters(); renderHistory();
+  saveState();
+  ccFireEvent({ leadId:Number(id)||id, eventKind:'done', result:res, notes:notes });
+  buildFilters(); renderHistory();
 }
 
 /* ============ util ============ */
