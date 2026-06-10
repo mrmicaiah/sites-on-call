@@ -291,9 +291,9 @@ eleventyExcludeFromCollections: true
 
       <div class="panel" style="margin-top:20px;">
         <div class="section-title" style="margin-top:0;">Add leads</div>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 12px;">Add one lead, or bulk-import a CSV.</p>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 12px;">Add a lead to the pipeline.</p>
         <button onclick="openAddLead()" style="margin-bottom:16px;">＋ Add a single lead</button>
-        <div style="border-top:1px solid var(--line);padding-top:14px;">
+        <div class="mgr-only" style="border-top:1px solid var(--line);padding-top:14px;">
           <label>Bulk import — choose a CSV file, or paste rows below</label>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="margin-bottom:8px;" />
           <textarea id="csvText" placeholder="…or paste CSV here (first row = column headers)" style="min-height:90px;"></textarea>
@@ -375,6 +375,12 @@ function fmtDay(iso) {
   return d.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
 }
 
+function isManager() { return !!myProfile && ["admin","manager"].includes(myProfile.role); }
+function applyRoleVisibility() {
+  const mgr = isManager();
+  document.querySelectorAll(".mgr-only").forEach(el => el.classList.toggle("hidden", !mgr));
+}
+
 /* ---------- boot ---------- */
 function init() {
   if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.startsWith("PASTE_")) {
@@ -415,6 +421,7 @@ async function onSignedIn(user) {
   const { data: prof } = await sb.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
   myProfile = prof || { full_name: user.email, role: "caller" };
   $("whoami").textContent = (myProfile.full_name || user.email) + " · " + myProfile.role;
+  applyRoleVisibility();
   showView("leads");
   loadLeads();
 }
