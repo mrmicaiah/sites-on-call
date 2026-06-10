@@ -274,16 +274,16 @@ eleventyExcludeFromCollections: true
 
     <!-- DASHBOARD -->
     <section id="dashboardView" class="hidden">
-      <h2 style="margin-top:4px;">Dashboard</h2>
-      <div class="stat-grid" id="topStats" style="margin-bottom:20px;"></div>
-      <div class="panel" style="margin-bottom:20px;">
-        <div class="section-title" style="margin-top:0;">📞 Calls due today — time to call these back</div>
-        <div id="dueCalls"></div>
-      </div>
-      <div class="panel" style="margin-bottom:20px;">
+      <h2 style="margin-top:4px;">Today's work</h2>
+      <div class="panel mgr-only" style="margin-bottom:20px;">
         <div class="section-title" style="margin-top:0;">📸 Snapshot queue — needs a one-pager sent</div>
         <div id="snapQueue"></div>
       </div>
+      <div class="panel caller-only" style="margin-bottom:20px;">
+        <div class="section-title" style="margin-top:0;">📞 Calls due today — time to call these back</div>
+        <div id="dueCalls"></div>
+      </div>
+      <div class="stat-grid" id="topStats" style="margin-bottom:20px;"></div>
       <div class="panel">
         <div class="section-title" style="margin-top:0;">Pipeline by stage</div>
         <div class="stat-grid" id="stageStats"></div>
@@ -379,6 +379,7 @@ function isManager() { return !!myProfile && ["admin","manager"].includes(myProf
 function applyRoleVisibility() {
   const mgr = isManager();
   document.querySelectorAll(".mgr-only").forEach(el => el.classList.toggle("hidden", !mgr));
+  document.querySelectorAll(".caller-only").forEach(el => el.classList.toggle("hidden", mgr));
 }
 
 /* ---------- boot ---------- */
