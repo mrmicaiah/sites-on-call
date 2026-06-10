@@ -106,6 +106,28 @@ eleventyExcludeFromCollections: true
   .cc-field input:focus, .cc-field textarea:focus, .cc-field select:focus{ border-color:var(--cc-navy); }
   .cc-field input.cc-star{ border-color:var(--cc-green); background:#f0fdf4; }
   .cc-seg{ display:flex; gap:8px; }
+  /* ===== Add Contact tab + modal ===== */
+  .cc-tab.cc-tab-add{ flex:0 0 auto; color:var(--cc-navy); font-size:.85rem; }
+  .cc-tab.cc-tab-add:hover{ background:#e7eef7; }
+  .cc-addsheet .cc-sheet-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .cc-sheet-title{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); font-size:1.35rem; }
+  .cc-sheet-x{ background:transparent; border:0; font-size:1.1rem; color:var(--cc-slate); cursor:pointer; padding:6px; line-height:1; }
+  .cc-addnote{ color:var(--cc-slate); font-size:.88rem; margin:0 0 16px; }
+  .cc-addgrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cc-addfield{ display:flex; flex-direction:column; }
+  .cc-addfield.cc-addfull{ grid-column:1 / -1; }
+  .cc-addfield > span{ font-size:.78rem; font-weight:700; color:var(--cc-navy); margin-bottom:5px; }
+  .cc-addfield input, .cc-addfield textarea{ width:100%; padding:11px 12px; font-size:1rem;
+    border:1.5px solid var(--cc-line); border-radius:11px; box-sizing:border-box; font-family:inherit; outline:none; }
+  .cc-addfield input:focus, .cc-addfield textarea:focus{ border-color:var(--cc-navy); }
+  .cc-addtoggle{ display:flex; gap:8px; }
+  .cc-modebtn{ flex:1; padding:11px 6px; font-size:.9rem; font-weight:600; border:1.5px solid var(--cc-line);
+    background:#fff; color:var(--cc-slate); border-radius:11px; cursor:pointer; }
+  .cc-modebtn.cc-mode-on{ background:var(--cc-navy); color:#fff; border-color:var(--cc-navy); }
+  .cc-addactions{ display:flex; gap:10px; margin-top:18px; }
+  .cc-btn{ flex:1; padding:13px; font-size:1rem; font-weight:700; border-radius:12px; cursor:pointer; border:1.5px solid var(--cc-line); }
+  .cc-btn-ghost{ background:#fff; color:var(--cc-slate); }
+  .cc-btn-go{ background:var(--cc-green); color:#fff; border-color:var(--cc-green); }
   .cc-seg button{ flex:1; padding:12px 6px; font-size:.92rem; font-weight:600; border:1.5px solid var(--cc-line);
     background:#fff; color:var(--cc-slate); border-radius:11px; cursor:pointer; }
   .cc-seg button.cc-sel-hot{ background:var(--cc-hot); color:#fff; border-color:var(--cc-hot); }
@@ -247,6 +269,7 @@ eleventyExcludeFromCollections: true
       <button class="cc-tab cc-tab-on" id="ccTabQueue">Queue</button>
       <button class="cc-tab" id="ccTabHistory">History</button>
       <button class="cc-tab cc-tab-backup" id="ccTabBackup" title="Download a backup file of all your progress">⬇ Backup</button>
+      <button class="cc-tab cc-tab-add" id="ccTabAdd" title="Add a contact by hand">➕ Add</button>
     </div>
     <div class="cc-filters" id="ccFilters"></div>
   </div>
@@ -389,10 +412,20 @@ let ccView = "queue";           // "queue" | "history"
 let ccEditId = null;            // lead id being edited in history
 let ccQSearch = "";             // queue search term (lowercased)
 
+/* Manual contacts (Gloria's "Add Contact") get string ids prefixed "m" so they
+   can never collide with the Sheet's numeric 0..461 ids or with each other.
+   They live ONLY in localStorage (ccState.manual) + an outcome-log Sheet row;
+   they are deliberately NOT mirrored to the Progress event log, because that
+   log's replay coerces leadId to Number() and would mangle a string id into
+   NaN, poisoning every other browser's boot. Local-durable by design (A-now). */
+function ccIsManualId(id){ return typeof id==='string' && id.charAt(0)==='m'; }
+function ccNewManualId(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
 function loadState(){
   try{ const s = JSON.parse(localStorage.getItem(CC_STORE_KEY)); if(s && s.done){
     if(!s.recs) s.recs={};
     if(!s.pending) s.pending={};
+    if(!s.manual) s.manual={};
     // backfill records for leads marked done before history existed
     Object.keys(s.done).forEach(id=>{ if(!s.recs[id]){ s.recs[id]={id:Number(id)||id, result:s.done[id], notes:'', when:''}; } });
     // ONE-TIME migration: pull old voicemail/no-answer dispositions into the follow-up queue.
@@ -409,7 +442,7 @@ function loadState(){
     }
     return s;
   } }catch(e){}
-  return { done:{}, recs:{}, pending:{}, filter:"All" };
+  return { done:{}, recs:{}, pending:{}, manual:{}, filter:"All" };
 }
 function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccState)); }catch(e){} }
 
@@ -420,6 +453,10 @@ function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccS
 function ccFireEvent(ev){
   try{
     if(!CC_SHEET_URL || CC_SHEET_URL.indexOf('__SHEET')>=0) return;
+    // Manual contacts have string ids; the Progress log replays leadId via
+    // Number(), which would turn "m..." into NaN and corrupt every browser's
+    // boot. So we never mirror manual-id events. They're local-only by design.
+    if(ev && ccIsManualId(ev.leadId)) return;
     const payload = Object.assign({ kind:'event', ts:new Date().toISOString(), caller:'' }, ev);
     fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
   }catch(e){}
@@ -539,6 +576,7 @@ function ccBootLeads(){
       // belt-and-suspenders: keep ids numeric and the list in id order
       CC_LEADS.forEach(l=>{ l.id = Number(l.id); });
       CC_LEADS.sort((a,b)=> a.id - b.id);
+      ccRehydrateManual();           // merge Gloria's manually-added contacts back in
       ccReconcileProgress(initApp);  // pull Sheet progress, then start
     })
     .catch(err => {
@@ -548,6 +586,157 @@ function ccBootLeads(){
       const rb=document.getElementById('ccRetryBtn'); if(rb) rb.addEventListener('click', ccBootLeads);
     });
 }
+
+/* ===== MANUAL CONTACTS (Add Contact) =====
+   Merge any manually-added contacts (stored in ccState.manual) back into
+   CC_LEADS so the queue/follow-up logic — which iterates CC_LEADS and looks up
+   ccState.pending[l.id] — can see them. Must run AFTER the Number() coercion in
+   ccBootLeads, or these string ids get wiped to NaN. Idempotent: re-merging
+   the same id just refreshes the object. */
+function ccRehydrateManual(){
+  if(!ccState.manual) return;
+  Object.keys(ccState.manual).forEach(id=>{
+    const m = ccState.manual[id];
+    if(!m) return;
+    const existing = CC_LEADS.findIndex(l=>String(l.id)===String(id));
+    if(existing>=0) CC_LEADS[existing] = m; else CC_LEADS.push(m);
+  });
+}
+
+/* Build a lead object in the same shape the Sheet leads use:
+   {id,b,p,pd,c,r,t,w,hs,pr,tags}. Everything optional. */
+function ccMakeManualLead(f){
+  const digits = (f.phone||'').replace(/\D/g,'');
+  return {
+    id: ccNewManualId(),
+    b:  f.business||'',
+    p:  digits,                 // raw digits (search compares digits-only)
+    pd: f.phone||'',            // display phone (what scripts/cards show)
+    c:  f.city||'',
+    r:  '',                     // rating — unknown for manual adds
+    t:  f.trade||'',
+    w:  '',                     // website — unknown
+    hs: false,
+    pr: f.note||'',             // reuse the "problem" slot as the freeform note
+    tags: ['manual'],
+    _manual: true,
+    _email: f.email||'',        // kept for the Sheet row; cards don't use it
+    _contact: f.contact||''
+  };
+}
+
+function ccOpenAddContact(){
+  if(document.getElementById('ccAddOv')) return;
+  const today = ccTodayKey();
+  const ov = document.createElement('div');
+  ov.className='cc-sheet-ov'; ov.id='ccAddOv';
+  ov.innerHTML =
+    '<div class="cc-sheet cc-addsheet" role="dialog" aria-label="Add contact">'+
+      '<div class="cc-sheet-head"><div class="cc-sheet-title">➕ Add a contact</div>'+
+        '<button class="cc-sheet-x" id="ccAddX" aria-label="Close">✕</button></div>'+
+      '<p class="cc-addnote">Everything\u2019s optional \u2014 even just a name or a note is fine. '+
+        'It\u2019ll show up in your Queue on the callback date you pick.</p>'+
+      '<div class="cc-addgrid">'+
+        '<label class="cc-addfield"><span>Business</span><input id="ccAddBiz" type="text" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>Contact name</span><input id="ccAddContact" type="text" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>Phone</span><input id="ccAddPhone" type="tel" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>Email</span><input id="ccAddEmail" type="email" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>Trade</span><input id="ccAddTrade" type="text" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>City</span><input id="ccAddCity" type="text" autocomplete="off"></label>'+
+        '<label class="cc-addfield"><span>Callback date</span><input id="ccAddDate" type="date" value="'+today+'"></label>'+
+        '<div class="cc-addfield"><span>Reach out by</span>'+
+          '<div class="cc-addtoggle" id="ccAddMode">'+
+            '<button type="button" class="cc-modebtn cc-mode-on" data-mode="callback">📞 Call</button>'+
+            '<button type="button" class="cc-modebtn" data-mode="text">📲 Text</button>'+
+          '</div></div>'+
+        '<label class="cc-addfield cc-addfull"><span>Note</span><textarea id="ccAddNote" rows="2"></textarea></label>'+
+      '</div>'+
+      '<div class="cc-addactions">'+
+        '<button class="cc-btn cc-btn-ghost" id="ccAddCancel">Cancel</button>'+
+        '<button class="cc-btn cc-btn-go" id="ccAddSave">Add to Queue</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(ov);
+
+  let mode='callback';
+  const modeWrap=document.getElementById('ccAddMode');
+  [...modeWrap.querySelectorAll('.cc-modebtn')].forEach(b=>{
+    b.addEventListener('click', ()=>{
+      mode=b.dataset.mode;
+      [...modeWrap.querySelectorAll('.cc-modebtn')].forEach(x=>x.classList.toggle('cc-mode-on', x===b));
+    });
+  });
+  const close=()=>{ const o=document.getElementById('ccAddOv'); if(o) o.remove(); };
+  document.getElementById('ccAddX').addEventListener('click', close);
+  document.getElementById('ccAddCancel').addEventListener('click', close);
+  ov.addEventListener('click', e=>{ if(e.target.id==='ccAddOv') close(); });
+  document.getElementById('ccAddSave').addEventListener('click', ()=>{
+    ccSaveManualContact({
+      business:  document.getElementById('ccAddBiz').value.trim(),
+      contact:   document.getElementById('ccAddContact').value.trim(),
+      phone:     document.getElementById('ccAddPhone').value.trim(),
+      email:     document.getElementById('ccAddEmail').value.trim(),
+      trade:     document.getElementById('ccAddTrade').value.trim(),
+      city:      document.getElementById('ccAddCity').value.trim(),
+      note:      document.getElementById('ccAddNote').value.trim(),
+      due:       document.getElementById('ccAddDate').value || ccTodayKey(),
+      mode:      mode
+    });
+    close();
+  });
+  setTimeout(()=>{ const f=document.getElementById('ccAddBiz'); if(f) f.focus(); }, 30);
+}
+
+function ccSaveManualContact(f){
+  // a totally empty form is a no-op (don't litter the queue/sheet with blanks)
+  if(!f.business && !f.contact && !f.phone && !f.email && !f.note){
+    ccToast('Nothing to add \u2014 fill in at least one field', 'warn');
+    return;
+  }
+  const lead = ccMakeManualLead({
+    business:f.business, contact:f.contact, phone:f.phone,
+    email:f.email, trade:f.trade, city:f.city, note:f.note
+  });
+  if(!ccState.manual) ccState.manual={};
+  ccState.manual[lead.id] = lead;
+  CC_LEADS.push(lead);
+
+  // Wire into the EXISTING date-based pending model so it surfaces in the Queue
+  // on its callback date. nextAction 'callback' or 'text' reuses the live flags.
+  if(!ccState.pending) ccState.pending={};
+  const due = (f.due && /^\d{4}-\d{2}-\d{2}$/.test(f.due)) ? f.due : ccTodayKey();
+  ccState.pending[lead.id] = { id:lead.id, nextAction:(f.mode==='text'?'text':'callback'), due:due };
+
+  // a record so it appears in History too
+  if(!ccState.recs) ccState.recs={};
+  ccState.recs[lead.id] = { id:lead.id, result:(f.mode==='text'?'manual-text':'manual-callback'),
+    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
+    notes:(f.note||'') };
+  saveState();
+
+  // Write an immediately-visible row to the outcome-log tab (the row Irene asked
+  // for). This is the existing outcome doPost path — NOT an event — stamped
+  // source:'Manual Add'. Fire-and-forget (no-cors); we can't confirm receipt.
+  try{
+    if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
+      const payload = {
+        date: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
+        business: f.business||'', contact: f.contact||'', phone: f.phone||'',
+        email: f.email||'', trade: f.trade||'', city: f.city||'',
+        followUp: due, notes: f.note||'',
+        status: 'Manual add \u2014 '+(f.mode==='text'?'text':'call')+' due '+due,
+        source: 'Manual Add'
+      };
+      fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
+    }
+  }catch(e){}
+
+  buildFilters();
+  const label = f.business || f.contact || 'Contact';
+  ccToast('✓ Added \u201c'+label+'\u201d \u2014 due '+ccFmtDue(due), 'ok');
+  switchView('queue');
+}
+
 function ccTryPass(){
   const v = document.getElementById('ccPass').value.trim();
   if(v === CC_PASSWORD){ ccUnlock(); }
@@ -582,6 +771,7 @@ function initApp(){
   document.getElementById('ccTabQueue').addEventListener('click', ()=>switchView('queue'));
   document.getElementById('ccTabHistory').addEventListener('click', ()=>switchView('history'));
   document.getElementById('ccTabBackup').addEventListener('click', ccBackup);
+  document.getElementById('ccTabAdd').addEventListener('click', ccOpenAddContact);
   buildFilters();
   ccCursor = 0;
   switchView('queue');
