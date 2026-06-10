@@ -1,1395 +1,804 @@
 ---
-layout: layouts/base.njk
 title: Cold Call Tool — Sites On Call
 noindex: true
 eleventyExcludeFromCollections: true
 ---
 {% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sites On Call — Caller App</title>
 <style>
-  /* ===== Cold Call Tool — scoped styles ===== */
-  :root{
-    --cc-navy:#0a2540; --cc-navy2:#0f3050; --cc-ink:#0a2540;
-    --cc-paper:#f4f6f9; --cc-card:#ffffff; --cc-line:#e2e8f0;
-    --cc-slate:#475569; --cc-muted:#94a3b8;
-    --cc-green:#16a34a; --cc-green-d:#15803d;
-    --cc-red:#dc2626; --cc-amber:#d97706; --cc-blue:#2563eb;
-    --cc-hot:#dc2626; --cc-warm:#d97706; --cc-luke:#0891b2;
+  :root {
+    --bg: #0f1729;
+    --panel: #1b2438;
+    --panel2: #232e47;
+    --line: #32405f;
+    --text: #e8edf7;
+    --muted: #9aa7c2;
+    --accent: #4f8cff;
+    --accent2: #3a6fd6;
+    --green: #36c08a;
+    --red: #e2615f;
+    --amber: #e0a73a;
+    --radius: 12px;
   }
-  body{ background:var(--cc-paper); }
-  main{ }
-  .cc-wrap{ max-width:560px; margin:0 auto; padding:24px 16px 140px; font-family:'Outfit',system-ui,sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  a { color: var(--accent); }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    background: var(--accent);
+    color: white;
+    transition: filter .12s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.danger { background: var(--red); }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  input, select, textarea {
+    font: inherit;
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 11px;
+    width: 100%;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .field { margin-bottom: 12px; }
+  .hidden { display: none !important; }
 
-  /* ---- Password gate ---- */
-  .cc-gate{ position:fixed; inset:0; z-index:9999; background:var(--cc-navy);
-    display:flex; align-items:center; justify-content:center; padding:24px; }
-  .cc-gate-card{ background:#fff; border-radius:18px; padding:32px 26px; width:100%; max-width:360px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35); text-align:center; }
-  .cc-gate-card h1{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); font-size:1.5rem; margin:0 0 4px; }
-  .cc-gate-card p{ color:var(--cc-slate); font-size:.92rem; margin:0 0 20px; }
-  .cc-gate-card input{ width:100%; padding:14px 16px; font-size:1.05rem; border:2px solid var(--cc-line);
-    border-radius:12px; text-align:center; letter-spacing:.04em; outline:none; box-sizing:border-box; }
-  .cc-gate-card input:focus{ border-color:var(--cc-navy); }
-  .cc-gate-card button{ width:100%; margin-top:14px; padding:14px; font-size:1.05rem; font-weight:600;
-    background:var(--cc-navy); color:#fff; border:0; border-radius:12px; cursor:pointer; }
-  .cc-gate-err{ color:var(--cc-red); font-size:.86rem; min-height:1.1em; margin-top:10px; font-weight:500; }
-  .cc-hidden{ display:none !important; }
+  /* Top bar */
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 18px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 20;
+    flex-wrap: wrap;
+  }
+  header .brand { font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+  header .brand span { color: var(--accent); }
+  nav { display: flex; gap: 6px; }
+  nav button {
+    background: transparent; color: var(--muted);
+    padding: 7px 12px; border-radius: 8px;
+  }
+  nav button.active { background: var(--panel2); color: var(--text); }
+  header .spacer { flex: 1; }
+  header .who { font-size: 13px; color: var(--muted); }
 
-  /* ---- Header / counts ---- */
-  .cc-head{ position:relative; z-index:50; background:var(--cc-paper);
-    padding:16px 0 10px; border-bottom:1px solid var(--cc-line); margin-bottom:14px; }
-  .cc-title{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); font-size:1.35rem; margin:0 0 2px; }
-  .cc-counts{ display:flex; gap:14px; flex-wrap:wrap; font-size:.84rem; color:var(--cc-slate); font-weight:500; }
-  .cc-counts b{ color:var(--cc-navy); font-weight:700; }
-  .cc-counts .cc-good b{ color:var(--cc-green-d); }
+  main { max-width: 1080px; margin: 0 auto; padding: 18px; }
 
-  /* ---- Filter chips ---- */
-  .cc-filters{ display:flex; gap:8px; overflow-x:auto; padding:10px 0 4px; -webkit-overflow-scrolling:touch; }
-  .cc-filters::-webkit-scrollbar{ display:none; }
-  .cc-chip{ flex:0 0 auto; padding:8px 14px; border-radius:999px; border:1.5px solid var(--cc-line);
-    background:#fff; color:var(--cc-slate); font-size:.86rem; font-weight:600; cursor:pointer; white-space:nowrap; }
-  .cc-chip.cc-active{ background:var(--cc-navy); color:#fff; border-color:var(--cc-navy); }
+  /* Login */
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .login-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 30px; width: 100%; max-width: 380px;
+  }
+  .login-card h1 { margin: 0 0 4px; font-size: 22px; }
+  .login-card p.sub { margin: 0 0 22px; color: var(--muted); font-size: 14px; }
 
-  /* ---- Lead card ---- */
-  .cc-card{ background:var(--cc-card); border:1px solid var(--cc-line); border-radius:18px;
-    padding:20px; box-shadow:0 4px 18px rgba(10,37,64,.06); }
-  .cc-meta{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px; }
-  .cc-pill{ font-size:.74rem; font-weight:700; padding:3px 10px; border-radius:999px; background:#eef2f7; color:var(--cc-slate); }
-  .cc-pill.cc-city{ background:#e7eef7; color:var(--cc-navy); }
-  .cc-pill.cc-rate{ background:#fff7e6; color:var(--cc-amber); }
-  .cc-biz{ font-family:'DM Serif Display',Georgia,serif; font-size:1.5rem; color:var(--cc-navy); margin:6px 0 2px; line-height:1.15; }
-  .cc-prob{ color:var(--cc-slate); font-size:.95rem; line-height:1.5; margin:10px 0 4px;
-    background:#fff5f5; border-left:3px solid var(--cc-red); padding:10px 12px; border-radius:0 8px 8px 0; }
-  .cc-site{ font-size:.85rem; margin:10px 0 0; word-break:break-all; }
-  .cc-site a{ color:var(--cc-blue); }
-  .cc-nosite{ font-size:.85rem; color:var(--cc-red); font-weight:600; margin-top:10px; }
+  /* Cards / panels */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 14px; }
+  .toolbar .field { margin: 0; }
+  .toolbar .grow { flex: 1; min-width: 180px; }
 
-  /* ---- Call button ---- */
-  .cc-call{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
-    margin:18px 0 4px; padding:18px; font-size:1.25rem; font-weight:700; color:#fff;
-    background:var(--cc-green); border-radius:14px; text-decoration:none; box-shadow:0 6px 16px rgba(22,163,74,.3); }
-  .cc-call:active{ transform:translateY(1px); }
-  .cc-call.cc-disabled{ background:var(--cc-muted); box-shadow:none; pointer-events:none; }
-  .cc-call svg{ width:22px; height:22px; }
+  /* Lead list */
+  .lead-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 8px; background: var(--panel);
+    cursor: pointer;
+  }
+  .lead-row:hover { border-color: var(--accent); }
+  .lead-row .main { flex: 1; min-width: 0; }
+  .lead-row .name { font-weight: 600; }
+  .lead-row .meta { color: var(--muted); font-size: 13px; }
+  .lead-row .right { text-align: right; white-space: nowrap; }
+  .rating { color: var(--amber); font-weight: 600; }
 
-  /* ---- Result buttons ---- */
-  .cc-results{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
-  .cc-rbtn{ padding:15px 10px; font-size:.98rem; font-weight:600; border:0; border-radius:12px;
-    cursor:pointer; color:#fff; }
-  .cc-rbtn:active{ transform:translateY(1px); }
-  .cc-good-btn{ background:var(--cc-green); grid-column:1 / -1; font-size:1.05rem; }
-  .cc-vm{ background:#475569; } .cc-cb{ background:var(--cc-blue); }
-  .cc-na{ background:#64748b; } .cc-ni{ background:var(--cc-amber); }
-  .cc-dnc{ background:var(--cc-red); }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line);
+    color: var(--muted); background: var(--panel2);
+  }
+  .badge.web-none { color: #ffd0cf; border-color: #6b2e2d; background: #3a1e1e; }
+  .badge.web-has { color: #cdeede; border-color: #2c5e4a; background: #1c3b30; }
 
-  /* ---- progress / nav ---- */
-  .cc-progress{ text-align:center; color:var(--cc-muted); font-size:.84rem; margin:16px 0 0; }
-  .cc-skipbar{ display:flex; justify-content:space-between; margin-top:14px; }
-  .cc-skip{ background:none; border:0; color:var(--cc-slate); font-size:.9rem; font-weight:600; cursor:pointer; padding:6px 4px; }
-  .cc-skip:disabled{ color:var(--cc-line); cursor:default; }
+  .stage-pill { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
 
-  .cc-empty{ text-align:center; padding:60px 20px; color:var(--cc-slate); }
-  .cc-empty h2{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); }
-  .cc-reset{ margin-top:18px; background:var(--cc-navy); color:#fff; border:0; border-radius:10px; padding:10px 18px; font-weight:600; cursor:pointer; }
+  /* Detail */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin: 12px 0; }
+  .detail-grid .k { color: var(--muted); font-size: 12px; }
+  .detail-grid .v { font-size: 14px; word-break: break-word; }
+  .pitch {
+    background: #21304a; border-left: 3px solid var(--accent);
+    padding: 12px 14px; border-radius: 8px; margin: 14px 0; font-size: 14px;
+  }
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 22px 0 10px; }
+  .touch-item { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; background: var(--panel2); }
+  .touch-item .top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+  .touch-item .when { color: var(--muted); }
 
-  /* ---- Scorecard bottom sheet ---- */
-  .cc-sheet-ov{ position:fixed; inset:0; z-index:9998; background:rgba(10,37,64,.55);
-    display:flex; align-items:flex-end; justify-content:center; }
-  .cc-sheet{ background:#fff; width:100%; max-width:560px; border-radius:20px 20px 0 0;
-    max-height:92vh; overflow-y:auto; padding:22px 20px calc(22px + env(safe-area-inset-bottom)); }
-  .cc-sheet h2{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); font-size:1.4rem; margin:0 0 2px; }
-  .cc-sheet .cc-sub{ color:var(--cc-slate); font-size:.9rem; margin:0 0 16px; }
-  .cc-field{ margin-bottom:14px; }
-  .cc-field label{ display:block; font-size:.82rem; font-weight:700; color:var(--cc-navy); margin-bottom:6px; }
-  .cc-field .cc-hint{ font-weight:400; color:var(--cc-muted); }
-  .cc-field input, .cc-field textarea, .cc-field select{ width:100%; padding:13px 14px; font-size:1rem;
-    border:1.5px solid var(--cc-line); border-radius:11px; box-sizing:border-box; font-family:inherit; outline:none; }
-  .cc-field input:focus, .cc-field textarea:focus, .cc-field select:focus{ border-color:var(--cc-navy); }
-  .cc-field input.cc-star{ border-color:var(--cc-green); background:#f0fdf4; }
-  .cc-seg{ display:flex; gap:8px; }
-  /* ===== Add Contact tab + modal ===== */
-  .cc-tab.cc-tab-add{ flex:0 0 auto; color:var(--cc-navy); font-size:.85rem; }
-  .cc-tab.cc-tab-add:hover{ background:#e7eef7; }
-  .cc-addsheet .cc-sheet-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-  .cc-sheet-title{ font-family:'DM Serif Display',Georgia,serif; color:var(--cc-navy); font-size:1.35rem; }
-  .cc-sheet-x{ background:transparent; border:0; font-size:1.1rem; color:var(--cc-slate); cursor:pointer; padding:6px; line-height:1; }
-  .cc-addnote{ color:var(--cc-slate); font-size:.88rem; margin:0 0 16px; }
-  .cc-addgrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .cc-addfield{ display:flex; flex-direction:column; }
-  .cc-addfield.cc-addfull{ grid-column:1 / -1; }
-  .cc-addfield > span{ font-size:.78rem; font-weight:700; color:var(--cc-navy); margin-bottom:5px; }
-  .cc-addfield input, .cc-addfield textarea{ width:100%; padding:11px 12px; font-size:1rem;
-    border:1.5px solid var(--cc-line); border-radius:11px; box-sizing:border-box; font-family:inherit; outline:none; }
-  .cc-addfield input:focus, .cc-addfield textarea:focus{ border-color:var(--cc-navy); }
-  .cc-addtoggle{ display:flex; gap:8px; }
-  .cc-modebtn{ flex:1; padding:11px 6px; font-size:.9rem; font-weight:600; border:1.5px solid var(--cc-line);
-    background:#fff; color:var(--cc-slate); border-radius:11px; cursor:pointer; }
-  .cc-modebtn.cc-mode-on{ background:var(--cc-navy); color:#fff; border-color:var(--cc-navy); }
-  .cc-addactions{ display:flex; gap:10px; margin-top:18px; }
-  .cc-btn{ flex:1; padding:13px; font-size:1rem; font-weight:700; border-radius:12px; cursor:pointer; border:1.5px solid var(--cc-line); }
-  .cc-btn-ghost{ background:#fff; color:var(--cc-slate); }
-  .cc-btn-go{ background:var(--cc-green); color:#fff; border-color:var(--cc-green); }
-  .cc-seg button{ flex:1; padding:12px 6px; font-size:.92rem; font-weight:600; border:1.5px solid var(--cc-line);
-    background:#fff; color:var(--cc-slate); border-radius:11px; cursor:pointer; }
-  .cc-seg button.cc-sel-hot{ background:var(--cc-hot); color:#fff; border-color:var(--cc-hot); }
-  .cc-seg button.cc-sel-warm{ background:var(--cc-warm); color:#fff; border-color:var(--cc-warm); }
-  .cc-seg button.cc-sel-luke{ background:var(--cc-luke); color:#fff; border-color:var(--cc-luke); }
-  .cc-seg button.cc-sel-plain{ background:var(--cc-navy); color:#fff; border-color:var(--cc-navy); }
-  .cc-tags{ display:flex; flex-wrap:wrap; gap:8px; }
-  .cc-tag{ padding:9px 13px; font-size:.86rem; font-weight:600; border:1.5px solid var(--cc-line);
-    background:#fff; color:var(--cc-slate); border-radius:999px; cursor:pointer; }
-  .cc-tag.cc-on{ background:var(--cc-navy); color:#fff; border-color:var(--cc-navy); }
-  .cc-sheet-actions{ display:flex; gap:10px; margin-top:8px; position:sticky; bottom:0; background:#fff; padding:12px 0 0; }
-  .cc-cancel{ flex:0 0 auto; padding:15px 18px; background:#eef2f7; color:var(--cc-slate); border:0; border-radius:12px; font-weight:600; font-size:1rem; cursor:pointer; }
-  .cc-save{ flex:1; padding:15px; background:var(--cc-green); color:#fff; border:0; border-radius:12px; font-weight:700; font-size:1.05rem; cursor:pointer; }
-  .cc-save.cc-saving{ background:var(--cc-muted); }
-  .cc-savemsg{ font-size:.82rem; text-align:center; margin-top:8px; min-height:1em; }
-  .cc-savemsg.cc-ok{ color:var(--cc-green-d); } .cc-savemsg.cc-bad{ color:var(--cc-red); }
+  /* Dashboard */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat .num { font-size: 28px; font-weight: 700; }
+  .stat .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; margin-top: 4px; }
 
-  /* ===== action feedback: toast + button flash + mute toggle ===== */
-  .cc-toast-wrap{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
-    z-index:10000; display:flex; flex-direction:column; gap:8px; align-items:center;
-    pointer-events:none; width:max-content; max-width:92vw; }
-  .cc-toast{ display:flex; align-items:center; gap:10px; padding:13px 20px;
-    background:var(--cc-green); color:#fff; border-radius:12px; font-size:1rem; font-weight:600;
-    box-shadow:0 8px 28px rgba(10,37,64,.28); opacity:0; transform:translateY(14px) scale(.96);
-    transition:opacity .22s ease, transform .22s ease; max-width:100%; }
-  .cc-toast.cc-show{ opacity:1; transform:translateY(0) scale(1); }
-  .cc-toast.cc-t-info{ background:var(--cc-blue); }
-  .cc-toast.cc-t-warn{ background:var(--cc-amber); }
-  .cc-toast-ic{ font-size:1.15rem; line-height:1; }
-  /* green confirmation flash on any action button */
-  .cc-rbtn.cc-flash, .cc-save.cc-flash{ background:var(--cc-green)!important; color:#fff!important;
-    border-color:var(--cc-green)!important; transition:background .15s ease; }
-  /* mute toggle (top-right, near the tabs) */
-  .cc-mute{ position:fixed; top:12px; right:12px; z-index:60; width:40px; height:40px;
-    border:1px solid var(--cc-line); background:var(--cc-card); border-radius:10px; cursor:pointer;
-    font-size:1.1rem; line-height:1; display:flex; align-items:center; justify-content:center;
-    box-shadow:0 2px 8px rgba(10,37,64,.08); padding:0; }
-  .cc-mute:hover{ border-color:var(--cc-muted); }
-  .cc-mute.cc-muted{ opacity:.55; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > * { flex: 1; }
 
-  /* ---- Tab bar ---- */
-  .cc-tabs{ display:flex; gap:6px; margin:10px 0 0; background:#e7eef7; padding:4px; border-radius:12px; }
-  .cc-tab{ flex:1; padding:10px; font-size:.92rem; font-weight:700; border:0; background:transparent;
-    color:var(--cc-slate); border-radius:9px; cursor:pointer; }
-  .cc-tab.cc-tab-on{ background:#fff; color:var(--cc-navy); box-shadow:0 1px 3px rgba(10,37,64,.12); }
-  .cc-tab.cc-tab-backup{ flex:0 0 auto; color:var(--cc-green-d); font-size:.85rem; }
-  .cc-tab.cc-tab-backup:hover{ background:#dcfce7; }
+  .empty { color: var(--muted); text-align: center; padding: 30px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+    padding: 11px 18px; border-radius: 10px; z-index: 50; box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    max-width: 90vw;
+  }
+  .toast.err { border-color: var(--red); }
+  .toast.ok { border-color: var(--green); }
 
-  /* ---- Follow-up engine: due panel ---- */
-  #ccQSearchWrap{ margin:0 0 12px; }
-  #ccDuePanel{ margin:0 0 16px; }
-  #ccDuePanel:empty{ display:none; }
-  .cc-duehead{ font-size:.9rem; font-weight:800; color:var(--cc-navy); margin:0 0 8px; }
-  .cc-duelist{ border:1px solid #eccfa0; border-radius:12px; overflow:hidden; background:#fff; }
-  .cc-duerow{ display:flex; align-items:center; gap:10px; padding:11px 13px; border-bottom:1px solid #f0e6d4; }
-  .cc-duerow:last-child{ border-bottom:0; }
-  .cc-dueflag{ font-size:.68rem; font-weight:800; padding:4px 9px; border-radius:7px; white-space:nowrap; }
-  .cc-flag-text{ background:#fbeeda; color:#b4690e; }
-  .cc-flag-final{ background:#fceaea; color:#a32d2d; }
-  .cc-flag-cb{ background:#e6f1fb; color:#185fa5; }
-  .cc-dueinfo{ flex:1; min-width:0; }
-  .cc-duebiz{ font-weight:700; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .cc-duemeta{ font-size:.76rem; color:var(--cc-muted); }
-  .cc-dueopen{ font:inherit; font-size:.8rem; font-weight:600; border:1px solid var(--cc-line); background:#fff; border-radius:8px; padding:7px 12px; cursor:pointer; white-space:nowrap; }
-  .cc-dueopen:hover{ background:var(--cc-bg); }
-  .cc-sheet-x{ float:right; font-size:1.5rem; line-height:1; border:0; background:0; color:var(--cc-muted); cursor:pointer; padding:0; }
-  .cc-resched{ margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .cc-resched-lbl{ font-size:.78rem; color:var(--cc-muted); }
-  .cc-resched button{ font:inherit; font-size:.78rem; border:1px dashed var(--cc-line); background:#fff; border-radius:7px; padding:6px 10px; cursor:pointer; }
-  .cc-resched button:hover{ background:var(--cc-bg); }
-  /* ---- History view ---- */
-  .cc-search{ width:100%; padding:13px 15px; font-size:1rem; border:1.5px solid var(--cc-line);
-    border-radius:12px; box-sizing:border-box; margin:14px 0 6px; outline:none; }
-  .cc-search:focus{ border-color:var(--cc-navy); }
-  .cc-hsection{ font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-    color:var(--cc-muted); margin:18px 0 8px; }
-  .cc-hrow{ background:#fff; border:1px solid var(--cc-line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
-  .cc-hrow.cc-cb-row{ border-left:4px solid var(--cc-blue); }
-  .cc-hrow-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-  .cc-hbiz{ font-weight:700; color:var(--cc-navy); font-size:1.05rem; line-height:1.2; }
-  .cc-hmeta{ font-size:.8rem; color:var(--cc-muted); margin-top:2px; }
-  .cc-badge{ flex:0 0 auto; font-size:.72rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
-  .cc-b-good{ background:#dcfce7; color:var(--cc-green-d); } .cc-b-callback{ background:#dbeafe; color:#1d4ed8; }
-  .cc-b-vm{ background:#e2e8f0; color:#475569; } .cc-b-noanswer{ background:#f1f5f9; color:#64748b; }
-  .cc-b-notint{ background:#fef3c7; color:#b45309; } .cc-b-dnc{ background:#fee2e2; color:#b91c1c; }
-  .cc-hnotes{ font-size:.86rem; color:var(--cc-slate); margin-top:8px; line-height:1.45;
-    background:#f8fafc; border-radius:8px; padding:8px 10px; }
-  .cc-hactions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  .cc-ha{ flex:1; min-width:90px; padding:11px 8px; font-size:.88rem; font-weight:600; border:0;
-    border-radius:10px; cursor:pointer; text-decoration:none; text-align:center; }
-  .cc-ha-call{ background:var(--cc-green); color:#fff; } .cc-ha-call.cc-disabled{ background:var(--cc-muted); pointer-events:none; }
-  .cc-ha-edit{ background:#eef2f7; color:var(--cc-navy); } .cc-ha-reopen{ background:var(--cc-navy); color:#fff; }
-  .cc-hempty{ text-align:center; color:var(--cc-muted); padding:40px 20px; font-size:.95rem; }
-  .cc-resetwrap{ text-align:center; margin-top:28px; padding-top:18px; border-top:1px solid var(--cc-line); }
-  .cc-resetwrap button{ background:none; border:0; color:var(--cc-red); font-size:.85rem; font-weight:600; cursor:pointer; text-decoration:underline; }
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center; z-index: 40; padding: 18px;
+  }
+  .modal {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow: auto;
+  }
+  .modal h3 { margin: 0 0 14px; }
+  .btn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .btn-grid button { background: var(--panel2); border: 1px solid var(--line); color: var(--text); }
+  .btn-grid button.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  /* ---- Call scripts on card ---- */
-  .cc-script{ margin:14px 0 4px; }
-  .cc-script-label{ font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-    color:var(--cc-navy); margin:0 0 6px; display:flex; align-items:center; gap:6px; }
-  .cc-script-body{ background:#eef5ff; border-left:3px solid var(--cc-blue); border-radius:0 10px 10px 0;
-    padding:12px 14px; font-size:.97rem; line-height:1.55; color:#1e293b; }
-  .cc-script-body .ph{ background:#dbeafe; color:#1d4ed8; font-weight:700; padding:0 4px; border-radius:4px; }
-  .cc-vmtoggle{ margin-top:10px; width:100%; text-align:left; background:#f1f5f9; border:0; cursor:pointer;
-    padding:11px 14px; border-radius:10px; font-size:.9rem; font-weight:700; color:var(--cc-navy);
-    display:flex; justify-content:space-between; align-items:center; }
-  .cc-vmtoggle .cc-caret{ transition:transform .15s; }
-  .cc-vmtoggle.cc-open .cc-caret{ transform:rotate(180deg); }
-  .cc-vmbody{ margin-top:8px; }
-  .cc-vmbody.cc-collapsed{ display:none; }
-  .cc-mini{ margin-top:10px; }
-  .cc-mini-label{ font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
-    color:var(--cc-slate); margin:0 0 4px; }
-  .cc-mini-body{ background:#f8fafc; border:1px solid var(--cc-line); border-radius:9px;
-    padding:9px 12px; font-size:.9rem; line-height:1.5; color:var(--cc-slate); margin-bottom:6px; }
+  @media (max-width: 620px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    header { gap: 8px; }
+    nav button { padding: 6px 9px; font-size: 13px; }
+  }
 </style>
+</head>
+<body>
 
-<!-- ===== PASSWORD GATE ===== -->
-<div class="cc-gate" id="ccGate">
-  <div class="cc-gate-card">
-    <h1>Sites On Call</h1>
-    <p>Caller access</p>
-    <input type="password" id="ccPass" placeholder="Password" autocomplete="off" inputmode="text">
-    <button id="ccPassBtn">Enter</button>
-    <div class="cc-gate-err" id="ccGateErr"></div>
+<!-- ============ LOGIN ============ -->
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <h1>Sites <span style="color:var(--accent)">On Call</span></h1>
+    <p class="sub">Sign in to your caller account.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required />
+      </div>
+      <button type="submit" id="loginBtn" style="width:100%;">Sign in</button>
+      <p id="loginError" style="color:var(--red); font-size:13px; margin:12px 0 0;"></p>
+    </form>
   </div>
 </div>
 
-<!-- ===== TOOL ===== -->
-<div class="cc-wrap cc-hidden" id="ccApp">
-  <div class="cc-head">
-    <div class="cc-title">Call List</div>
-    <div class="cc-counts">
-      <span>Left: <b id="ccLeft">0</b></span>
-      <span>Done: <b id="ccDone">0</b></span>
-      <span class="cc-good">Good: <b id="ccGoodCount">0</b></span>
-    </div>
-    <div class="cc-tabs">
-      <button class="cc-tab cc-tab-on" id="ccTabQueue">Queue</button>
-      <button class="cc-tab" id="ccTabHistory">History</button>
-      <button class="cc-tab cc-tab-backup" id="ccTabBackup" title="Download a backup file of all your progress">⬇ Backup</button>
-      <button class="cc-tab cc-tab-add" id="ccTabAdd" title="Add a contact by hand">➕ Add</button>
-    </div>
-    <div class="cc-filters" id="ccFilters"></div>
-  </div>
+<!-- ============ APP ============ -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="brand">Sites <span>On Call</span></div>
+    <nav>
+      <button data-view="leads" class="active">Leads</button>
+      <button data-view="followups">Follow-ups</button>
+      <button data-view="dashboard">Dashboard</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="who" id="whoami"></div>
+    <button class="ghost small" id="signOutBtn">Sign out</button>
+  </header>
 
-  <div id="ccStage"></div>
-  <div class="cc-progress" id="ccProgress"></div>
+  <main>
+    <!-- LEADS LIST -->
+    <section id="leadsView">
+      <div class="toolbar panel">
+        <div class="field grow">
+          <label>Search (name, phone, city)</label>
+          <input id="fSearch" placeholder="Type to search…" />
+        </div>
+        <div class="field">
+          <label>Stage</label>
+          <select id="fStage"></select>
+        </div>
+        <div class="field">
+          <label>City</label>
+          <select id="fCity"></select>
+        </div>
+        <div class="field">
+          <label>Industry</label>
+          <select id="fIndustry"></select>
+        </div>
+        <div class="field">
+          <label>Website</label>
+          <select id="fWebsite">
+            <option value="">All</option>
+            <option value="none">No website</option>
+            <option value="has_site">Has site</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sort</label>
+          <select id="fSort">
+            <option value="rating_desc">Rating ↓</option>
+            <option value="rating_asc">Rating ↑</option>
+            <option value="name_asc">Name A–Z</option>
+            <option value="updated_desc">Recently updated</option>
+          </select>
+        </div>
+      </div>
+      <div id="leadCount" style="color:var(--muted); font-size:13px; margin-bottom:10px;"></div>
+      <div id="leadList"></div>
+    </section>
 
-  <div id="ccHistory" class="cc-hidden"></div>
+    <!-- LEAD DETAIL -->
+    <section id="detailView" class="hidden"></section>
+
+    <!-- FOLLOW-UPS -->
+    <section id="followupsView" class="hidden">
+      <h2 style="margin-top:4px;">Follow-ups due today</h2>
+      <p style="color:var(--muted); margin-top:-6px;">Everything due on or before today that isn't done yet.</p>
+      <div id="followupList"></div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboardView" class="hidden">
+      <h2 style="margin-top:4px;">Dashboard</h2>
+      <div class="stat-grid" id="topStats" style="margin-bottom:20px;"></div>
+      <div class="panel">
+        <div class="section-title" style="margin-top:0;">Pipeline by stage</div>
+        <div class="stat-grid" id="stageStats"></div>
+      </div>
+    </section>
+  </main>
 </div>
 
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ============ ACTION FEEDBACK (toast + sound + mute) ============ */
-let CC_MUTED = false;
-try { CC_MUTED = localStorage.getItem('soc_cc_muted') === '1'; } catch(e){}
-let _ccAudioCtx = null;
-function ccDing(type){
-  if(CC_MUTED) return;
-  try{
-    if(!_ccAudioCtx){ _ccAudioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
-    const ctx = _ccAudioCtx;
-    if(ctx.state === 'suspended'){ ctx.resume(); }
-    const now = ctx.currentTime;
-    // success = pleasant two-note rise; error = low buzz
-    const notes = (type==='error') ? [220] : [660, 880];
-    notes.forEach((freq, i)=>{
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = (type==='error') ? 'sawtooth' : 'sine';
-      osc.frequency.value = freq;
-      const t0 = now + i*0.09;
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.18, t0+0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.18);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t0); osc.stop(t0+0.2);
-    });
-  }catch(e){}
-}
-function ccToast(text, kind){
-  let wrap = document.getElementById('ccToastWrap');
-  if(!wrap){ wrap = document.createElement('div'); wrap.id='ccToastWrap'; wrap.className='cc-toast-wrap'; document.body.appendChild(wrap); }
-  const t = document.createElement('div');
-  t.className = 'cc-toast' + (kind==='info'?' cc-t-info':'') + (kind==='warn'?' cc-t-warn':'');
-  const icon = (kind==='warn') ? '!' : '✓';
-  t.innerHTML = '<span class="cc-toast-ic">'+icon+'</span><span>'+text+'</span>';
-  wrap.appendChild(t);
-  requestAnimationFrame(()=>{ t.classList.add('cc-show'); });
-  ccDing(kind==='warn'?'error':'ok');
-  setTimeout(()=>{ t.classList.remove('cc-show'); setTimeout(()=>{ if(t.parentNode) t.parentNode.removeChild(t); }, 260); }, 2500);
-}
-function ccFlashBtn(btn){
-  if(!btn) return;
-  btn.classList.add('cc-flash');
-  setTimeout(()=>{ btn.classList.remove('cc-flash'); }, 700);
-}
-function ccSetupMuteToggle(){
-  if(document.getElementById('ccMuteBtn')) return;
-  const b = document.createElement('button');
-  b.id='ccMuteBtn'; b.className='cc-mute'+(CC_MUTED?' cc-muted':'');
-  b.title = CC_MUTED ? 'Sound off — click to turn on' : 'Sound on — click to mute';
-  b.textContent = CC_MUTED ? '🔇' : '🔊';
-  b.addEventListener('click', ()=>{
-    CC_MUTED = !CC_MUTED;
-    try{ localStorage.setItem('soc_cc_muted', CC_MUTED?'1':'0'); }catch(e){}
-    b.classList.toggle('cc-muted', CC_MUTED);
-    b.textContent = CC_MUTED ? '🔇' : '🔊';
-    b.title = CC_MUTED ? 'Sound off — click to turn on' : 'Sound on — click to mute';
-    if(!CC_MUTED) ccDing('ok'); // preview the sound when re-enabling
-  });
-  document.body.appendChild(b);
+/* ===================================================================
+   CONFIG  —  Supabase project ref fvnuzyexrzkzugqpzkot.
+   The anon key below is the PUBLIC key — safe to ship; RLS protects data.
+   (Never put the service_role key here.)
+=================================================================== */
+const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+/* =================================================================== */
+
+const STAGES = ["new","researched","contacted","sent_snapshot","discovery","mockup_sent","quoted","won","lost","nurture"];
+const STAGE_LABELS = {
+  new:"New", researched:"Researched", contacted:"Contacted", sent_snapshot:"Sent Snapshot",
+  discovery:"Discovery", mockup_sent:"Mockup Sent", quoted:"Quoted", won:"Won", lost:"Lost", nurture:"Nurture"
+};
+const STAGE_COLORS = {
+  new:"#9aa7c2", researched:"#7aa2ff", contacted:"#4f8cff", sent_snapshot:"#6fb1ff",
+  discovery:"#caa0ff", mockup_sent:"#b07cff", quoted:"#e0a73a", won:"#36c08a", lost:"#e2615f", nurture:"#7d8ba6"
+};
+const OUTCOMES = ["interested","vm_text","callback","not_interested","wrong_number","has_website"];
+const OUTCOME_LABELS = {
+  interested:"Interested", vm_text:"VM + Text", callback:"Call back",
+  not_interested:"Not interested", wrong_number:"Wrong number", has_website:"Has website"
+};
+const TOUCH_TYPES = ["call","voicemail","text","email","other"];
+const TOUCH_LABELS = { call:"Call", voicemail:"Voicemail", text:"Text", email:"Email", other:"Other" };
+
+let sb = null;
+let me = null;          // { id, email }
+let myProfile = null;   // { full_name, role }
+let allLeads = [];      // cached lead list
+let currentLead = null;
+
+const $ = (id) => document.getElementById(id);
+
+function toast(msg, kind) {
+  const root = $("toastRoot");
+  const el = document.createElement("div");
+  el.className = "toast " + (kind || "");
+  el.textContent = msg;
+  root.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
 }
 
-/* ============ DATA ============ */
-let CC_LEADS = [];  // populated live from the Leads tab via CC_SHEET_URL (see ccLoadLeads)
-// Static fallback intentionally removed in the storage migration — leads now come from the Google Sheet.
-const CC_CHIPS = ["No website","Site down/error","Only a few pages","Free site builder","Not secure (HTTP)","Generic email","Looks outdated","Slow site"];
-const CC_PASSWORD = "callsoncall";
-const CC_SHEET_URL = "https://script.google.com/macros/s/AKfycbySuUc1-9uz9X7XIU1a39Ydob8eaDq89XmDeUd-RakTh81idxFx0gfTfIR6fEiVplPd/exec"; // <-- replace after deploying Apps Script
-const CC_COURIER_URL = "https://email-bot-server.micaiah-tasks.workers.dev/api/subscribe";
-const CC_STORE_KEY = "soc_coldcall_v1";
-const CC_RESULT_LABELS = { good:"Good lead", vm:"Voicemail", callback:"Call back", noanswer:"No answer", notint:"Not interested", dnc:"Do not call" };
-
-const CC_NAME='<span class="ph">[name]</span>', CC_YOU='<span class="ph">[your name]</span>', CC_TRADE='<span class="ph">[their trade]</span>', CC_YEAR='<span class="ph">[year]</span>';
-
-/* ============================================================
-   GLORIA SCORECARD SCRIPTS (Touch 1 call + follow-ups)
-   Goal: spark curiosity about how they show up online, explain
-   we're a brand-new North Alabama company giving these away free
-   to get our name out, and collect an email for the free Online
-   Presence Scorecard. No website selling. No pricing. No closing.
-   ============================================================ */
-
-// TOUCH 1 — default opener (no prep needed)
-const CC_SCRIPT_GENERIC = 'Hi, is this '+CC_NAME+'? Hey '+CC_NAME+', this is '+CC_YOU+' with Sites On Call. Real quick \u2014 ever wonder what comes up when somebody pulls out their phone and searches \u201c'+CC_TRADE+' near me\u201d? Like, do you actually show up, or is it all your competitors? \u2026 Yeah, most folks have no idea. So here\u2019s why I\u2019m calling \u2014 we\u2019re a brand-new company out of North Alabama, just started up this spring, and we\u2019re trying to get our name out around here. So we\u2019re putting together free Online Presence Scorecards for local contractors \u2014 Irene digs into how your business actually looks online, where you land on Google, who\u2019s showing up instead of you \u2014 and sends you the whole rundown. No charge, no strings, we\u2019re just introducing ourselves. Want me to have her put one together for you?';
-
-// TOUCH 1 — sharper opener (only if you glanced at the notes below the script)
-const CC_SCRIPT_SHARP = 'Hi, is this '+CC_NAME+'? Hey '+CC_NAME+', this is '+CC_YOU+' with Sites On Call. So I was actually looking for a '+CC_TRADE+' in your area earlier and \u2014 no offense \u2014 had a hard time finding you. Made me wonder if you even know where you land when folks search. Here\u2019s my deal: we\u2019re a new company out of North Alabama, just got going this spring, and to get our name out we\u2019re doing free Online Presence Scorecards for local contractors \u2014 Irene shows you exactly where you show up, who\u2019s beating you, what Google sees. Totally free, just introducing ourselves. Want one?';
-
-// The CC_SCRIPTS object key is kept so the rest of the page keeps working.
-const CC_SCRIPTS = { "_generic": CC_SCRIPT_GENERIC };
-
-// TOUCH 1 — voicemail
-const CC_VM = 'Hey '+CC_NAME+', this is '+CC_YOU+' with Sites On Call. Quick one \u2014 we\u2019re a new North Alabama company and we\u2019re giving local contractors a free scorecard that shows how they look when people search Google for \u2019em. Yours or your competitors. I\u2019ll shoot you a text so you\u2019ve got my number \u2014 no pressure at all. Talk soon!';
-
-// "Sure / how does it work?" — grab the email
-const CC_TELLMORE = 'Easy \u2014 I just grab your email, Irene does a deep dive on your whole online presence, and you\u2019ll have the scorecard in the next day or two. What\u2019s the best email for you? \u2026 (Type it into the form, then read it back:) Let me read that back so I\u2019ve got it right \u2014 [spell it out]. Perfect. Irene\u2019ll dig in and you\u2019ll have it in a day or two. Thanks '+CC_NAME+' \u2014 talk soon!';
-
-// "What\u2019s this gonna cost / what are you selling?" — deflect
-const CC_PRICE = 'Honestly nothing \u2014 the scorecard\u2019s free no matter what. We\u2019re new and just trying to get on people\u2019s radar around here, so this is how we\u2019re introducing ourselves. If you look it over and want help down the road, great. If not, no hard feelings \u2014 it\u2019s yours either way. Want me to have Irene send it?';
-
-/* ---- Follow-up touches (Gloria copies these from the card) ---- */
-
-// TOUCH 2 — next-day text
-const CC_TEXT_DAY2 = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call \u2014 left you a voicemail yesterday. We\u2019re a new North Alabama company just getting started this spring, and we\u2019re giving local contractors a free Online Presence Scorecard \u2014 basically what comes up when people search Google for your business, and who\u2019s showing up instead. No cost, no strings, just getting our name out there. Want one? Just reply with your email and Irene will send it over in a day or two.';
-const CC_TEXT_NOANS = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call \u2014 tried to reach you by phone but couldn\u2019t catch you. We\u2019re a new North Alabama company just getting started this spring, and we\u2019re giving local contractors a free Online Presence Scorecard \u2014 basically what comes up when people search Google for your business, and who\u2019s showing up instead. No cost, no strings, just getting our name out there. Want one? Just reply with your email and Irene will send it over in a day or two.';
-
-// TOUCH 3 — second call (skip a day after the text)
-const CC_SCRIPT_CALL2 = 'Hi '+CC_NAME+', it\u2019s '+CC_YOU+' with Sites On Call again \u2014 left you a message about that free Online Presence Scorecard. Didn\u2019t want it to slip through the cracks. Like I mentioned, we\u2019re a new company out of North Alabama just getting our name out, and we\u2019re putting these together free for local contractors \u2014 it shows exactly how you look online when folks search for a '+CC_TRADE+' around you. Want me to grab your email and get that going?';
-
-// TOUCH 3 — voicemail
-const CC_VM2 = 'Hey '+CC_NAME+', '+CC_YOU+' with Sites On Call \u2014 circling back one more time on that free scorecard. No pressure at all, just getting our name out around North Alabama. I\u2019ll text you an easy way to grab it. Talk soon!';
-
-// TOUCH 4 — final text (skip a day)
-const CC_TEXT_FINAL = 'Hi '+CC_NAME+', '+CC_YOU+' here with Sites On Call \u2014 last note from me, I promise! This is your last chance to grab your free Online Presence Scorecard. We\u2019re a new North Alabama company getting our name out, and there\u2019s truly no catch \u2014 Irene digs into how your business shows up online and sends you the whole rundown. Just reply with your email and we\u2019ll have it over to you in the next day or two. Either way, wishing you a busy season!';
-
-function pickScript(l){
-  return CC_SCRIPT_GENERIC;
-}
-function pickVoicemail(l){
-  return CC_VM;
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
 
-
-/* ============ STATE ============ */
-let ccState = loadState();      // { done:{id:result}, recs:{id:{result,notes,when,...}}, filter:"All" }
-let ccCursor = 0;
-let ccCurrentSheet = null;
-let ccCurrentFollow = null;
-let ccView = "queue";           // "queue" | "history"
-let ccEditId = null;            // lead id being edited in history
-let ccQSearch = "";             // queue search term (lowercased)
-
-/* Manual contacts (Gloria's "Add Contact") get string ids prefixed "m" so they
-   can never collide with the Sheet's numeric 0..461 ids or with each other.
-   They live ONLY in localStorage (ccState.manual) + an outcome-log Sheet row;
-   they are deliberately NOT mirrored to the Progress event log, because that
-   log's replay coerces leadId to Number() and would mangle a string id into
-   NaN, poisoning every other browser's boot. Local-durable by design (A-now). */
-function ccIsManualId(id){ return typeof id==='string' && id.charAt(0)==='m'; }
-function ccNewManualId(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-
-function loadState(){
-  try{ const s = JSON.parse(localStorage.getItem(CC_STORE_KEY)); if(s && s.done){
-    if(!s.recs) s.recs={};
-    if(!s.pending) s.pending={};
-    if(!s.manual) s.manual={};
-    // backfill records for leads marked done before history existed
-    Object.keys(s.done).forEach(id=>{ if(!s.recs[id]){ s.recs[id]={id:Number(id)||id, result:s.done[id], notes:'', when:''}; } });
-    // ONE-TIME migration: pull old voicemail/no-answer dispositions into the follow-up queue.
-    if(!s.migratedFollowups){
-      const t=ccTodayKey();
-      Object.keys(s.done).forEach(id=>{
-        const r=s.done[id];
-        if((r==='vm' || r==='noanswer') && !s.pending[id]){
-          s.pending[id] = { id:Number(id)||id, nextAction:(r==='vm'?'text':'text-noans'), due:t };
-          delete s.done[id];   // it's no longer "done" — it's a pending follow-up now
-        }
-      });
-      s.migratedFollowups=true;
-    }
-    return s;
-  } }catch(e){}
-  return { done:{}, recs:{}, pending:{}, manual:{}, filter:"All" };
+function fmtDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
 }
-function saveState(){ try{ localStorage.setItem(CC_STORE_KEY, JSON.stringify(ccState)); }catch(e){} }
-
-/* ===== PHASE 2: mirror progress events to the Sheet (durability) =====
-   localStorage stays the source of truth; this is a fire-and-forget mirror so
-   a cleared browser can reload progress from the Sheet. Same no-cors pattern as
-   the outcome-log post — we can't confirm receipt, only that the request fired. */
-function ccFireEvent(ev){
-  try{
-    if(!CC_SHEET_URL || CC_SHEET_URL.indexOf('__SHEET')>=0) return;
-    // Manual contacts have string ids; the Progress log replays leadId via
-    // Number(), which would turn "m..." into NaN and corrupt every browser's
-    // boot. So we never mirror manual-id events. They're local-only by design.
-    if(ev && ccIsManualId(ev.leadId)) return;
-    const payload = Object.assign({ kind:'event', ts:new Date().toISOString(), caller:'' }, ev);
-    fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
-  }catch(e){}
+function fmtDay(iso) {
+  if (!iso) return "";
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
 }
 
-/* ===== BACKUP: download all progress as a JSON file =====
-   Exports ccState (done/recs/pending/filter) plus a readable per-lead
-   summary keyed by id. This file is the safety net AND the future
-   import/migration source — keep it. */
-function ccBackup(){
-  try{
-    saveState(); // make sure the latest is captured before we read it
-    const stamp = ccTodayKey();
-    // Build a readable index so the file isn't just opaque IDs.
-    const leadIndex = {};
-    CC_LEADS.forEach(l=>{ leadIndex[l.id] = { b:l.b, pd:l.pd, c:l.c, t:l.t }; });
-    const payload = {
-      _type: 'sites-on-call-coldcall-backup',
-      _version: 1,
-      _exported: new Date().toISOString(),
-      _storeKey: CC_STORE_KEY,
-      counts: {
-        done: Object.keys(ccState.done||{}).length,
-        pending: Object.keys(ccState.pending||{}).length,
-        good: Object.values(ccState.done||{}).filter(r=>r==='good').length
-      },
-      state: ccState,        // the actual progress — done / recs / pending / filter
-      leadIndex: leadIndex   // id -> {business, phone, city, trade} for human readability
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'coldcall-backup-' + stamp + '.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-    ccToast('✓ Backup downloaded ('+payload.counts.done+' done, '+payload.counts.pending+' in follow-up)', 'ok');
-  }catch(e){
-    ccToast('Backup failed — try again', 'warn');
-  }
-}
-
-/* ===== follow-up engine: date helpers (real calendar, no time travel) ===== */
-function ccTodayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function ccAddDays(key, n){ const d=new Date(key+'T12:00:00'); d.setDate(d.getDate()+n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function ccFmtDue(key){ try{ const d=new Date(key+'T12:00:00'); return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return key; } }
-/* pending[id] = { id, nextAction:'text'|'finaltext'|'callback', due:'YYYY-MM-DD' } */
-function ccDueToday(){
-  const today=ccTodayKey();
-  return CC_LEADS.filter(l=> ccState.pending && ccState.pending[l.id] && ccState.pending[l.id].due<=today)
-                 .filter(l => ccState.filter==="All" || l.c===ccState.filter)
-                 .sort((a,b)=> ccState.pending[a.id].due.localeCompare(ccState.pending[b.id].due));
-}
-
-/* ============ GATE ============ */
-function ccUnlock(){
-  document.getElementById('ccGate').classList.add('cc-hidden');
-  document.getElementById('ccApp').classList.remove('cc-hidden');
-  try{ localStorage.setItem('soc_cc_ok','1'); }catch(e){}
-  try{ sessionStorage.setItem('soc_cc_ok','1'); }catch(e){}
-  ccBootLeads();
-}
-
-/* ===== PHASE 2: reconcile local progress with the Sheet on boot =====
-   Durability payoff: if this browser was cleared (local empty) but the Sheet
-   has events, adopt the Sheet's progress so nothing is lost. If local already
-   has progress, keep local (it's the live source of truth during a shift) —
-   the Sheet is the mirror, not the master, for an active browser. Always
-   proceeds to `done()` even if the fetch fails, so a network hiccup never
-   blocks Gloria from working off her local copy. */
-function ccReconcileProgress(done){
-  const localDone = Object.keys((ccState&&ccState.done)||{}).length;
-  const localPend = Object.keys((ccState&&ccState.pending)||{}).length;
-  const localCount = localDone + localPend;
-  const url = CC_SHEET_URL + (CC_SHEET_URL.indexOf('?')<0?'?':'&') + 'progress=1&_=' + Date.now();
-  let settled = false;
-  const finish = ()=>{ if(settled) return; settled=true; done(); };
-  // safety timeout: never hang the app on a slow Apps Script call
-  const t = setTimeout(finish, 8000);
-  fetch(url, { method:'GET' })
-    .then(r=>r.json())
-    .then(data=>{
-      if(data && data.ok && data.state){
-        const sheetDone = Object.keys(data.state.done||{}).length;
-        const sheetPend = Object.keys(data.state.pending||{}).length;
-        // Adopt the Sheet ONLY when local is empty/blank (e.g. cleared browser).
-        // An active browser with its own progress keeps local — we don't let a
-        // stale Sheet read clobber a live shift.
-        if(localCount === 0 && (sheetDone + sheetPend) > 0){
-          ccState.done = data.state.done || {};
-          ccState.recs = data.state.recs || {};
-          ccState.pending = data.state.pending || {};
-          saveState();
-          ccToast('✓ Restored '+sheetDone+' calls from the cloud', 'ok');
-        }
-      }
-    })
-    .catch(()=>{})
-    .finally(()=>{ clearTimeout(t); finish(); });
-}
-
-/* ===== Load the lead list live from the Leads tab (Google Apps Script doGet) =====
-   The 461 leads are no longer baked into this file — they live in the Sheet so they
-   can be edited without a code change. ccState (Gloria's progress) still loads from
-   localStorage and is keyed by lead id, so ids must stay aligned with the Sheet. */
-function ccBootLeads(){
-  const stage = document.getElementById('ccStage');
-  if(stage) stage.innerHTML = '<div class="cc-empty"><h2>Loading leads…</h2><p>Pulling the list from Google. One sec.</p></div>';
-  // cache-bust so an edited Sheet shows up without a hard refresh
-  const url = CC_SHEET_URL + (CC_SHEET_URL.indexOf('?')<0?'?':'&') + 'leads=1&_=' + Date.now();
-  fetch(url, { method:'GET' })
-    .then(r => r.json())
-    .then(data => {
-      if(!data || data.ok !== true || !Array.isArray(data.leads)) throw new Error('bad payload');
-      CC_LEADS = data.leads;
-      // belt-and-suspenders: keep ids numeric and the list in id order
-      CC_LEADS.forEach(l=>{ l.id = Number(l.id); });
-      CC_LEADS.sort((a,b)=> a.id - b.id);
-      ccRehydrateManual();           // merge Gloria's manually-added contacts back in
-      ccReconcileProgress(initApp);  // pull Sheet progress, then start
-    })
-    .catch(err => {
-      if(stage) stage.innerHTML = '<div class="cc-empty"><h2>Couldn\u2019t load leads</h2>'
-        + '<p>The lead list didn\u2019t come back from Google. Your saved progress is safe \u2014 this is just the list of who to call.</p>'
-        + '<button class="cc-reset" id="ccRetryBtn">Try again</button></div>';
-      const rb=document.getElementById('ccRetryBtn'); if(rb) rb.addEventListener('click', ccBootLeads);
-    });
-}
-
-/* ===== MANUAL CONTACTS (Add Contact) =====
-   Merge any manually-added contacts (stored in ccState.manual) back into
-   CC_LEADS so the queue/follow-up logic — which iterates CC_LEADS and looks up
-   ccState.pending[l.id] — can see them. Must run AFTER the Number() coercion in
-   ccBootLeads, or these string ids get wiped to NaN. Idempotent: re-merging
-   the same id just refreshes the object. */
-function ccRehydrateManual(){
-  if(!ccState.manual) return;
-  Object.keys(ccState.manual).forEach(id=>{
-    const m = ccState.manual[id];
-    if(!m) return;
-    const existing = CC_LEADS.findIndex(l=>String(l.id)===String(id));
-    if(existing>=0) CC_LEADS[existing] = m; else CC_LEADS.push(m);
-  });
-}
-
-/* Build a lead object in the same shape the Sheet leads use:
-   {id,b,p,pd,c,r,t,w,hs,pr,tags}. Everything optional. */
-function ccMakeManualLead(f){
-  const digits = (f.phone||'').replace(/\D/g,'');
-  return {
-    id: ccNewManualId(),
-    b:  f.business||'',
-    p:  digits,                 // raw digits (search compares digits-only)
-    pd: f.phone||'',            // display phone (what scripts/cards show)
-    c:  f.city||'',
-    r:  '',                     // rating — unknown for manual adds
-    t:  f.trade||'',
-    w:  '',                     // website — unknown
-    hs: false,
-    pr: f.note||'',             // reuse the "problem" slot as the freeform note
-    tags: ['manual'],
-    _manual: true,
-    _email: f.email||'',        // kept for the Sheet row; cards don't use it
-    _contact: f.contact||''
-  };
-}
-
-function ccOpenAddContact(){
-  if(document.getElementById('ccAddOv')) return;
-  const today = ccTodayKey();
-  const ov = document.createElement('div');
-  ov.className='cc-sheet-ov'; ov.id='ccAddOv';
-  ov.innerHTML =
-    '<div class="cc-sheet cc-addsheet" role="dialog" aria-label="Add contact">'+
-      '<div class="cc-sheet-head"><div class="cc-sheet-title">➕ Add a contact</div>'+
-        '<button class="cc-sheet-x" id="ccAddX" aria-label="Close">✕</button></div>'+
-      '<p class="cc-addnote">Everything\u2019s optional \u2014 even just a name or a note is fine. '+
-        'It\u2019ll show up in your Queue on the callback date you pick.</p>'+
-      '<div class="cc-addgrid">'+
-        '<label class="cc-addfield"><span>Business</span><input id="ccAddBiz" type="text" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>Contact name</span><input id="ccAddContact" type="text" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>Phone</span><input id="ccAddPhone" type="tel" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>Email</span><input id="ccAddEmail" type="email" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>Trade</span><input id="ccAddTrade" type="text" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>City</span><input id="ccAddCity" type="text" autocomplete="off"></label>'+
-        '<label class="cc-addfield"><span>Callback date</span><input id="ccAddDate" type="date" value="'+today+'"></label>'+
-        '<div class="cc-addfield"><span>Reach out by</span>'+
-          '<div class="cc-addtoggle" id="ccAddMode">'+
-            '<button type="button" class="cc-modebtn cc-mode-on" data-mode="callback">📞 Call</button>'+
-            '<button type="button" class="cc-modebtn" data-mode="text">📲 Text</button>'+
-          '</div></div>'+
-        '<label class="cc-addfield cc-addfull"><span>Note</span><textarea id="ccAddNote" rows="2"></textarea></label>'+
-      '</div>'+
-      '<div class="cc-addactions">'+
-        '<button class="cc-btn cc-btn-ghost" id="ccAddCancel">Cancel</button>'+
-        '<button class="cc-btn cc-btn-go" id="ccAddSave">Add to Queue</button>'+
-      '</div>'+
-    '</div>';
-  document.body.appendChild(ov);
-
-  let mode='callback';
-  const modeWrap=document.getElementById('ccAddMode');
-  [...modeWrap.querySelectorAll('.cc-modebtn')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      mode=b.dataset.mode;
-      [...modeWrap.querySelectorAll('.cc-modebtn')].forEach(x=>x.classList.toggle('cc-mode-on', x===b));
-    });
-  });
-  const close=()=>{ const o=document.getElementById('ccAddOv'); if(o) o.remove(); };
-  document.getElementById('ccAddX').addEventListener('click', close);
-  document.getElementById('ccAddCancel').addEventListener('click', close);
-  ov.addEventListener('click', e=>{ if(e.target.id==='ccAddOv') close(); });
-  document.getElementById('ccAddSave').addEventListener('click', ()=>{
-    ccSaveManualContact({
-      business:  document.getElementById('ccAddBiz').value.trim(),
-      contact:   document.getElementById('ccAddContact').value.trim(),
-      phone:     document.getElementById('ccAddPhone').value.trim(),
-      email:     document.getElementById('ccAddEmail').value.trim(),
-      trade:     document.getElementById('ccAddTrade').value.trim(),
-      city:      document.getElementById('ccAddCity').value.trim(),
-      note:      document.getElementById('ccAddNote').value.trim(),
-      due:       document.getElementById('ccAddDate').value || ccTodayKey(),
-      mode:      mode
-    });
-    close();
-  });
-  setTimeout(()=>{ const f=document.getElementById('ccAddBiz'); if(f) f.focus(); }, 30);
-}
-
-function ccSaveManualContact(f){
-  // a totally empty form is a no-op (don't litter the queue/sheet with blanks)
-  if(!f.business && !f.contact && !f.phone && !f.email && !f.note){
-    ccToast('Nothing to add \u2014 fill in at least one field', 'warn');
+/* ---------- boot ---------- */
+function init() {
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.startsWith("PASTE_")) {
+    $("loginError").textContent = "App not configured yet: paste your Supabase anon key into the CONFIG block.";
+    $("loginBtn").disabled = true;
     return;
   }
-  const lead = ccMakeManualLead({
-    business:f.business, contact:f.contact, phone:f.phone,
-    email:f.email, trade:f.trade, city:f.city, note:f.note
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) onSignedIn(data.session.user);
   });
-  if(!ccState.manual) ccState.manual={};
-  ccState.manual[lead.id] = lead;
-  CC_LEADS.push(lead);
+}
 
-  // Wire into the EXISTING date-based pending model so it surfaces in the Queue
-  // on its callback date. nextAction 'callback' or 'text' reuses the live flags.
-  if(!ccState.pending) ccState.pending={};
-  const due = (f.due && /^\d{4}-\d{2}-\d{2}$/.test(f.due)) ? f.due : ccTodayKey();
-  ccState.pending[lead.id] = { id:lead.id, nextAction:(f.mode==='text'?'text':'callback'), due:due };
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("loginError").textContent = "";
+  $("loginBtn").disabled = true;
+  $("loginBtn").textContent = "Signing in…";
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  $("loginBtn").disabled = false;
+  $("loginBtn").textContent = "Sign in";
+  if (error) { $("loginError").textContent = error.message; return; }
+  onSignedIn(data.user);
+});
 
-  // a record so it appears in History too
-  if(!ccState.recs) ccState.recs={};
-  ccState.recs[lead.id] = { id:lead.id, result:(f.mode==='text'?'manual-text':'manual-callback'),
-    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-    notes:(f.note||'') };
-  saveState();
+$("signOutBtn").addEventListener("click", async () => {
+  await sb.auth.signOut();
+  location.reload();
+});
 
-  // Write an immediately-visible row to the outcome-log tab (the row Irene asked
-  // for). This is the existing outcome doPost path — NOT an event — stamped
-  // source:'Manual Add'. Fire-and-forget (no-cors); we can't confirm receipt.
-  try{
-    if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
-      const payload = {
-        date: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-        business: f.business||'', contact: f.contact||'', phone: f.phone||'',
-        email: f.email||'', trade: f.trade||'', city: f.city||'',
-        followUp: due, notes: f.note||'',
-        status: 'Manual add \u2014 '+(f.mode==='text'?'text':'call')+' due '+due,
-        source: 'Manual Add'
-      };
-      fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
+async function onSignedIn(user) {
+  me = { id: user.id, email: user.email };
+  $("loginView").classList.add("hidden");
+  $("appView").classList.remove("hidden");
+  // fetch profile (name + role)
+  const { data: prof } = await sb.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
+  myProfile = prof || { full_name: user.email, role: "caller" };
+  $("whoami").textContent = (myProfile.full_name || user.email) + " · " + myProfile.role;
+  showView("leads");
+  loadLeads();
+}
+
+/* ---------- nav ---------- */
+document.querySelectorAll("nav button").forEach(b =>
+  b.addEventListener("click", () => showView(b.dataset.view)));
+
+function showView(name) {
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("active", b.dataset.view === name));
+  $("leadsView").classList.toggle("hidden", name !== "leads");
+  $("detailView").classList.add("hidden");
+  $("followupsView").classList.toggle("hidden", name !== "followups");
+  $("dashboardView").classList.toggle("hidden", name !== "dashboard");
+  if (name === "leads") $("leadsView").classList.remove("hidden");
+  if (name === "followups") loadFollowups();
+  if (name === "dashboard") loadDashboard();
+}
+
+/* ---------- leads ---------- */
+["fSearch","fStage","fCity","fIndustry","fWebsite","fSort"].forEach(id =>
+  $(id).addEventListener("input", renderLeads));
+
+async function loadLeads() {
+  $("leadList").innerHTML = '<div class="empty">Loading leads…</div>';
+  const { data, error } = await sb.from("leads")
+    .select("id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at")
+    .limit(2000);
+  if (error) { $("leadList").innerHTML = '<div class="empty">Error: ' + esc(error.message) + '</div>'; return; }
+  allLeads = data || [];
+  buildFilterOptions();
+  renderLeads();
+}
+
+function buildFilterOptions() {
+  // stage
+  const stageSel = $("fStage");
+  stageSel.innerHTML = '<option value="">All stages</option>' +
+    STAGES.map(s => `<option value="${s}">${STAGE_LABELS[s]}</option>`).join("");
+  // city
+  const cities = [...new Set(allLeads.map(l => l.city).filter(Boolean))].sort();
+  $("fCity").innerHTML = '<option value="">All cities</option>' +
+    cities.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  // industry
+  const inds = [...new Set(allLeads.map(l => l.industry).filter(Boolean))].sort();
+  $("fIndustry").innerHTML = '<option value="">All industries</option>' +
+    inds.map(i => `<option value="${esc(i)}">${esc(i)}</option>`).join("");
+}
+
+function renderLeads() {
+  const q = $("fSearch").value.trim().toLowerCase();
+  const stage = $("fStage").value;
+  const city = $("fCity").value;
+  const ind = $("fIndustry").value;
+  const web = $("fWebsite").value;
+  const sort = $("fSort").value;
+
+  let rows = allLeads.filter(l => {
+    if (stage && l.stage !== stage) return false;
+    if (city && l.city !== city) return false;
+    if (ind && l.industry !== ind) return false;
+    if (web && l.website_status !== web) return false;
+    if (q) {
+      const hay = `${l.business_name} ${l.phone || ""} ${l.city || ""} ${l.industry || ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
     }
-  }catch(e){}
+    return true;
+  });
 
-  buildFilters();
-  const label = f.business || f.contact || 'Contact';
-  ccToast('✓ Added \u201c'+label+'\u201d \u2014 due '+ccFmtDue(due), 'ok');
-  switchView('queue');
+  rows.sort((a, b) => {
+    if (sort === "rating_desc") return (b.rating || 0) - (a.rating || 0);
+    if (sort === "rating_asc")  return (a.rating || 0) - (b.rating || 0);
+    if (sort === "name_asc")    return (a.business_name || "").localeCompare(b.business_name || "");
+    if (sort === "updated_desc") return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+    return 0;
+  });
+
+  $("leadCount").textContent = `${rows.length} lead${rows.length === 1 ? "" : "s"}`;
+  if (!rows.length) { $("leadList").innerHTML = '<div class="empty">No leads match your filters.</div>'; return; }
+
+  $("leadList").innerHTML = rows.map(l => `
+    <div class="lead-row" data-id="${l.id}">
+      <div class="main">
+        <div class="name">${esc(l.business_name)}</div>
+        <div class="meta">${esc(l.industry || "—")} · ${esc(l.city || "")}${l.state ? ", " + esc(l.state) : ""} · ${esc(l.phone || "no phone")}</div>
+      </div>
+      <div class="right">
+        <div class="stage-pill" style="color:${STAGE_COLORS[l.stage] || "#9aa7c2"}">${STAGE_LABELS[l.stage] || l.stage}</div>
+        <div style="margin-top:4px;">
+          ${l.rating ? `<span class="rating">★ ${l.rating}</span>` : ""}
+          <span class="badge ${l.website_status === "none" ? "web-none" : l.website_status === "has_site" ? "web-has" : ""}">${l.website_status === "none" ? "No site" : l.website_status === "has_site" ? "Has site" : "?"}</span>
+        </div>
+      </div>
+    </div>`).join("");
+
+  document.querySelectorAll(".lead-row").forEach(r =>
+    r.addEventListener("click", () => openLead(r.dataset.id)));
 }
 
-function ccTryPass(){
-  const v = document.getElementById('ccPass').value.trim();
-  if(v === CC_PASSWORD){ ccUnlock(); }
-  else { document.getElementById('ccGateErr').textContent = "Nope, try again."; }
+/* ---------- lead detail ---------- */
+async function openLead(id) {
+  currentLead = allLeads.find(l => l.id === id);
+  if (!currentLead) return;
+  $("leadsView").classList.add("hidden");
+  $("followupsView").classList.add("hidden");
+  $("dashboardView").classList.add("hidden");
+  $("detailView").classList.remove("hidden");
+  renderDetail(currentLead, { loading: true });
+  // load touches + follow-ups in parallel
+  const [touchesRes, fuRes] = await Promise.all([
+    sb.from("touches").select("id, touch_type, outcome, notes, occurred_at, legacy_caller, caller_id")
+      .eq("lead_id", id).order("occurred_at", { ascending: false }),
+    sb.from("follow_ups").select("id, kind, due_date, completed, completed_at, notes")
+      .eq("lead_id", id).order("due_date", { ascending: true })
+  ]);
+  renderDetail(currentLead, { touches: touchesRes.data || [], followups: fuRes.data || [] });
 }
-document.getElementById('ccPassBtn').addEventListener('click', ccTryPass);
-document.getElementById('ccPass').addEventListener('keydown', e=>{ if(e.key==='Enter') ccTryPass(); });
-try{ if((localStorage.getItem('soc_cc_ok')==='1') || (sessionStorage.getItem('soc_cc_ok')==='1')) ccUnlock(); }catch(e){}
 
-/* ============ APP ============ */
-function activeLeads(){
-  return CC_LEADS.filter(l => !(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending))
-                 .filter(l => ccState.filter==="All" || l.c===ccState.filter)
-                 .filter(l => {
-                    if(!ccQSearch) return true;
-                    // name match (as before)
-                    if(l.b.toLowerCase().includes(ccQSearch)) return true;
-                    // phone match: if the search has any digits, compare digits-only
-                    let qDigits = ccQSearch.replace(/\D/g,'');
-                    if(qDigits.length===11 && qDigits[0]==='1') qDigits = qDigits.slice(1); // drop leading country code
-                    if(qDigits){ const pDigits = (l.p||'').replace(/\D/g,''); if(pDigits && pDigits.includes(qDigits)) return true; }
-                    return false;
-                 });
-}
-function cityCounts(){
-  const m = {};
-  CC_LEADS.forEach(l=>{ if(!(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)) m[l.c]=(m[l.c]||0)+1; });
-  return m;
-}
-function initApp(){
-  ccSetupMuteToggle();
-  document.getElementById('ccTabQueue').addEventListener('click', ()=>switchView('queue'));
-  document.getElementById('ccTabHistory').addEventListener('click', ()=>switchView('history'));
-  document.getElementById('ccTabBackup').addEventListener('click', ccBackup);
-  document.getElementById('ccTabAdd').addEventListener('click', ccOpenAddContact);
-  buildFilters();
-  ccCursor = 0;
-  switchView('queue');
-}
-function switchView(v){
-  ccView = v;
-  const isQ = v==='queue';
-  document.getElementById('ccTabQueue').classList.toggle('cc-tab-on', isQ);
-  document.getElementById('ccTabHistory').classList.toggle('cc-tab-on', !isQ);
-  document.getElementById('ccStage').classList.toggle('cc-hidden', !isQ);
-  document.getElementById('ccProgress').classList.toggle('cc-hidden', !isQ);
-  document.getElementById('ccFilters').classList.toggle('cc-hidden', !isQ);
-  document.getElementById('ccHistory').classList.toggle('cc-hidden', isQ);
-  if(isQ){ render(); } else { renderHistory(); }
-}
-function buildFilters(){
-  const wrap = document.getElementById('ccFilters');
-  const counts = cityCounts();
-  const cities = Object.keys(counts).sort();
-  const total = Object.values(counts).reduce((a,b)=>a+b,0);
-  let html = chipHtml("All", total, ccState.filter==="All");
-  cities.forEach(c=> html += chipHtml(c, counts[c], ccState.filter===c));
-  wrap.innerHTML = html;
-  [...wrap.querySelectorAll('.cc-chip')].forEach(ch=>{
-    ch.addEventListener('click', ()=>{ ccState.filter = ch.dataset.city; ccCursor=0; saveState(); buildFilters(); render(); });
-  });
-}
-function chipHtml(city, n, active){
-  return '<button class="cc-chip'+(active?' cc-active':'')+'" data-city="'+esc(city)+'">'+esc(city)+' ('+n+')</button>';
-}
-function updateCounts(){
-  const doneN = Object.keys(ccState.done).length;
-  const goodN = Object.values(ccState.done).filter(r=>r==="good").length;
-  document.getElementById('ccDone').textContent = doneN;
-  document.getElementById('ccGoodCount').textContent = goodN;
-  // "Left" shows TRUE fresh remaining, ignoring the queue search filter
-  const trueFresh = CC_LEADS.filter(l => !(l.id in ccState.done) && !(ccState.pending && l.id in ccState.pending)).length;
-  document.getElementById('ccLeft').textContent = trueFresh;
-}
-function render(){
-  updateCounts();
-  renderDuePanel();
-  renderQSearch();
-  const list = activeLeads();
-  const stage = document.getElementById('ccStage');
-  const prog = document.getElementById('ccProgress');
-  if(list.length===0){
-    const msg = ccQSearch ? ('No fresh leads match \u201c'+esc(ccQSearch)+'\u201d.') : ('No fresh leads left'+(ccState.filter!=="All"?(' in '+esc(ccState.filter)):'')+'.');
-    stage.innerHTML = '<div class="cc-empty"><h2>'+(ccQSearch?'No match':'All caught up 🎉')+'</h2><p>'+msg+'</p>'+(ccQSearch?'':'<button class="cc-reset" id="ccResetBtn">Reset all progress</button>')+'</div>';
-    prog.textContent='';
-    const rb=document.getElementById('ccResetBtn'); if(rb) rb.addEventListener('click', ccReset);
-    return;
-  }
-  if(ccCursor >= list.length) ccCursor = 0;
-  if(ccCursor < 0) ccCursor = list.length-1;
-  const l = list[ccCursor];
-  stage.innerHTML = cardHtml(l);
-  prog.textContent = 'Card '+(ccCursor+1)+' of '+list.length;
-  wireCard(l, list.length);
-}
-/* ===== queue search box (mirrors History search styling) ===== */
-function renderQSearch(){
-  let box = document.getElementById('ccQSearchWrap');
-  const stage = document.getElementById('ccStage');
-  if(!box){
-    box = document.createElement('div');
-    box.id = 'ccQSearchWrap';
-    box.innerHTML = '<input class="cc-search" id="ccQSearchInput" type="text" placeholder="Search by business name or phone number…">';
-    stage.parentNode.insertBefore(box, stage);
-    const inp = document.getElementById('ccQSearchInput');
-    inp.addEventListener('input', e=>{
-      ccQSearch = e.target.value.trim().toLowerCase();
-      const pos = e.target.selectionStart;
-      ccCursor = 0; render();
-      const ni = document.getElementById('ccQSearchInput');
-      if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(_){ } }
-    });
-  }
-  const inp = document.getElementById('ccQSearchInput');
-  if(inp && inp.value !== ccQSearch && document.activeElement!==inp){ inp.value = ccQSearch; }
-}
-/* ===== due-today follow-up panel ===== */
-function renderDuePanel(){
-  let panel = document.getElementById('ccDuePanel');
-  const stage = document.getElementById('ccStage');
-  if(!panel){
-    panel = document.createElement('div');
-    panel.id = 'ccDuePanel';
-    stage.parentNode.insertBefore(panel, stage);
-  }
-  const due = ccDueToday();
-  if(due.length===0){ panel.innerHTML=''; return; }
-  const flag = { text:['cc-flag-text','📲 Send text'], 'text-noans':['cc-flag-text','📲 Send text'], finaltext:['cc-flag-final','📲 Send FINAL text'], callback:['cc-flag-cb','📞 Call back'] };
-  const why  = { text:'voicemail left — text today', 'text-noans':'no answer — text today', finaltext:'first text sent — final text today', callback:'asked for a call back' };
-  let rows = '';
-  due.forEach(l=>{
-    const p = ccState.pending[l.id]; const f = flag[p.nextAction]||flag.text;
-    rows += '<div class="cc-duerow" data-due-id="'+l.id+'">'+
-      '<span class="cc-dueflag '+f[0]+'">'+f[1]+'</span>'+
-      '<div class="cc-dueinfo"><div class="cc-duebiz">'+esc(l.b)+'</div>'+
-        '<div class="cc-duemeta">'+esc(l.c)+' · '+esc(l.t)+' · '+(why[p.nextAction]||'')+'</div></div>'+
-      '<button class="cc-dueopen" data-due-id="'+l.id+'">Open ›</button></div>';
-  });
-  panel.innerHTML = '<div class="cc-duehead">⏰ Due today — do these first ('+due.length+')</div>'+
-    '<div class="cc-duelist">'+rows+'</div>';
-  [...panel.querySelectorAll('.cc-dueopen')].forEach(b=>{
-    b.addEventListener('click', ()=>{ const l=CC_LEADS.find(x=>String(x.id)===String(b.dataset.dueId)); if(l) openFollowUp(l); });
-  });
-}
-function scriptBlock(l){
-  const call = pickScript(l);     // HTML string (contains safe <span> placeholders)
-  const vm = pickVoicemail(l);
-  return ''+
-    '<div class="cc-script">'+
-      '<div class="cc-script-label">\ud83d\udcde Touch 1 \u00b7 Call script</div>'+
-      '<div class="cc-script-body">'+call+'</div>'+
-      '<div class="cc-mini">'+
-        '<div class="cc-mini-label">If they say \u201csure / how does it work?\u201d</div>'+
-        '<div class="cc-mini-body">'+CC_TELLMORE+'</div>'+
-        '<div class="cc-mini-label">If they ask \u201cwhat\u2019s this gonna cost / what are you selling?\u201d</div>'+
-        '<div class="cc-mini-body">'+CC_PRICE+'</div>'+
-      '</div>'+
-      '<button class="cc-vmtoggle" data-vmtoggle="1">\ud83d\udcdd More scripts: voicemail, sharper opener, follow-ups <span class="cc-caret">\u25be</span></button>'+
-      '<div class="cc-vmbody cc-collapsed" id="ccVmBody">'+
-        '<div class="cc-mini">'+
-          '<div class="cc-mini-label">\ud83d\udcde Touch 1 voicemail</div>'+
-          '<div class="cc-mini-body">'+vm+'</div>'+
-          '<div class="cc-mini-label">Sharper opener (only if you glanced at the note below)</div>'+
-          '<div class="cc-mini-body">'+CC_SCRIPT_SHARP+'</div>'+
-          '<div class="cc-mini-label">\ud83d\udcac Touch 2 \u00b7 next-day text (copy &amp; send from your phone)</div>'+
-          '<div class="cc-mini-body">'+CC_TEXT_DAY2+'</div>'+
-          '<div class="cc-mini-label">\ud83d\udcde Touch 3 \u00b7 call (skip a day after the text)</div>'+
-          '<div class="cc-mini-body">'+CC_SCRIPT_CALL2+'</div>'+
-          '<div class="cc-mini-label">\ud83d\udcde Touch 3 voicemail</div>'+
-          '<div class="cc-mini-body">'+CC_VM2+'</div>'+
-          '<div class="cc-mini-label">\ud83d\udcac Touch 4 \u00b7 final text (skip a day)</div>'+
-          '<div class="cc-mini-body">'+CC_TEXT_FINAL+'</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-}
-function cardHtml(l){
-  const callable = l.p && l.p.length===10;
-  const tel = callable ? ('tel:'+l.p) : '#';
-  const siteRow = l.hs
-      ? '<p class="cc-site">🔗 <a href="'+esc(l.w)+'" target="_blank" rel="noopener">'+esc(l.w)+'</a></p>'
-      : '<p class="cc-nosite">⚠ No website on Google listing</p>';
-  const rate = l.r ? '<span class="cc-pill cc-rate">★ '+esc(l.r)+'</span>' : '';
-  return ''+
-   '<div class="cc-card">'+
-    '<div class="cc-meta">'+
-      '<span class="cc-pill cc-city">'+esc(l.c)+'</span>'+
-      '<span class="cc-pill">'+esc(l.t)+'</span>'+ rate +
-    '</div>'+
-    '<h2 class="cc-biz">'+esc(l.b)+'</h2>'+
-    scriptBlock(l)+
-    '<div class="cc-prob">'+esc(l.pr)+'</div>'+
-    siteRow +
-    '<a class="cc-call'+(callable?'':' cc-disabled')+'" href="'+tel+'">'+
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+
-      (callable ? esc(l.pd) : 'No phone number')+
-    '</a>'+
-    '<div class="cc-results">'+
-      '<button class="cc-rbtn cc-good-btn" data-act="good">✓ Good lead</button>'+
-      '<button class="cc-rbtn cc-vm" data-act="vm">Left voicemail</button>'+
-      '<button class="cc-rbtn cc-cb" data-act="callback">Call back</button>'+
-      '<button class="cc-rbtn cc-na" data-act="noanswer">No answer</button>'+
-      '<button class="cc-rbtn cc-ni" data-act="notint">Not interested</button>'+
-      '<button class="cc-rbtn cc-dnc" data-act="dnc" style="grid-column:1 / -1">Bad / Do not call</button>'+
-    '</div>'+
-    '<div class="cc-skipbar">'+
-      '<button class="cc-skip" id="ccPrev">‹ Previous</button>'+
-      '<button class="cc-skip" id="ccNext">Skip ›</button>'+
-    '</div>'+
-   '</div>';
-}
-function wireCard(l, listLen){
-  const vmBtn = document.querySelector('[data-vmtoggle]');
-  if(vmBtn){ vmBtn.addEventListener('click', ()=>{
-    const body = document.getElementById('ccVmBody');
-    body.classList.toggle('cc-collapsed');
-    vmBtn.classList.toggle('cc-open', !body.classList.contains('cc-collapsed'));
-  }); }
-  [...document.querySelectorAll('#ccStage .cc-rbtn')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const act = b.dataset.act;
-      if(act!=='good'){
-        const LBL = { vm:'Voicemail logged', callback:'Call-back set for tomorrow', noanswer:'No answer — text queued', notint:'Marked not interested', dnc:'Marked do-not-call' };
-        ccFlashBtn(b);
-        ccToast('✓ '+l.b+' — '+(LBL[act]||'Saved'), 'ok');
-      }
-      dispositionFresh(l, act);
-    });
-  });
-  const prev = document.getElementById('ccPrev');
-  const next = document.getElementById('ccNext');
-  prev.addEventListener('click', ()=>{ ccCursor--; render(); });
-  next.addEventListener('click', ()=>{ ccCursor++; render(); });
-  prev.disabled = listLen<=1; next.disabled = listLen<=1;
-}
-function markDone(l, result, extra){
-  ccState.done[l.id] = result;
-  if(!ccState.recs) ccState.recs = {};
-  const prev = ccState.recs[l.id] || {};
-  ccState.recs[l.id] = Object.assign({}, prev, {
-    id: l.id, result: result,
-    when: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-    notes: (extra && extra.notes!=null) ? extra.notes : (prev.notes||'')
-  });
-  saveState();
-  ccFireEvent({ leadId:l.id, eventKind:'done', result:result, notes:(ccState.recs[l.id]||{}).notes||'' });
-  buildFilters();   // city counts shift
-  render();
-}
-/* ===== follow-up engine: route a disposition into pending or done ===== */
-function ccSetPending(l, nextAction, days, resultLabel){
-  if(!ccState.pending) ccState.pending={};
-  const today = ccTodayKey();
-  ccState.pending[l.id] = { id:l.id, nextAction:nextAction, due:ccAddDays(today,days) };
-  if(!ccState.recs) ccState.recs={};
-  const prev = ccState.recs[l.id]||{};
-  ccState.recs[l.id] = Object.assign({}, prev, { id:l.id, result:resultLabel,
-    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-    notes: prev.notes||'' });
-  saveState();
-  ccFireEvent({ leadId:l.id, eventKind:'pending', nextAction:nextAction, due:ccState.pending[l.id].due, notes:(ccState.recs[l.id]||{}).notes||'' });
-  buildFilters(); ccCursor=0; render();
-}
-function ccClearPending(id){ if(ccState.pending) delete ccState.pending[id]; }
-function ccReschedule(id, days){
-  if(!ccState.pending || !ccState.pending[id]) return;
-  ccState.pending[id].due = ccAddDays(ccTodayKey(), days);
-  saveState();
-  ccFireEvent({ leadId:Number(id)||id, eventKind:'pending', nextAction:ccState.pending[id].nextAction, due:ccState.pending[id].due, notes:(ccState.recs && ccState.recs[id]||{}).notes||'' });
-  render();
-}
-/* dispositions from the FRESH card: route vm/callback into pending */
-function dispositionFresh(l, act){
-  if(act==='good'){ markDone(l,'good'); openSheet(l); return; }
-  if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }            // VM -> text +1
-  if(act==='noanswer'){ ccSetPending(l,'text-noans',1,'noanswer'); return; } // no answer -> text +1
-  if(act==='callback'){ ccSetPending(l,'callback',1,'callback'); return; } // call back +1
-  markDone(l, act);  // notint / dnc -> done as before
-}
-/* escalate an exhausted lead to the sheet, flagged as snapshot (not deep-dive) */
-function ccEscalateSnapshot(l){
-  ccClearPending(l.id);
-  ccState.done[l.id]='exhausted';
-  if(!ccState.recs) ccState.recs={};
-  const prev=ccState.recs[l.id]||{};
-  ccState.recs[l.id]=Object.assign({},prev,{ id:l.id, result:'exhausted',
-    when:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}), notes:prev.notes||'' });
-  saveState(); buildFilters(); render();
-  ccFireEvent({ leadId:l.id, eventKind:'done', result:'exhausted', notes:(ccState.recs[l.id]||{}).notes||'' });
-  // fire to sheet with lead_type snapshot (reuses the same endpoint as good leads)
-  try{
-    if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
-      const payload = { date:new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-        business:l.b, phone:l.pd||'', trade:l.t, city:l.c,
-        hasWebsite:(l.hs?'Yes':'No'), problem:(l.pr||''),
-        lead_type:'snapshot', status:'Snapshot — phone sequence exhausted' };
-      fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{});
-    }
-  }catch(e){}
-}
-/* the follow-up action card (text / final text / call back) */
-function openFollowUp(l){
-  const p = ccState.pending && ccState.pending[l.id];
-  if(!p){ return; }
-  ccCurrentFollow = l;
-  const ov = document.createElement('div');
-  ov.className='cc-sheet-ov'; ov.id='ccFollowOv';
-  let scriptLabel, scriptBody, actions;
-  if(p.nextAction==='text' || p.nextAction==='text-noans'){
-    const isNoAns = (p.nextAction==='text-noans');
-    scriptLabel='💬 Touch 2 · next-day text (copy &amp; send from your phone)';
-    scriptBody= isNoAns ? CC_TEXT_NOANS : CC_TEXT_DAY2;
-    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">They replied — Good lead</button>'+
-            '<button class="cc-rbtn cc-vm" data-fact="textsent">✓ Text sent</button>';
-  } else if(p.nextAction==='finaltext'){
-    scriptLabel='💬 Touch 4 · final text';
-    scriptBody=CC_TEXT_FINAL;
-    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">They replied — Good lead</button>'+
-            '<button class="cc-rbtn cc-dnc" data-fact="finalsent" style="grid-column:1 / -1">✓ Final text sent → send to my list (snapshot)</button>';
-  } else { // callback
-    scriptLabel='📞 Touch 3 · call back';
-    scriptBody=pickScript(l);
-    actions='<button class="cc-rbtn cc-good-btn" data-fact="good">✓ Good lead</button>'+
-            '<button class="cc-rbtn cc-vm" data-fact="vm">Left voicemail</button>'+
-            '<button class="cc-rbtn cc-cb" data-fact="callback">Call back again</button>'+
-            '<button class="cc-rbtn cc-ni" data-fact="notint">Not interested</button>'+
-            '<button class="cc-rbtn cc-dnc" data-fact="dnc" style="grid-column:1 / -1">Bad / Do not call</button>';
-  }
-  const callable = l.p && l.p.length===10;
-  ov.innerHTML = '<div class="cc-sheet"><button class="cc-sheet-x" id="ccFollowX">×</button>'+
-    '<h2 class="cc-biz" style="margin-top:4px">'+esc(l.b)+'</h2>'+
-    '<div class="cc-meta"><span class="cc-pill cc-city">'+esc(l.c)+'</span><span class="cc-pill">'+esc(l.t)+'</span>'+(l.r?'<span class="cc-pill cc-rate">★ '+esc(l.r)+'</span>':'')+'</div>'+
-    (callable?'<a class="cc-call" href="tel:'+l.p+'">'+esc(l.pd)+'</a>':'')+
-    '<div class="cc-script"><div class="cc-script-label">'+scriptLabel+'</div><div class="cc-script-body">'+scriptBody+'</div></div>'+
-    '<div class="cc-results">'+actions+'</div>'+
-    '<div class="cc-resched"><span class="cc-resched-lbl">Not today? Push it:</span>'+
-      '<button data-resched="1">+1 day</button><button data-resched="3">+3 days</button><button data-resched="7">+1 week</button></div>'+
-    '</div>';
-  document.body.appendChild(ov);
-  document.body.style.overflow='hidden';
-  document.getElementById('ccFollowX').addEventListener('click', closeFollow);
-  ov.addEventListener('click', e=>{ if(e.target.id==='ccFollowOv') closeFollow(); });
-  [...ov.querySelectorAll('[data-fact]')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const act=b.dataset.fact;
-      if(act!=='good'){
-        const LBL = { textsent:'Text sent — final text queued', finalsent:'Final text sent → moved to your list', vm:'Voicemail logged', callback:'Call-back set', notint:'Marked not interested', dnc:'Marked do-not-call' };
-        ccFlashBtn(b);
-        ccToast('✓ '+l.b+' — '+(LBL[act]||'Saved'), 'ok');
-      }
-      closeFollow();
-      if(act==='good'){ ccClearPending(l.id); markDone(l,'good'); openSheet(l); return; }
-      if(act==='textsent'){ ccSetPending(l,'finaltext',5,'text-sent'); return; }  // text -> final text +5
-      if(act==='finalsent'){ ccEscalateSnapshot(l); return; }
-      if(act==='vm'){ ccSetPending(l,'text',1,'vm'); return; }
-      if(act==='callback'){ ccSetPending(l,'callback',1,'callback'); return; }
-      // notint / dnc from a callback -> done
-      ccClearPending(l.id); markDone(l, act);
-    });
-  });
-  [...ov.querySelectorAll('[data-resched]')].forEach(b=>{
-    b.addEventListener('click', ()=>{ const d=Number(b.dataset.resched)||1; closeFollow(); ccReschedule(l.id, d); });
-  });
-}
-function closeFollow(){ const ov=document.getElementById('ccFollowOv'); if(ov) ov.remove(); document.body.style.overflow=''; ccCurrentFollow=null; }
-function ccReset(){
-  if(confirm("Reset ALL progress? This clears every result on this device.")){
-    ccState = { done:{}, recs:{}, pending:{}, filter:"All" };
-    ccQSearch=""; saveState(); buildFilters(); ccCursor=0;
-    ccFireEvent({ leadId:'', eventKind:'reset' });
-    if(ccView==='history'){ renderHistory(); } else { render(); }
+function renderDetail(l, opts) {
+  opts = opts || {};
+  const touches = opts.touches || [];
+  const fus = opts.followups || [];
+  const v = (x) => x ? esc(x) : '<span style="color:var(--muted)">—</span>';
+
+  let touchHtml = opts.loading ? '<div class="empty">Loading…</div>'
+    : (touches.length ? touches.map(t => `
+        <div class="touch-item">
+          <div class="top">
+            <strong>${TOUCH_LABELS[t.touch_type] || t.touch_type}${t.outcome ? " — " + (OUTCOME_LABELS[t.outcome] || t.outcome) : ""}</strong>
+            <span class="when">${fmtDate(t.occurred_at)}</span>
+          </div>
+          ${t.notes ? `<div style="margin-top:5px;font-size:14px;">${esc(t.notes)}</div>` : ""}
+          ${t.legacy_caller ? `<div class="when" style="font-size:12px;margin-top:4px;">by ${esc(t.legacy_caller)}</div>` : ""}
+        </div>`).join("")
+      : '<div class="empty">No calls logged yet.</div>');
+
+  let fuHtml = opts.loading ? ""
+    : (fus.length ? fus.map(f => `
+        <div class="touch-item" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <strong>${esc(f.kind)}</strong> · due ${fmtDay(f.due_date)}
+            ${f.completed ? '<span class="badge web-has" style="margin-left:6px;">done</span>' : ''}
+            ${f.notes ? `<div style="font-size:13px;color:var(--muted);margin-top:3px;">${esc(f.notes)}</div>` : ""}
+          </div>
+          ${f.completed ? "" : `<button class="small ghost" onclick="completeFollowup('${f.id}')">Mark done</button>`}
+        </div>`).join("")
+      : '<div class="empty" style="padding:14px;">No follow-ups scheduled.</div>');
+
+  $("detailView").innerHTML = `
+    <button class="ghost small" onclick="backToLeads()">← Back to leads</button>
+    <div class="panel" style="margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0 0 4px;">${esc(l.business_name)}</h2>
+          <div style="color:var(--muted);">${esc(l.industry || "—")} · ${esc(l.city || "")}${l.state ? ", " + esc(l.state) : ""}</div>
+        </div>
+        <div style="text-align:right;">
+          ${l.rating ? `<div class="rating" style="font-size:18px;">★ ${l.rating}</div>` : ""}
+          <span class="badge ${l.website_status === "none" ? "web-none" : l.website_status === "has_site" ? "web-has" : ""}">${l.website_status === "none" ? "No website" : l.website_status === "has_site" ? "Has website" : "Unknown"}</span>
+        </div>
+      </div>
+
+      ${l.website_problem ? `<div class="pitch"><strong>Pitch line:</strong> ${esc(l.website_problem)}</div>` : ""}
+
+      <div class="detail-grid">
+        <div><div class="k">Phone</div><div class="v">${l.phone ? `<a href="tel:${esc(l.phone)}">${esc(l.phone)}</a>` : '<span style="color:var(--muted)">—</span>'}</div></div>
+        <div><div class="k">Email</div><div class="v">${v(l.email)}</div></div>
+        <div><div class="k">Website</div><div class="v">${l.website_url ? `<a href="${esc(l.website_url)}" target="_blank" rel="noopener">${esc(l.website_url)}</a>` : '<span style="color:var(--muted)">—</span>'}</div></div>
+        <div><div class="k">Address</div><div class="v">${v(l.address)}</div></div>
+        <div><div class="k">Tags</div><div class="v">${l.tags ? esc(l.tags).split("|").map(t=>`<span class="badge" style="margin:2px 2px 0 0;">${esc(t)}</span>`).join("") : '<span style="color:var(--muted)">—</span>'}</div></div>
+        <div><div class="k">Source</div><div class="v">${v(l.source)}</div></div>
+      </div>
+      ${l.notes ? `<div style="margin-top:6px;"><div class="k" style="color:var(--muted);font-size:12px;">Notes</div><div>${esc(l.notes)}</div></div>` : ""}
+
+      <div class="row2" style="margin-top:16px;">
+        <div class="field" style="margin:0;">
+          <label>Pipeline stage</label>
+          <select id="stageSelect">
+            ${STAGES.map(s => `<option value="${s}" ${s === l.stage ? "selected" : ""}>${STAGE_LABELS[s]}</option>`).join("")}
+          </select>
+        </div>
+        <div style="display:flex;align-items:end;gap:8px;">
+          <button onclick="openLogTouch()">＋ Log a touch</button>
+          <button class="ghost" onclick="openAddFollowup()">＋ Follow-up</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Call history</div>
+    <div id="touchHistory">${touchHtml}</div>
+
+    <div class="section-title">Follow-ups</div>
+    <div id="fuHistory">${fuHtml}</div>
+  `;
+
+  if (!opts.loading) {
+    $("stageSelect").addEventListener("change", (e) => moveStage(l.id, e.target.value));
   }
 }
 
-/* ============ SCORECARD SHEET ============ */
-function openSheet(l){
-  ccCurrentSheet = { lead:l, interest:"", dm:"", tags:[...(l.tags||[])] };
-  const ov = document.createElement('div');
-  ov.className='cc-sheet-ov'; ov.id='ccSheetOv';
-  ov.innerHTML = sheetHtml(l);
-  document.body.appendChild(ov);
-  document.body.style.overflow='hidden';
-  wireSheet(l);
+function backToLeads() {
+  $("detailView").classList.add("hidden");
+  $("leadsView").classList.remove("hidden");
 }
-function closeSheet(){
-  const ov = document.getElementById('ccSheetOv');
-  if(ov) ov.remove();
-  document.body.style.overflow='';
-  ccCurrentSheet = null;
+
+async function moveStage(leadId, newStage) {
+  const { error } = await sb.from("leads").update({ stage: newStage }).eq("id", leadId);
+  if (error) { toast("Couldn't update stage: " + error.message, "err"); return; }
+  currentLead.stage = newStage;
+  const cached = allLeads.find(l => l.id === leadId);
+  if (cached) cached.stage = newStage;
+  toast("Moved to " + STAGE_LABELS[newStage], "ok");
 }
-function sheetHtml(l){
-  const tagBtns = CC_CHIPS.map(t=>{
-    const on = (l.tags||[]).includes(t);
-    return '<button type="button" class="cc-tag'+(on?' cc-on':'')+'" data-tag="'+esc(t)+'">'+esc(t)+'</button>';
-  }).join('');
-  return ''+
-  '<div class="cc-sheet" id="ccSheet">'+
-    '<h2>'+esc(l.b)+'</h2>'+
-    '<p class="cc-sub">Good lead — jot down whatever you got. Nothing here is required.</p>'+
 
-    '<div class="cc-field"><label>Their email <span class="cc-hint">(most important — adds them to the email follow-up)</span></label>'+
-      '<input type="email" id="scEmail" class="cc-star" placeholder="name@example.com" inputmode="email" autocapitalize="off"></div>'+
+/* ---------- log a touch (modal) ---------- */
+let touchDraft = { touch_type: "call", outcome: null };
 
-    '<div class="cc-field"><label>Contact name</label>'+
-      '<input type="text" id="scName" placeholder="Who you talked to"></div>'+
-
-    '<div class="cc-field"><label>How interested?</label>'+
-      '<div class="cc-seg" id="scInterest">'+
-        '<button type="button" data-v="Hot">🔥 Hot</button>'+
-        '<button type="button" data-v="Warm">Warm</button>'+
-        '<button type="button" data-v="Lukewarm">Lukewarm</button>'+
-      '</div></div>'+
-
-    '<div class="cc-field"><label>Decision maker?</label>'+
-      '<div class="cc-seg" id="scDM">'+
-        '<button type="button" data-v="Yes (owner)">Yes — owner</button>'+
-        '<button type="button" data-v="No / not sure">No / not sure</button>'+
-      '</div></div>'+
-
-    '<div class="cc-field"><label>Has a website now?</label>'+
-      '<div class="cc-seg" id="scSite">'+
-        '<button type="button" data-v="Yes"'+(l.hs?' class="cc-sel-plain"':'')+'>Yes</button>'+
-        '<button type="button" data-v="No"'+(!l.hs?' class="cc-sel-plain"':'')+'>No</button>'+
-      '</div></div>'+
-
-    '<div class="cc-field"><label>Main problem <span class="cc-hint">(pre-lit from what we know)</span></label>'+
-      '<div class="cc-tags" id="scTags">'+tagBtns+'</div></div>'+
-
-    '<div class="cc-field"><label>Best follow-up time</label>'+
-      '<input type="text" id="scFollow" placeholder="e.g. Tomorrow AM, after 5pm…"></div>'+
-
-    '<div class="cc-field"><label>Notes</label>'+
-      '<textarea id="scNotes" rows="2" placeholder="Anything worth remembering"></textarea></div>'+
-
-    '<div class="cc-sheet-actions">'+
-      '<button class="cc-cancel" id="scCancel">Cancel</button>'+
-      '<button class="cc-save" id="scSave">Save lead</button>'+
-    '</div>'+
-    '<div class="cc-savemsg" id="scMsg"></div>'+
-  '</div>';
+function openLogTouch() {
+  touchDraft = { touch_type: "call", outcome: null };
+  $("modalRoot").innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>Log a touch — ${esc(currentLead.business_name)}</h3>
+        <label>Type</label>
+        <div class="btn-grid" id="typeGrid">
+          ${TOUCH_TYPES.map(t => `<button type="button" data-t="${t}" class="${t==="call"?"sel":""}">${TOUCH_LABELS[t]}</button>`).join("")}
+        </div>
+        <label>Outcome (optional)</label>
+        <div class="btn-grid" id="outcomeGrid" style="grid-template-columns:1fr 1fr;">
+          ${OUTCOMES.map(o => `<button type="button" data-o="${o}">${OUTCOME_LABELS[o]}</button>`).join("")}
+        </div>
+        <div class="field">
+          <label>Note (optional)</label>
+          <textarea id="touchNote" placeholder="What happened on the call…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="ghost" onclick="closeModal()">Cancel</button>
+          <button id="saveTouchBtn" onclick="saveTouch()">Save touch</button>
+        </div>
+      </div>
+    </div>`;
+  document.querySelectorAll("#typeGrid button").forEach(b => b.addEventListener("click", () => {
+    touchDraft.touch_type = b.dataset.t;
+    document.querySelectorAll("#typeGrid button").forEach(x => x.classList.toggle("sel", x === b));
+  }));
+  document.querySelectorAll("#outcomeGrid button").forEach(b => b.addEventListener("click", () => {
+    const was = touchDraft.outcome === b.dataset.o;
+    touchDraft.outcome = was ? null : b.dataset.o;
+    document.querySelectorAll("#outcomeGrid button").forEach(x =>
+      x.classList.toggle("sel", !was && x === b));
+  }));
 }
-function wireSheet(l){
-  // segmented controls
-  segWire('scInterest', v=>{ ccCurrentSheet.interest=v; }, 'interest');
-  segWire('scDM', v=>{ ccCurrentSheet.dm=v; }, 'dm');
-  // site has its own default styling already
-  const siteSeg = document.getElementById('scSite');
-  siteSeg.dataset.val = l.hs ? "Yes" : "No";
-  [...siteSeg.querySelectorAll('button')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      [...siteSeg.querySelectorAll('button')].forEach(x=>x.className='');
-      b.className='cc-sel-plain'; siteSeg.dataset.val=b.dataset.v;
-    });
-  });
-  // tags
-  [...document.querySelectorAll('#scTags .cc-tag')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      b.classList.toggle('cc-on');
-      const t=b.dataset.tag;
-      const i=ccCurrentSheet.tags.indexOf(t);
-      if(b.classList.contains('cc-on')){ if(i<0) ccCurrentSheet.tags.push(t); }
-      else { if(i>=0) ccCurrentSheet.tags.splice(i,1); }
-    });
-  });
-  document.getElementById('scCancel').addEventListener('click', closeSheet);
-  document.getElementById('ccSheetOv').addEventListener('click', e=>{ if(e.target.id==='ccSheetOv') closeSheet(); });
-  document.getElementById('scSave').addEventListener('click', ()=>saveLead(l));
-}
-function segWire(id, setter, key){
-  const seg = document.getElementById(id);
-  const cls = {interest:{Hot:'cc-sel-hot',Warm:'cc-sel-warm',Lukewarm:'cc-sel-luke'}, dm:{}}[key]||{};
-  [...seg.querySelectorAll('button')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      [...seg.querySelectorAll('button')].forEach(x=>x.className='');
-      b.className = cls[b.dataset.v] || 'cc-sel-plain';
-      setter(b.dataset.v);
-    });
-  });
-}
-function saveLead(l){
-  const btn = document.getElementById('scSave');
-  const msg = document.getElementById('scMsg');
-  const email = (document.getElementById('scEmail').value||'').trim();
+
+async function saveTouch() {
+  $("saveTouchBtn").disabled = true;
+  const note = $("touchNote").value.trim();
   const payload = {
-    date: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}),
-    interest: ccCurrentSheet.interest||'',
-    business: l.b,
-    contact: (document.getElementById('scName').value||'').trim(),
-    decisionMaker: ccCurrentSheet.dm||'',
-    phone: l.pd||'',
-    email: email,
-    trade: l.t,
-    city: l.c,
-    hasWebsite: document.getElementById('scSite').dataset.val||'',
-    problem: ccCurrentSheet.tags.join(', '),
-    followUp: (document.getElementById('scFollow').value||'').trim(),
-    notes: (document.getElementById('scNotes').value||'').trim(),
-    status: 'New'
+    lead_id: currentLead.id,
+    caller_id: me.id,
+    touch_type: touchDraft.touch_type,
+    outcome: touchDraft.outcome,
+    notes: note || null
   };
-  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  btn.disabled=true; btn.classList.add('cc-saving'); btn.textContent='Saving…'; msg.className='cc-savemsg'; msg.textContent='';
+  const { error } = await sb.from("touches").insert(payload);
+  if (error) { toast("Couldn't save: " + error.message, "err"); $("saveTouchBtn").disabled = false; return; }
+  closeModal();
+  toast("Touch logged", "ok");
+  // refresh detail's touch list
+  openLead(currentLead.id);
+}
 
-  const tasks = [];
-  // 1) sheet
-  if(CC_SHEET_URL && CC_SHEET_URL.indexOf('__SHEET')<0){
-    tasks.push(fetch(CC_SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(()=>{}));
+/* ---------- add follow-up (modal) ---------- */
+function openAddFollowup() {
+  const today = new Date();
+  const plus3 = new Date(today.getTime() + 3 * 86400000).toISOString().slice(0, 10);
+  $("modalRoot").innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>Schedule a follow-up — ${esc(currentLead.business_name)}</h3>
+        <div class="field">
+          <label>Kind</label>
+          <select id="fuKind">
+            <option value="custom">Custom</option>
+            <option value="day3">Day 3</option>
+            <option value="day7">Day 7</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Due date</label>
+          <input type="date" id="fuDate" value="${plus3}" />
+        </div>
+        <div class="field">
+          <label>Note (optional)</label>
+          <textarea id="fuNote" placeholder="What to follow up about…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="ghost" onclick="closeModal()">Cancel</button>
+          <button id="saveFuBtn" onclick="saveFollowup()">Save follow-up</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function saveFollowup() {
+  $("saveFuBtn").disabled = true;
+  const payload = {
+    lead_id: currentLead.id,
+    caller_id: me.id,
+    kind: $("fuKind").value,
+    due_date: $("fuDate").value,
+    notes: $("fuNote").value.trim() || null
+  };
+  if (!payload.due_date) { toast("Pick a due date", "err"); $("saveFuBtn").disabled = false; return; }
+  const { error } = await sb.from("follow_ups").insert(payload);
+  if (error) { toast("Couldn't save: " + error.message, "err"); $("saveFuBtn").disabled = false; return; }
+  closeModal();
+  toast("Follow-up scheduled", "ok");
+  openLead(currentLead.id);
+}
+
+async function completeFollowup(id) {
+  const { error } = await sb.from("follow_ups")
+    .update({ completed: true, completed_at: new Date().toISOString() }).eq("id", id);
+  if (error) { toast("Couldn't update: " + error.message, "err"); return; }
+  toast("Marked done", "ok");
+  if (currentLead && !$("detailView").classList.contains("hidden")) openLead(currentLead.id);
+  if (!$("followupsView").classList.contains("hidden")) loadFollowups();
+}
+
+function closeModal() { $("modalRoot").innerHTML = ""; }
+
+/* ---------- follow-ups due today ---------- */
+async function loadFollowups() {
+  $("followupList").innerHTML = '<div class="empty">Loading…</div>';
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await sb.from("follow_ups")
+    .select("id, lead_id, kind, due_date, notes, leads(business_name, phone, city)")
+    .eq("completed", false)
+    .lte("due_date", today)
+    .order("due_date", { ascending: true });
+  if (error) { $("followupList").innerHTML = '<div class="empty">Error: ' + esc(error.message) + '</div>'; return; }
+  if (!data.length) { $("followupList").innerHTML = '<div class="empty">🎉 Nothing due. Inbox zero on follow-ups.</div>'; return; }
+  $("followupList").innerHTML = data.map(f => {
+    const lead = f.leads || {};
+    const overdue = f.due_date < today;
+    return `
+      <div class="lead-row" style="cursor:default;">
+        <div class="main">
+          <div class="name">${esc(lead.business_name || "Lead")}</div>
+          <div class="meta">${esc(f.kind)} · due ${fmtDay(f.due_date)}${overdue ? ' <span style="color:var(--red)">(overdue)</span>' : ""} · ${esc(lead.phone || "no phone")}</div>
+          ${f.notes ? `<div class="meta">${esc(f.notes)}</div>` : ""}
+        </div>
+        <div class="right" style="display:flex;gap:6px;">
+          <button class="small ghost" onclick="openLead('${f.lead_id}')">Open</button>
+          <button class="small" onclick="completeFollowup('${f.id}')">Done</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+/* ---------- dashboard ---------- */
+async function loadDashboard() {
+  $("topStats").innerHTML = '<div class="empty" style="grid-column:1/-1;">Loading…</div>';
+  $("stageStats").innerHTML = "";
+
+  // counts by stage (use cached leads if available, else fetch)
+  let leads = allLeads;
+  if (!leads.length) {
+    const { data } = await sb.from("leads").select("stage").limit(5000);
+    leads = data || [];
   }
-  // 2) courier ONLY if valid email
-  if(validEmail){
-    tasks.push(fetch(CC_COURIER_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,name:payload.contact,business:payload.business,source:'cold-call'})}).catch(()=>{}));
-  }
-  Promise.all(tasks).then(()=>{
-    // mark good + close regardless (no-cors gives opaque responses)
-    msg.className='cc-savemsg cc-ok';
-    msg.textContent = validEmail ? 'Saved + added to email follow-up.' : 'Saved to the sheet.';
-    btn.classList.remove('cc-saving'); btn.classList.add('cc-flash'); btn.textContent='✓ Sent';
-    ccToast(validEmail ? '✓ '+l.b+' saved + emailed' : '✓ '+l.b+' saved to the sheet', 'ok');
-    setTimeout(()=>{ closeSheet(); markDone(l,'good',{notes: payload.notes}); }, 600);
-  });
+  const byStage = {};
+  STAGES.forEach(s => byStage[s] = 0);
+  leads.forEach(l => { if (byStage[l.stage] != null) byStage[l.stage]++; });
+  const total = leads.length;
+
+  // touches in last 30 days (count via head request)
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { count: touches30 } = await sb.from("touches")
+    .select("id", { count: "exact", head: true })
+    .gte("occurred_at", since);
+
+  // follow-ups due today
+  const today = new Date().toISOString().slice(0, 10);
+  const { count: dueCount } = await sb.from("follow_ups")
+    .select("id", { count: "exact", head: true })
+    .eq("completed", false).lte("due_date", today);
+
+  $("topStats").innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">Total leads</div></div>
+    <div class="stat"><div class="num">${touches30 ?? "—"}</div><div class="lbl">Touches · 30d</div></div>
+    <div class="stat"><div class="num" style="color:var(--green)">${byStage.won}</div><div class="lbl">Won</div></div>
+    <div class="stat"><div class="num" style="color:var(--amber)">${dueCount ?? "—"}</div><div class="lbl">Follow-ups due</div></div>
+  `;
+
+  $("stageStats").innerHTML = STAGES.map(s => `
+    <div class="stat">
+      <div class="num" style="color:${STAGE_COLORS[s]}">${byStage[s]}</div>
+      <div class="lbl">${STAGE_LABELS[s]}</div>
+    </div>`).join("");
 }
 
+/* expose handlers used in inline onclick */
+window.backToLeads = backToLeads;
+window.openLogTouch = openLogTouch;
+window.saveTouch = saveTouch;
+window.openAddFollowup = openAddFollowup;
+window.saveFollowup = saveFollowup;
+window.completeFollowup = completeFollowup;
+window.closeModal = closeModal;
+window.openLead = openLead;
 
-/* ============ HISTORY VIEW ============ */
-let ccSearchTerm = "";
-function leadById(id){ return CC_LEADS.find(l=>String(l.id)===String(id)); }
-
-function renderHistory(){
-  const wrap = document.getElementById('ccHistory');
-  const recs = ccState.recs || {};
-  const ids = Object.keys(recs);
-
-  let searchBox = '<input class="cc-search" id="ccSearch" type="text" placeholder="Search all leads by business name…" value="'+esc(ccSearchTerm)+'">';
-
-  // Search mode: searches ALL leads (processed or not)
-  if(ccSearchTerm.trim()){
-    const term = ccSearchTerm.trim().toLowerCase();
-    const hits = CC_LEADS.filter(l => l.b.toLowerCase().includes(term));
-    let html = searchBox + '<div class="cc-hsection">Search results ('+hits.length+')</div>';
-    if(hits.length===0){ html += '<div class="cc-hempty">No business matches “'+esc(ccSearchTerm)+'”.</div>'; }
-    else { hits.slice(0,60).forEach(l=>{ html += histRowHtml(l, recs[l.id]); }); }
-    html += resetWrap();
-    wrap.innerHTML = html;
-    wireHistory();
-    return;
-  }
-
-  // Default: Callbacks first, then everything else processed
-  const callbacks = ids.filter(id=>recs[id].result==='callback').map(id=>leadById(id)).filter(Boolean);
-  const others = ids.filter(id=>recs[id].result!=='callback').map(id=>leadById(id)).filter(Boolean)
-                    .sort((a,b)=>{ // newest first by stored time string compare is unreliable; keep insertion-ish via id presence
-                       return 0; });
-  let html = searchBox;
-  if(ids.length===0){
-    html += '<div class="cc-hempty">No leads processed yet on this device.<br>Once you action leads in the Queue, they show up here.</div>' + resetWrap();
-    wrap.innerHTML = html; wireHistory(); return;
-  }
-  html += '<div class="cc-hsection">📞 Call backs ('+callbacks.length+')</div>';
-  if(callbacks.length===0){ html += '<div class="cc-hempty" style="padding:18px">None waiting for a call back.</div>'; }
-  else { callbacks.forEach(l=> html += histRowHtml(l, recs[l.id], true)); }
-
-  html += '<div class="cc-hsection">All processed ('+others.length+')</div>';
-  others.forEach(l=> html += histRowHtml(l, recs[l.id]));
-  html += resetWrap();
-  wrap.innerHTML = html;
-  wireHistory();
-}
-
-function resetWrap(){
-  return '<div class="cc-resetwrap"><button id="ccResetHist">Reset all progress (restore full list)</button></div>';
-}
-
-function histRowHtml(l, rec, isCb){
-  rec = rec || {};
-  const editing = String(ccEditId)===String(l.id);
-  const result = rec.result || '';
-  const label = CC_RESULT_LABELS[result] || (result? result : 'Not processed');
-  const callable = l.p && l.p.length===10;
-  const badge = result ? '<span class="cc-badge cc-b-'+result+'">'+esc(label)+'</span>' : '';
-  let inner = ''+
-    '<div class="cc-hrow-top">'+
-      '<div><div class="cc-hbiz">'+esc(l.b)+'</div>'+
-        '<div class="cc-hmeta">'+esc(l.c)+' · '+esc(l.t)+(rec.when?(' · '+esc(rec.when)):'')+'</div></div>'+
-      badge +
-    '</div>';
-  if(rec.notes){ inner += '<div class="cc-hnotes">'+esc(rec.notes)+'</div>'; }
-
-  if(editing){
-    inner += ''+
-      '<div style="margin-top:12px">'+
-        '<label style="font-size:.78rem;font-weight:700;color:var(--cc-navy);display:block;margin-bottom:5px">Change result</label>'+
-        '<select class="cc-search" id="ccEditResult" style="margin:0 0 10px">'+
-          ['good','callback','vm','noanswer','notint','dnc'].map(r=>'<option value="'+r+'"'+(r===result?' selected':'')+'>'+CC_RESULT_LABELS[r]+'</option>').join('')+
-        '</select>'+
-        '<label style="font-size:.78rem;font-weight:700;color:var(--cc-navy);display:block;margin-bottom:5px">Notes</label>'+
-        '<textarea class="cc-search" id="ccEditNotes" rows="3" style="margin:0 0 10px">'+esc(rec.notes||'')+'</textarea>'+
-        '<div class="cc-hactions">'+
-          '<button class="cc-ha cc-ha-edit" data-act="canceledit" data-id="'+l.id+'">Cancel</button>'+
-          '<button class="cc-ha cc-ha-reopen" data-act="saveedit" data-id="'+l.id+'">Save</button>'+
-        '</div>'+
-      '</div>';
-  } else {
-    inner += '<div class="cc-hactions">'+
-      '<a class="cc-ha cc-ha-call'+(callable?'':' cc-disabled')+'" href="'+(callable?('tel:'+l.p):'#')+'">📞 Call</a>'+
-      '<button class="cc-ha cc-ha-edit" data-act="edit" data-id="'+l.id+'">Edit</button>'+
-      '<button class="cc-ha cc-ha-reopen" data-act="reopen" data-id="'+l.id+'">Re-open</button>'+
-    '</div>';
-  }
-  return '<div class="cc-hrow'+(isCb?' cc-cb-row':'')+'">'+inner+'</div>';
-}
-
-function wireHistory(){
-  const s = document.getElementById('ccSearch');
-  if(s){ s.addEventListener('input', e=>{ ccSearchTerm = e.target.value; const pos=e.target.selectionStart; renderHistory(); const ns=document.getElementById('ccSearch'); if(ns){ ns.focus(); try{ns.setSelectionRange(pos,pos);}catch(_){} } }); }
-  const rh = document.getElementById('ccResetHist');
-  if(rh){ rh.addEventListener('click', ccReset); }
-  [...document.querySelectorAll('#ccHistory [data-act]')].forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const id = b.dataset.id, act = b.dataset.act;
-      if(act==='edit'){ ccEditId = id; renderHistory(); }
-      else if(act==='canceledit'){ ccEditId = null; renderHistory(); }
-      else if(act==='reopen'){ reopenLead(id); }
-      else if(act==='saveedit'){ saveEdit(id); }
-    });
-  });
-}
-
-function reopenLead(id){
-  const l = leadById(id);
-  if(!l) return;
-  if(confirm('Put "'+l.b+'" back in the call queue?')){
-    delete ccState.done[id];
-    if(ccState.recs) delete ccState.recs[id];
-    saveState();
-    ccFireEvent({ leadId:Number(id)||id, eventKind:'undo' });
-    buildFilters(); renderHistory();
-  }
-}
-function saveEdit(id){
-  const res = document.getElementById('ccEditResult').value;
-  const notes = document.getElementById('ccEditNotes').value;
-  if(!ccState.recs) ccState.recs={};
-  const prev = ccState.recs[id]||{};
-  ccState.done[id] = res;
-  ccState.recs[id] = Object.assign({}, prev, { id:Number(id)||id, result:res, notes:notes,
-    when: new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}) });
-  ccEditId = null;
-  saveState();
-  ccFireEvent({ leadId:Number(id)||id, eventKind:'done', result:res, notes:notes });
-  buildFilters(); renderHistory();
-}
-
-/* ============ util ============ */
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+init();
 </script>
+</body>
+</html>
 {% endraw %}
-
