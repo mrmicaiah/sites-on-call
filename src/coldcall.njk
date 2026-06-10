@@ -276,7 +276,7 @@ eleventyExcludeFromCollections: true
     <section id="dashboardView" class="hidden">
       <h2 style="margin-top:4px;">Today's work</h2>
       <div class="panel mgr-only" style="margin-bottom:20px;">
-        <div class="section-title" style="margin-top:0;">📸 Snapshot queue — needs a one-pager sent</div>
+        <div class="section-title" style="margin-top:0;">📋 Scorecard queue — needs a scorecard sent</div>
         <div id="snapQueue"></div>
       </div>
       <div class="panel caller-only" style="margin-bottom:20px;">
@@ -327,7 +327,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const STAGES = ["new","researched","contacted","snapshot_requested","sent_snapshot","discovery","mockup_sent","quoted","won","lost","nurture"];
 const STAGE_LABELS = {
-  new:"New", researched:"Researched", contacted:"Contacted", snapshot_requested:"Snapshot Requested", sent_snapshot:"Sent Snapshot",
+  new:"New", researched:"Researched", contacted:"Contacted", snapshot_requested:"Scorecard Requested", sent_snapshot:"Scorecard Sent",
   discovery:"Discovery", mockup_sent:"Mockup Sent", quoted:"Quoted", won:"Won", lost:"Lost", nurture:"Nurture"
 };
 const STAGE_COLORS = {
@@ -555,7 +555,7 @@ function renderDetail(l, opts) {
             <strong>${TOUCH_LABELS[t.touch_type] || t.touch_type}${t.outcome ? " — " + (OUTCOME_LABELS[t.outcome] || t.outcome) : ""}</strong>
             <span class="when">${fmtDate(t.occurred_at)}</span>
           </div>
-          ${t.notes ? `<div style="margin-top:5px;font-size:14px;">${esc(t.notes)}</div>` : ""}
+          ${t.notes ? `<div style="margin-top:5px;font-size:14px;white-space:pre-line;">${esc(t.notes)}</div>` : ""}
           ${t.legacy_caller ? `<div class="when" style="font-size:12px;margin-top:4px;">by ${esc(t.legacy_caller)}</div>` : ""}
         </div>`).join("")
       : '<div class="empty">No calls logged yet.</div>');
@@ -608,7 +608,6 @@ function renderDetail(l, opts) {
         <div style="display:flex;align-items:end;gap:8px;flex-wrap:wrap;">
           <button onclick="openLogTouch()">＋ Log a touch</button>
           <button class="ghost" onclick="openAddFollowup()">＋ Follow-up</button>
-          <button style="background:#f0883e" onclick="requestSnapshot()">📸 Request snapshot</button>
         </div>
       </div>
     </div>
@@ -640,59 +639,110 @@ async function moveStage(leadId, newStage) {
 }
 
 /* ---------- log a touch (modal) ---------- */
-let touchDraft = { touch_type: "call", outcome: null };
-
 function openLogTouch() {
-  touchDraft = { touch_type: "call", outcome: null };
+  const l = currentLead;
   $("modalRoot").innerHTML = `
     <div class="modal-bg" onclick="if(event.target===this)closeModal()">
       <div class="modal">
-        <h3>Log a touch — ${esc(currentLead.business_name)}</h3>
-        <label>Type</label>
+        <h3>Log a touch — ${esc(l.business_name)}</h3>
+        <label>Type — pick one or more</label>
         <div class="btn-grid" id="typeGrid">
           ${TOUCH_TYPES.map(t => `<button type="button" data-t="${t}" class="${t==="call"?"sel":""}">${TOUCH_LABELS[t]}</button>`).join("")}
         </div>
-        <label>Outcome (optional)</label>
+        <label>Outcome — optional, pick one or more</label>
         <div class="btn-grid" id="outcomeGrid" style="grid-template-columns:1fr 1fr;">
           ${OUTCOMES.map(o => `<button type="button" data-o="${o}">${OUTCOME_LABELS[o]}</button>`).join("")}
         </div>
         <div class="field">
           <label>Note (optional)</label>
-          <textarea id="touchNote" placeholder="What happened on the call…"></textarea>
+          <textarea id="touchNote" placeholder="What happened…"></textarea>
         </div>
+
+        <div style="border-top:1px solid var(--line);margin:6px 0 12px;padding-top:12px;">
+          <label style="color:var(--text);font-weight:600;">Update contact (optional)</label>
+          <div class="row2">
+            <div class="field"><label>Phone</label><input id="ctPhone" value="${esc(l.phone||"")}" /></div>
+            <div class="field"><label>Website status</label>
+              <select id="ctWeb">
+                <option value="unknown" ${l.website_status==="unknown"?"selected":""}>Unknown</option>
+                <option value="none" ${l.website_status==="none"?"selected":""}>No website</option>
+                <option value="has_site" ${l.website_status==="has_site"?"selected":""}>Has site</option>
+              </select></div>
+          </div>
+          <div class="field"><label>Email</label><input id="ctEmail" value="${esc(l.email||"")}" /></div>
+          <div class="field"><label>Website URL</label><input id="ctUrl" value="${esc(l.website_url||"")}" /></div>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px;">
+          <input type="checkbox" id="ctScorecard" style="width:auto;margin:0;" />
+          <span>📋 Request a scorecard for this business</span>
+        </label>
+
         <div style="display:flex;gap:8px;justify-content:flex-end;">
           <button class="ghost" onclick="closeModal()">Cancel</button>
-          <button id="saveTouchBtn" onclick="saveTouch()">Save touch</button>
+          <button id="saveTouchBtn" onclick="saveTouch()">Save</button>
         </div>
       </div>
     </div>`;
-  document.querySelectorAll("#typeGrid button").forEach(b => b.addEventListener("click", () => {
-    touchDraft.touch_type = b.dataset.t;
-    document.querySelectorAll("#typeGrid button").forEach(x => x.classList.toggle("sel", x === b));
-  }));
-  document.querySelectorAll("#outcomeGrid button").forEach(b => b.addEventListener("click", () => {
-    const was = touchDraft.outcome === b.dataset.o;
-    touchDraft.outcome = was ? null : b.dataset.o;
-    document.querySelectorAll("#outcomeGrid button").forEach(x =>
-      x.classList.toggle("sel", !was && x === b));
-  }));
+  document.querySelectorAll("#typeGrid button, #outcomeGrid button").forEach(b =>
+    b.addEventListener("click", () => b.classList.toggle("sel")));
 }
 
 async function saveTouch() {
-  $("saveTouchBtn").disabled = true;
+  const types = [...document.querySelectorAll("#typeGrid button.sel")].map(b => b.dataset.t);
+  const outcomes = [...document.querySelectorAll("#outcomeGrid button.sel")].map(b => b.dataset.o);
   const note = $("touchNote").value.trim();
-  const payload = {
-    lead_id: currentLead.id,
-    caller_id: me.id,
-    touch_type: touchDraft.touch_type,
-    outcome: touchDraft.outcome,
-    notes: note || null
-  };
-  const { error } = await sb.from("touches").insert(payload);
-  if (error) { toast("Couldn't save: " + error.message, "err"); $("saveTouchBtn").disabled = false; return; }
+  const scorecard = $("ctScorecard").checked;
+
+  // contact / stage changes
+  const leadUpdate = {};
+  const newPhone = $("ctPhone").value.trim();
+  const newEmail = $("ctEmail").value.trim();
+  const newUrl = $("ctUrl").value.trim();
+  const newWeb = $("ctWeb").value;
+  if (newPhone !== (currentLead.phone || "")) leadUpdate.phone = newPhone || null;
+  if (newEmail !== (currentLead.email || "")) leadUpdate.email = newEmail || null;
+  if (newUrl !== (currentLead.website_url || "")) leadUpdate.website_url = newUrl || null;
+  if (newWeb !== (currentLead.website_status || "unknown")) leadUpdate.website_status = newWeb;
+  if (scorecard && currentLead.stage !== "snapshot_requested") leadUpdate.stage = "snapshot_requested";
+
+  if (types.length === 0 && Object.keys(leadUpdate).length === 0) {
+    toast("Pick a touch type, edit a detail, or request a scorecard.", "err");
+    return;
+  }
+  $("saveTouchBtn").disabled = true;
+
+  // 1) one touch row per selected method
+  if (types.length) {
+    const primaryOutcome = outcomes.includes("interested") ? "interested" : (outcomes[0] || null);
+    let fullNote = note;
+    if (outcomes.length > 1) {
+      const labels = outcomes.map(o => OUTCOME_LABELS[o] || o).join(", ");
+      fullNote = "Outcomes: " + labels + (note ? "\n" + note : "");
+    }
+    const rows = types.map(t => ({
+      lead_id: currentLead.id, caller_id: me.id,
+      touch_type: t, outcome: primaryOutcome, notes: fullNote || null
+    }));
+    const { error: tErr } = await sb.from("touches").insert(rows);
+    if (tErr) { toast("Couldn't log touch: " + tErr.message, "err"); $("saveTouchBtn").disabled = false; return; }
+  }
+
+  // 2) contact / scorecard update
+  if (Object.keys(leadUpdate).length) {
+    const { error: lErr } = await sb.from("leads").update(leadUpdate).eq("id", currentLead.id);
+    if (lErr) {
+      const msg = lErr.code === "23505" ? "that phone number belongs to another lead" : lErr.message;
+      toast("Touch saved, but contact update failed: " + msg, "err");
+    } else {
+      Object.assign(currentLead, leadUpdate);
+      const cached = allLeads.find(l => l.id === currentLead.id);
+      if (cached) Object.assign(cached, leadUpdate);
+    }
+  }
+
   closeModal();
-  toast("Touch logged", "ok");
-  // refresh detail's touch list
+  toast(scorecard ? "Saved · scorecard requested" : "Saved", "ok");
   openLead(currentLead.id);
 }
 
@@ -796,7 +846,7 @@ async function loadDashboard() {
   $("stageStats").innerHTML = "";
   if ($("snapQueue")) $("snapQueue").innerHTML = '<div class="empty" style="padding:14px;">Loading…</div>';
 
-  // make sure we have full lead data (also powers the snapshot queue's Open button)
+  // make sure we have full lead data (also powers the scorecard queue's Open button)
   if (!allLeads.length) await loadLeads();
   const leads = allLeads;
 
@@ -840,7 +890,7 @@ async function loadDashboard() {
       <div class="lbl">${STAGE_LABELS[s]}</div>
     </div>`).join("");
 
-  // ---- snapshot queue: leads flagged "needs a one-pager" ----
+  // ---- scorecard queue: leads flagged "needs a scorecard" ----
   try {
     const { data: snaps, error: snapErr } = await sb.from("leads")
       .select("id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at")
@@ -853,7 +903,7 @@ async function loadDashboard() {
       if (i === -1) allLeads.push(s); else allLeads[i] = s;
     });
     if (!snaps || !snaps.length) {
-      $("snapQueue").innerHTML = '<div class="empty" style="padding:14px;">No snapshots waiting. All caught up.</div>';
+      $("snapQueue").innerHTML = '<div class="empty" style="padding:14px;">No scorecards waiting. All caught up.</div>';
     } else {
       $("snapQueue").innerHTML = snaps.map(s => `
         <div class="lead-row" style="cursor:default;">
@@ -869,26 +919,17 @@ async function loadDashboard() {
         </div>`).join("");
     }
   } catch (e) {
-    $("snapQueue").innerHTML = '<div class="empty" style="padding:14px;">Queue activates once the “Snapshot Requested” stage is added in Supabase (run the one-line SQL).</div>';
+    $("snapQueue").innerHTML = '<div class="empty" style="padding:14px;">Couldn’t load the scorecard queue.</div>';
   }
 }
 
-/* ---------- snapshot request / mark sent ---------- */
-async function requestSnapshot() {
-  const { error } = await sb.from("leads").update({ stage: "snapshot_requested" }).eq("id", currentLead.id);
-  if (error) { toast("Couldn't request snapshot: " + error.message, "err"); return; }
-  currentLead.stage = "snapshot_requested";
-  const cached = allLeads.find(l => l.id === currentLead.id);
-  if (cached) cached.stage = "snapshot_requested";
-  toast("📸 Snapshot requested — it'll show in the queue", "ok");
-  openLead(currentLead.id);
-}
+/* ---------- scorecard: mark sent ---------- */
 async function markSnapshotSent(id) {
   const { error } = await sb.from("leads").update({ stage: "sent_snapshot" }).eq("id", id);
   if (error) { toast("Couldn't update: " + error.message, "err"); return; }
   const cached = allLeads.find(l => l.id === id);
   if (cached) cached.stage = "sent_snapshot";
-  toast("Marked snapshot sent", "ok");
+  toast("Marked scorecard sent", "ok");
   loadDashboard();
 }
 
@@ -1092,7 +1133,6 @@ window.saveFollowup = saveFollowup;
 window.completeFollowup = completeFollowup;
 window.closeModal = closeModal;
 window.openLead = openLead;
-window.requestSnapshot = requestSnapshot;
 window.markSnapshotSent = markSnapshotSent;
 window.openAddLead = openAddLead;
 window.saveNewLead = saveNewLead;
