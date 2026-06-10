@@ -104,6 +104,9 @@ eleventyExcludeFromCollections: true
   .toolbar .grow { flex: 1; min-width: 180px; }
   .seg { background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
   .seg.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .bigtoggle { width: 100%; padding: 14px; font-size: 15px; background: var(--panel2); color: var(--text); border: 2px solid var(--line); }
+  .bigtoggle.sel { background: #f0883e; border-color: #f0883e; color: #1a1006; font-weight: 700; }
+  body { transition: background .2s ease; }
 
   /* Lead list */
   .lead-row {
@@ -211,6 +214,7 @@ eleventyExcludeFromCollections: true
       <button data-view="leads" class="active">Leads</button>
       <button data-view="followups">Follow-ups</button>
       <button data-view="dashboard">Dashboard</button>
+      <button data-view="scripts">Scripts</button>
     </nav>
     <div class="spacer"></div>
     <div class="who" id="whoami"></div>
@@ -312,6 +316,13 @@ eleventyExcludeFromCollections: true
           <p style="color:var(--muted);font-size:12px;margin-top:10px;">Columns: <b>business_name</b> (required), phone, industry, city, state, website_status (none / has_site / unknown), website_url, email, rating, website_problem, tags, notes, source. Extra columns are ignored. Duplicate phone numbers are skipped automatically.</p>
         </div>
       </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <section id="scriptsView" class="hidden">
+      <h2 style="margin-top:4px;">Scripts</h2>
+      <p style="color:var(--muted); margin-top:-6px;">Your #1 goal: give away a free Online Presence Scorecard. Tap Copy to grab any text.</p>
+      <div id="scriptList"></div>
     </section>
   </main>
 </div>
@@ -440,6 +451,7 @@ async function onSignedIn(user) {
 document.querySelectorAll("nav button").forEach(b =>
   b.addEventListener("click", () => showView(b.dataset.view)));
 
+const VIEW_BG = { leads:"#0a1733", followups:"#0b1f15", dashboard:"#0c0e13", scripts:"#1a0f22" };
 function showView(name) {
   document.querySelectorAll("nav button").forEach(b =>
     b.classList.toggle("active", b.dataset.view === name));
@@ -447,9 +459,12 @@ function showView(name) {
   $("detailView").classList.add("hidden");
   $("followupsView").classList.toggle("hidden", name !== "followups");
   $("dashboardView").classList.toggle("hidden", name !== "dashboard");
+  $("scriptsView").classList.toggle("hidden", name !== "scripts");
+  document.body.style.background = VIEW_BG[name] || "var(--bg)";
   if (name === "leads") $("leadsView").classList.remove("hidden");
   if (name === "followups") loadFollowups();
   if (name === "dashboard") loadDashboard();
+  if (name === "scripts") renderScripts();
 }
 
 /* ---------- leads ---------- */
@@ -560,6 +575,7 @@ async function openLead(id) {
   $("leadsView").classList.add("hidden");
   $("followupsView").classList.add("hidden");
   $("dashboardView").classList.add("hidden");
+  $("scriptsView").classList.add("hidden");
   $("detailView").classList.remove("hidden");
   renderDetail(currentLead, { loading: true });
   // load touches + follow-ups in parallel
@@ -706,10 +722,7 @@ function openLogTouch() {
           <div class="field"><label>Website URL</label><input id="ctUrl" value="${esc(l.website_url||"")}" /></div>
         </div>
 
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px;">
-          <input type="checkbox" id="ctScorecard" style="width:auto;margin:0;" />
-          <span>📋 Request a scorecard for this business</span>
-        </label>
+        <button type="button" id="ctScorecardBtn" class="bigtoggle" style="margin-bottom:14px;" onclick="this.classList.toggle('sel')">📋 Request an Online Presence Scorecard</button>
 
         <div style="display:flex;gap:8px;justify-content:flex-end;">
           <button class="ghost" onclick="closeModal()">Cancel</button>
@@ -725,7 +738,7 @@ async function saveTouch() {
   const types = [...document.querySelectorAll("#typeGrid button.sel")].map(b => b.dataset.t);
   const outcomes = [...document.querySelectorAll("#outcomeGrid button.sel")].map(b => b.dataset.o);
   const note = $("touchNote").value.trim();
-  const scorecard = $("ctScorecard").checked;
+  const scorecard = $("ctScorecardBtn").classList.contains("sel");
 
   // contact / stage changes
   const leadUpdate = {};
@@ -942,6 +955,48 @@ function followupRowsHtml(data, today) {
         </div>
       </div>`;
   }).join("");
+}
+
+/* ---------- scripts ---------- */
+const SCRIPTS = [
+  { id:"hook", title:"☎️ Opening hook — live answer",
+    body:`Hey, is this [Business]? Hi — this is [your name]. I do something kind of fun: I put together free Online Presence Scorecards for [industry]s around [city]. It's basically a quick report card on how your business shows up online — your website, your Google listing, your reviews, all of it. I already started pulling yours together. Want me to send it over? No cost, no catch.` },
+  { id:"vm", title:"📵 Voicemail — under 25 seconds",
+    body:`Hey [Business], this is [your name]. I put together a free Online Presence Scorecard for your business — it shows how you're showing up online: your Google listing, website, reviews, all of it. No cost, I just thought it'd be handy for you. If you want me to send it over, shoot me a quick text at [your phone]. Again, it's [your name] at [your phone]. Have a good one!` },
+  { id:"text", title:"💬 Text — right after the voicemail",
+    body:`Hi! [your name] here — just left you a voicemail. I made a free Online Presence Scorecard for [Business] that shows how you look online. Want me to send it over? -[your name]` },
+  { id:"day3", title:"💬 Day 3 follow-up text",
+    body:`Hey [Business], [your name] again — quick question: are most of your new customers finding you on Google, or mostly word of mouth? Your scorecard had a couple things worth a look. Happy to send it over. -[your name]` },
+  { id:"day7", title:"💬 Day 7 — final text",
+    body:`Last one from me — your free Online Presence Scorecard is still here whenever you want it, no strings attached. Good luck out there! -[your name]` },
+  { id:"what", title:"❓ If they ask what a Scorecard is",
+    body:`Great question! It's a quick, easy-to-read report that grades how your business looks online — whether folks can find your website, how your Google listing looks, your reviews, and whether your info is consistent everywhere. Takes me a couple minutes to put together and it's completely free. A lot of [industry]s are surprised by what's on it.` },
+  { id:"objections", title:"🛡️ Quick objection handling",
+    body:`"I'm not interested." → Totally fair — there's no sales pitch, it's just a free snapshot of how you look online. Want me to text it so you can glance at it later? No pressure either way.
+
+"How much is it?" → Nothing — it's free. I do these to introduce myself to local [industry]s.
+
+"I already have a website." → Perfect — the scorecard checks more than that: your Google listing, your reviews, whether your info matches everywhere. Most people find a surprise or two.
+
+"I'm busy right now." → No problem — what's the best number to text it to? You can look whenever you've got a sec.` }
+];
+
+function renderScripts() {
+  $("scriptList").innerHTML = SCRIPTS.map(s => `
+    <div class="panel" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <strong>${esc(s.title)}</strong>
+        <button class="small ghost" onclick="copyScript('${s.id}')">Copy</button>
+      </div>
+      <div style="margin-top:8px;white-space:pre-line;line-height:1.5;">${esc(s.body)}</div>
+    </div>`).join("");
+}
+
+async function copyScript(id) {
+  const s = SCRIPTS.find(x => x.id === id);
+  if (!s) return;
+  try { await navigator.clipboard.writeText(s.body); toast("Copied to clipboard", "ok"); }
+  catch (e) { toast("Couldn't copy — select the text and copy manually", "err"); }
 }
 
 /* ---------- dashboard ---------- */
@@ -1241,6 +1296,7 @@ window.setLeadTab = setLeadTab;
 window.openEditTouch = openEditTouch;
 window.saveEditTouch = saveEditTouch;
 window.deleteTouch = deleteTouch;
+window.copyScript = copyScript;
 window.markSnapshotSent = markSnapshotSent;
 window.openAddLead = openAddLead;
 window.saveNewLead = saveNewLead;
