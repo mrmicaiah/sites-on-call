@@ -102,6 +102,8 @@ eleventyExcludeFromCollections: true
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 14px; }
   .toolbar .field { margin: 0; }
   .toolbar .grow { flex: 1; min-width: 180px; }
+  .seg { background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+  .seg.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   /* Lead list */
   .lead-row {
@@ -221,6 +223,10 @@ eleventyExcludeFromCollections: true
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
         <h2 style="margin:0;">Leads</h2>
         <button onclick="openAddLead()">＋ Add lead</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="tabNew" class="seg active" onclick="setLeadTab('new')">🆕 New leads</button>
+        <button id="tabTouched" class="seg" onclick="setLeadTab('touched')">✅ Touched leads</button>
       </div>
       <div class="toolbar panel">
         <div class="field grow">
@@ -347,6 +353,9 @@ let me = null;          // { id, email }
 let myProfile = null;   // { full_name, role }
 let allLeads = [];      // cached lead list
 let currentLead = null;
+let currentTouches = [];        // touches loaded for the open lead
+let touchedLeadIds = new Set();  // lead ids that have >= 1 touch
+let leadTab = "new";            // "new" | "touched"
 
 const $ = (id) => document.getElementById(id);
 
@@ -449,11 +458,15 @@ function showView(name) {
 
 async function loadLeads() {
   $("leadList").innerHTML = '<div class="empty">Loading leads…</div>';
-  const { data, error } = await sb.from("leads")
-    .select("id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at")
-    .limit(2000);
-  if (error) { $("leadList").innerHTML = '<div class="empty">Error: ' + esc(error.message) + '</div>'; return; }
-  allLeads = data || [];
+  const [leadsRes, touchRes] = await Promise.all([
+    sb.from("leads")
+      .select("id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at")
+      .limit(2000),
+    sb.from("touches").select("lead_id")
+  ]);
+  if (leadsRes.error) { $("leadList").innerHTML = '<div class="empty">Error: ' + esc(leadsRes.error.message) + '</div>'; return; }
+  allLeads = leadsRes.data || [];
+  touchedLeadIds = new Set((touchRes.data || []).map(t => t.lead_id));
   buildFilterOptions();
   renderLeads();
 }
@@ -482,6 +495,9 @@ function renderLeads() {
   const sort = $("fSort").value;
 
   let rows = allLeads.filter(l => {
+    const touched = touchedLeadIds.has(l.id);
+    if (leadTab === "new" && touched) return false;
+    if (leadTab === "touched" && !touched) return false;
     if (stage && l.stage !== stage) return false;
     if (city && l.city !== city) return false;
     if (ind && l.industry !== ind) return false;
@@ -492,6 +508,13 @@ function renderLeads() {
     }
     return true;
   });
+
+  // live counts on the New / Touched tabs
+  if ($("tabNew")) {
+    const newTotal = allLeads.reduce((n, l) => n + (touchedLeadIds.has(l.id) ? 0 : 1), 0);
+    $("tabNew").textContent = `🆕 New leads (${newTotal})`;
+    $("tabTouched").textContent = `✅ Touched leads (${allLeads.length - newTotal})`;
+  }
 
   rows.sort((a, b) => {
     if (sort === "rating_desc") return (b.rating || 0) - (a.rating || 0);
@@ -523,6 +546,13 @@ function renderLeads() {
     r.addEventListener("click", () => openLead(r.dataset.id)));
 }
 
+function setLeadTab(tab) {
+  leadTab = tab;
+  if ($("tabNew")) $("tabNew").classList.toggle("active", tab === "new");
+  if ($("tabTouched")) $("tabTouched").classList.toggle("active", tab === "touched");
+  renderLeads();
+}
+
 /* ---------- lead detail ---------- */
 async function openLead(id) {
   currentLead = allLeads.find(l => l.id === id);
@@ -539,7 +569,8 @@ async function openLead(id) {
     sb.from("follow_ups").select("id, kind, due_date, completed, completed_at, notes")
       .eq("lead_id", id).order("due_date", { ascending: true })
   ]);
-  renderDetail(currentLead, { touches: touchesRes.data || [], followups: fuRes.data || [] });
+  currentTouches = touchesRes.data || [];
+  renderDetail(currentLead, { touches: currentTouches, followups: fuRes.data || [] });
 }
 
 function renderDetail(l, opts) {
@@ -557,6 +588,7 @@ function renderDetail(l, opts) {
           </div>
           ${t.notes ? `<div style="margin-top:5px;font-size:14px;white-space:pre-line;">${esc(t.notes)}</div>` : ""}
           ${t.legacy_caller ? `<div class="when" style="font-size:12px;margin-top:4px;">by ${esc(t.legacy_caller)}</div>` : ""}
+          <div style="margin-top:8px;"><button class="small ghost" onclick="openEditTouch('${t.id}')">Edit</button></div>
         </div>`).join("")
       : '<div class="empty">No calls logged yet.</div>');
 
@@ -627,6 +659,7 @@ function renderDetail(l, opts) {
 function backToLeads() {
   $("detailView").classList.add("hidden");
   $("leadsView").classList.remove("hidden");
+  renderLeads();
 }
 
 async function moveStage(leadId, newStage) {
@@ -726,6 +759,7 @@ async function saveTouch() {
     }));
     const { error: tErr } = await sb.from("touches").insert(rows);
     if (tErr) { toast("Couldn't log touch: " + tErr.message, "err"); $("saveTouchBtn").disabled = false; return; }
+    touchedLeadIds.add(currentLead.id);   // lead moves from New -> Touched
   }
 
   // 2) contact / scorecard update
@@ -743,6 +777,76 @@ async function saveTouch() {
 
   closeModal();
   toast(scorecard ? "Saved · scorecard requested" : "Saved", "ok");
+  openLead(currentLead.id);
+}
+
+/* ---------- edit / delete a touch ---------- */
+function openEditTouch(id) {
+  const t = currentTouches.find(x => x.id === id);
+  if (!t) { toast("Couldn't find that touch", "err"); return; }
+  $("modalRoot").innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>Edit touch</h3>
+        <label>Type</label>
+        <div class="btn-grid" id="etTypeGrid">
+          ${TOUCH_TYPES.map(x => `<button type="button" data-t="${x}" class="${x===t.touch_type?"sel":""}">${TOUCH_LABELS[x]}</button>`).join("")}
+        </div>
+        <label>Outcome (optional)</label>
+        <div class="btn-grid" id="etOutcomeGrid" style="grid-template-columns:1fr 1fr;">
+          ${OUTCOMES.map(o => `<button type="button" data-o="${o}" class="${o===t.outcome?"sel":""}">${OUTCOME_LABELS[o]}</button>`).join("")}
+        </div>
+        <div class="field"><label>Note</label><textarea id="etNote">${esc(t.notes||"")}</textarea></div>
+        <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;">
+          <button class="danger small" onclick="deleteTouch('${id}')">Delete</button>
+          <div style="display:flex;gap:8px;">
+            <button class="ghost" onclick="closeModal()">Cancel</button>
+            <button id="etSaveBtn" onclick="saveEditTouch('${id}')">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.querySelectorAll("#etTypeGrid button").forEach(b => b.addEventListener("click", () =>
+    document.querySelectorAll("#etTypeGrid button").forEach(x => x.classList.toggle("sel", x === b))));
+  document.querySelectorAll("#etOutcomeGrid button").forEach(b => b.addEventListener("click", () => {
+    const was = b.classList.contains("sel");
+    document.querySelectorAll("#etOutcomeGrid button").forEach(x => x.classList.remove("sel"));
+    if (!was) b.classList.add("sel");
+  }));
+}
+
+async function saveEditTouch(id) {
+  const typeBtn = document.querySelector("#etTypeGrid button.sel");
+  if (!typeBtn) { toast("Pick a type", "err"); return; }
+  const outBtn = document.querySelector("#etOutcomeGrid button.sel");
+  $("etSaveBtn").disabled = true;
+  const patch = {
+    touch_type: typeBtn.dataset.t,
+    outcome: outBtn ? outBtn.dataset.o : null,
+    notes: $("etNote").value.trim() || null
+  };
+  const { data, error } = await sb.from("touches").update(patch).eq("id", id).select();
+  if (error) { toast("Couldn't save: " + error.message, "err"); $("etSaveBtn").disabled = false; return; }
+  if (!data || !data.length) {
+    toast("Editing isn't enabled yet — run the touch-edit SQL (see chat).", "err");
+    $("etSaveBtn").disabled = false; return;
+  }
+  closeModal();
+  toast("Touch updated", "ok");
+  openLead(currentLead.id);
+}
+
+async function deleteTouch(id) {
+  if (!confirm("Delete this touch? This can't be undone.")) return;
+  const { data, error } = await sb.from("touches").delete().eq("id", id).select();
+  if (error) { toast("Couldn't delete: " + error.message, "err"); return; }
+  if (!data || !data.length) {
+    toast("Deleting isn't enabled yet — run the touch-edit SQL (see chat).", "err"); return;
+  }
+  // if that was the lead's last touch, send it back to New leads
+  if (currentTouches.filter(t => t.id !== id).length === 0) touchedLeadIds.delete(currentLead.id);
+  closeModal();
+  toast("Touch deleted", "ok");
   openLead(currentLead.id);
 }
 
@@ -1133,6 +1237,10 @@ window.saveFollowup = saveFollowup;
 window.completeFollowup = completeFollowup;
 window.closeModal = closeModal;
 window.openLead = openLead;
+window.setLeadTab = setLeadTab;
+window.openEditTouch = openEditTouch;
+window.saveEditTouch = saveEditTouch;
+window.deleteTouch = deleteTouch;
 window.markSnapshotSent = markSnapshotSent;
 window.openAddLead = openAddLead;
 window.saveNewLead = saveNewLead;
