@@ -277,6 +277,10 @@ eleventyExcludeFromCollections: true
       <h2 style="margin-top:4px;">Dashboard</h2>
       <div class="stat-grid" id="topStats" style="margin-bottom:20px;"></div>
       <div class="panel" style="margin-bottom:20px;">
+        <div class="section-title" style="margin-top:0;">📞 Calls due today — time to call these back</div>
+        <div id="dueCalls"></div>
+      </div>
+      <div class="panel" style="margin-bottom:20px;">
         <div class="section-title" style="margin-top:0;">📸 Snapshot queue — needs a one-pager sent</div>
         <div id="snapQueue"></div>
       </div>
@@ -740,6 +744,7 @@ async function completeFollowup(id) {
   toast("Marked done", "ok");
   if (currentLead && !$("detailView").classList.contains("hidden")) openLead(currentLead.id);
   if (!$("followupsView").classList.contains("hidden")) loadFollowups();
+  if (!$("dashboardView").classList.contains("hidden")) loadDashboard();
 }
 
 function closeModal() { $("modalRoot").innerHTML = ""; }
@@ -755,14 +760,18 @@ async function loadFollowups() {
     .order("due_date", { ascending: true });
   if (error) { $("followupList").innerHTML = '<div class="empty">Error: ' + esc(error.message) + '</div>'; return; }
   if (!data.length) { $("followupList").innerHTML = '<div class="empty">🎉 Nothing due. Inbox zero on follow-ups.</div>'; return; }
-  $("followupList").innerHTML = data.map(f => {
+  $("followupList").innerHTML = followupRowsHtml(data, today);
+}
+
+function followupRowsHtml(data, today) {
+  return data.map(f => {
     const lead = f.leads || {};
     const overdue = f.due_date < today;
     return `
       <div class="lead-row" style="cursor:default;">
         <div class="main">
           <div class="name">${esc(lead.business_name || "Lead")}</div>
-          <div class="meta">${esc(f.kind)} · due ${fmtDay(f.due_date)}${overdue ? ' <span style="color:var(--red)">(overdue)</span>' : ""} · ${esc(lead.phone || "no phone")}</div>
+          <div class="meta">${esc(f.kind)} · due ${fmtDay(f.due_date)}${overdue ? ' <span style="color:var(--red)">(overdue)</span>' : ""} · ${lead.phone ? `<a href="tel:${esc(lead.phone)}">${esc(lead.phone)}</a>` : "no phone"}</div>
           ${f.notes ? `<div class="meta">${esc(f.notes)}</div>` : ""}
         </div>
         <div class="right" style="display:flex;gap:6px;">
@@ -799,6 +808,16 @@ async function loadDashboard() {
   const { count: dueCount } = await sb.from("follow_ups")
     .select("id", { count: "exact", head: true })
     .eq("completed", false).lte("due_date", today);
+
+  // calls / follow-ups due today (the call-back queue)
+  if ($("dueCalls")) {
+    const { data: due } = await sb.from("follow_ups")
+      .select("id, lead_id, kind, due_date, notes, leads(business_name, phone, city)")
+      .eq("completed", false).lte("due_date", today)
+      .order("due_date", { ascending: true });
+    $("dueCalls").innerHTML = (due && due.length) ? followupRowsHtml(due, today)
+      : '<div class="empty" style="padding:14px;">No calls due right now. 🎉</div>';
+  }
 
   $("topStats").innerHTML = `
     <div class="stat"><div class="num">${total}</div><div class="lbl">Total leads</div></div>
@@ -899,6 +918,8 @@ function openAddLead() {
         <div class="field"><label>Pitch line (website problem)</label><input id="alProblem" placeholder="e.g. No website on Google listing" /></div>
         <div class="field"><label>Tags (separate with | )</label><input id="alTags" placeholder="No website|Generic email" /></div>
         <div class="field"><label>Notes</label><textarea id="alNotes"></textarea></div>
+        <div class="field"><label>Call back date (optional)</label><input type="date" id="alCallback" />
+          <div style="color:var(--muted);font-size:12px;margin-top:4px;">Sets a reminder that lands in “Calls due today” on this date.</div></div>
         <div style="display:flex;gap:8px;justify-content:flex-end;">
           <button class="ghost" onclick="closeModal()">Cancel</button>
           <button id="alSaveBtn" onclick="saveNewLead()">Add lead</button>
@@ -933,8 +954,16 @@ async function saveNewLead() {
     toast("Couldn't add: " + msg, "err"); $("alSaveBtn").disabled = false; return;
   }
   if (data) allLeads.unshift(data);
+  // optional call-back reminder -> creates a follow-up that shows in "Calls due"
+  const cbDate = $("alCallback").value;
+  if (cbDate && data) {
+    const { error: cbErr } = await sb.from("follow_ups").insert({
+      lead_id: data.id, caller_id: me.id, kind: "custom", due_date: cbDate, notes: "Call back"
+    });
+    if (cbErr) toast("Lead saved, but the callback didn't set: " + cbErr.message, "err");
+  }
   closeModal();
-  toast("Lead added", "ok");
+  toast(cbDate ? "Lead added + callback set" : "Lead added", "ok");
   if (!$("leadsView").classList.contains("hidden")) { buildFilterOptions(); renderLeads(); }
 }
 
