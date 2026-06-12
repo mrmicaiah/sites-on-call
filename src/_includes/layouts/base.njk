@@ -22,14 +22,17 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 
-  {# Default social-share image: RAW untransformed logo (Light, 1000x1000) served straight from
-     Cloudinary — NO c_pad, no flags, no derived asset. This is a DIAGNOSTIC: four transformed
-     URLs were rejected by Facebook's scraper as "corrupted" while loading fine in browsers. If
-     FB accepts this raw original, the problem is provably the on-the-fly transformation pipeline
-     (and the fix is a pre-baked static image). If FB rejects even this, the problem is Cloudinary
-     delivery to FB in general and the image must be hosted elsewhere. Square, so the card won't
-     be wide — acceptable for the test. Per-page `image` overrides this default. #}
-  {% set ogImage = image | default("https://res.cloudinary.com/dxzw1zwez/image/upload/v1781278062/LOGO_SOC_Light_fubtbt.png") %}
+  {# Default social-share image: 1200x630 logo card hosted on imgbb (i.ibb.co).
+     ROOT CAUSE of the long "corrupted image" saga: the shared Cloudinary account
+     (dxzw1zwez, serves multiple client sites) has "Resource list" restricted under
+     Security > Restricted image types, which blocks unsigned image delivery to bots
+     like Facebook's scraper (facebookexternalhit) — images loaded in browsers but FB
+     was refused. That setting is account-wide and we chose NOT to loosen it (other
+     client sites on the same account, risk unknown). So this one OG image is hosted
+     off-Cloudinary on imgbb, a plain public host FB can fetch. Favicons above still
+     use Cloudinary because browsers (not bots) load them, so the restriction doesn't bite.
+     Per-page `image` (e.g. article featured images) overrides this default. #}
+  {% set ogImage = image | default("https://i.ibb.co/vFB0kwf/og-default.jpg") %}
   
   {# Open Graph tags #}
   <meta property="og:title" content="{{ title | default('Sites On Call') }}">
@@ -38,7 +41,9 @@
   <meta property="og:url" content="https://sitesoncall.com{{ page.url }}">
   <meta property="og:site_name" content="Sites On Call">
   <meta property="og:image" content="{{ ogImage }}">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
   {# Twitter Card tags #}
   <meta name="twitter:card" content="summary_large_image">
