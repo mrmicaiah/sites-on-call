@@ -80,7 +80,7 @@ I talked to an electrician in Athens who did the math on his repeat customers. O
 
 That's a 4.5% retention rate.
 
-Compare that to customers who found him through word of mouth or his website: 67% came back to him directly.
+Compare that to customers who found him through [word of mouth or his website](/articles/why-word-of-mouth-isnt-enough/): 67% came back to him directly.
 
 Same quality of work. Completely different outcomes. The only difference was how they found him in the first place.
 
