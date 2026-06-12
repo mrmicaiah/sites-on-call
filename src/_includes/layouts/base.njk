@@ -7,7 +7,12 @@
   <meta name="description" content="{{ description | default("Websites and SEO content for contractors tired of Angi, HomeAdvisor, and expensive Google Ads. Build an asset you own. No contracts.") }}">
   {% if noindex %}<meta name="robots" content="noindex,nofollow">{% endif %}
 
-  {# Favicon - Sites On Call logo via Cloudinary (resized on-the-fly, single source image). #}
+  {# Favicon - Sites On Call logo via Cloudinary (resized on-the-fly, single source images).
+     Light logo (white) shows on dark tabs; Dark logo shows on light tabs.
+     The unconditional Dark links at the end are the fallback for browsers that
+     ignore the media attribute on icon links. Apple touch icon uses Dark (home screens vary). #}
+  <link rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)" href="https://res.cloudinary.com/dxzw1zwez/image/upload/w_32,h_32,c_fit,f_png/v1781278062/LOGO_SOC_Light_fubtbt.png">
+  <link rel="icon" type="image/png" sizes="16x16" media="(prefers-color-scheme: dark)" href="https://res.cloudinary.com/dxzw1zwez/image/upload/w_16,h_16,c_fit,f_png/v1781278062/LOGO_SOC_Light_fubtbt.png">
   <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dxzw1zwez/image/upload/w_32,h_32,c_fit,f_png/v1781278062/LOGO_SOC_Dark_ckqhrm.png">
   <link rel="icon" type="image/png" sizes="16x16" href="https://res.cloudinary.com/dxzw1zwez/image/upload/w_16,h_16,c_fit,f_png/v1781278062/LOGO_SOC_Dark_ckqhrm.png">
   <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dxzw1zwez/image/upload/w_180,h_180,c_fit,f_png/v1781278062/LOGO_SOC_Dark_ckqhrm.png">
