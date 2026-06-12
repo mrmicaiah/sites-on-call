@@ -374,9 +374,18 @@ function toast(msg, kind) {
   const root = $("toastRoot");
   const el = document.createElement("div");
   el.className = "toast " + (kind || "");
-  el.textContent = msg;
-  root.appendChild(el);
-  setTimeout(() => el.remove(), 3200);
+  if (kind === "err") {
+    // errors stay until tapped (and auto-clear after 15s) so they're actually readable
+    el.textContent = msg + "   (tap to dismiss)";
+    el.style.cursor = "pointer";
+    el.onclick = () => el.remove();
+    root.appendChild(el);
+    setTimeout(() => el.remove(), 15000);
+  } else {
+    el.textContent = msg;
+    root.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
 }
 
 function esc(s) {
@@ -685,8 +694,9 @@ function backToLeads() {
 }
 
 async function moveStage(leadId, newStage) {
-  const { error } = await sb.from("leads").update({ stage: newStage }).eq("id", leadId);
+  const { data, error } = await sb.from("leads").update({ stage: newStage }).eq("id", leadId).select();
   if (error) { toast("Couldn't update stage: " + error.message, "err"); return; }
+  if (!data || !data.length) { toast("Couldn't update stage — permissions issue (nothing was written).", "err"); return; }
   currentLead.stage = newStage;
   const cached = allLeads.find(l => l.id === leadId);
   if (cached) cached.stage = newStage;
@@ -784,12 +794,17 @@ async function saveTouch() {
     if (c) c.last_touched_at = currentLead.last_touched_at;
   }
 
-  // 2) contact / scorecard update
+  // 2) contact / scorecard update — verify it actually landed (no silent fake-success)
+  let saveOk = true;
   if (Object.keys(leadUpdate).length) {
-    const { error: lErr } = await sb.from("leads").update(leadUpdate).eq("id", currentLead.id);
+    const { data: upd, error: lErr } = await sb.from("leads").update(leadUpdate).eq("id", currentLead.id).select();
     if (lErr) {
+      saveOk = false;
       const msg = lErr.code === "23505" ? "that phone number belongs to another lead" : lErr.message;
-      toast("Touch saved, but contact update failed: " + msg, "err");
+      toast("Couldn't save" + (leadUpdate.stage ? " scorecard request" : " changes") + ": " + msg, "err");
+    } else if (!upd || !upd.length) {
+      saveOk = false;
+      toast("Couldn't save — permissions issue updating this lead (nothing was written).", "err");
     } else {
       Object.assign(currentLead, leadUpdate);
       const cached = allLeads.find(l => l.id === currentLead.id);
@@ -798,7 +813,7 @@ async function saveTouch() {
   }
 
   closeModal();
-  toast(scorecard ? "Saved · scorecard requested" : "Saved", "ok");
+  if (saveOk) toast(scorecard ? "Saved · scorecard requested" : "Saved", "ok");
   openLead(currentLead.id);
 }
 
@@ -1093,8 +1108,9 @@ async function loadDashboard() {
 
 /* ---------- scorecard: mark sent ---------- */
 async function markSnapshotSent(id) {
-  const { error } = await sb.from("leads").update({ stage: "sent_snapshot" }).eq("id", id);
+  const { data, error } = await sb.from("leads").update({ stage: "sent_snapshot" }).eq("id", id).select();
   if (error) { toast("Couldn't update: " + error.message, "err"); return; }
+  if (!data || !data.length) { toast("Couldn't update — permissions issue (nothing was written).", "err"); return; }
   const cached = allLeads.find(l => l.id === id);
   if (cached) cached.stage = "sent_snapshot";
   toast("Marked scorecard sent", "ok");
