@@ -471,17 +471,23 @@ function showView(name) {
 ["fSearch","fStage","fCity","fIndustry","fWebsite","fSort"].forEach(id =>
   $(id).addEventListener("input", renderLeads));
 
+const LEAD_COLS = "id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at";
+
 async function loadLeads() {
   $("leadList").innerHTML = '<div class="empty">Loading leads…</div>';
-  const [leadsRes, touchRes] = await Promise.all([
-    sb.from("leads")
-      .select("id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at")
-      .limit(2000),
-    sb.from("touches").select("lead_id")
-  ]);
-  if (leadsRes.error) { $("leadList").innerHTML = '<div class="empty">Error: ' + esc(leadsRes.error.message) + '</div>'; return; }
-  allLeads = leadsRes.data || [];
-  touchedLeadIds = new Set((touchRes.data || []).map(t => t.lead_id));
+  // Preferred: read the denormalized last_touched_at flag off each lead. Works for callers
+  // (they can read leads) without relying on them bulk-reading the RLS-restricted touches table.
+  let res = await sb.from("leads").select(LEAD_COLS + ", last_touched_at").limit(2000);
+  if (res.error) {
+    // Fallback if last_touched_at hasn't been added yet: derive touched-state from touches.
+    res = await sb.from("leads").select(LEAD_COLS).limit(2000);
+    if (res.error) { $("leadList").innerHTML = '<div class="empty">Error: ' + esc(res.error.message) + '</div>'; return; }
+    const tr = await sb.from("touches").select("lead_id");
+    const ids = new Set((tr.data || []).map(t => t.lead_id));
+    (res.data || []).forEach(l => { l.last_touched_at = ids.has(l.id) ? "1" : null; });
+  }
+  allLeads = res.data || [];
+  touchedLeadIds = new Set(allLeads.filter(l => l.last_touched_at).map(l => l.id));
   buildFilterOptions();
   renderLeads();
 }
@@ -773,6 +779,9 @@ async function saveTouch() {
     const { error: tErr } = await sb.from("touches").insert(rows);
     if (tErr) { toast("Couldn't log touch: " + tErr.message, "err"); $("saveTouchBtn").disabled = false; return; }
     touchedLeadIds.add(currentLead.id);   // lead moves from New -> Touched
+    currentLead.last_touched_at = new Date().toISOString();
+    const c = allLeads.find(l => l.id === currentLead.id);
+    if (c) c.last_touched_at = currentLead.last_touched_at;
   }
 
   // 2) contact / scorecard update
