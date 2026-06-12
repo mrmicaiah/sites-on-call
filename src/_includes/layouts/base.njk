@@ -23,8 +23,11 @@
   <link rel="stylesheet" href="/css/styles.css">
 
   {# Default social-share image: Dark logo padded onto a 1200x630 white canvas via Cloudinary.
+     Forced to flattened JPG (f_jpg) — Facebook's scraper rejects some transparent PNGs as
+     "corrupted" even though browsers render them fine. JPG has no alpha channel, so the
+     transparency is baked onto the white background and the problem disappears.
      Per-page `image` (e.g. article featured images) overrides this default. #}
-  {% set ogImage = image | default("https://res.cloudinary.com/dxzw1zwez/image/upload/c_pad,w_1200,h_630,b_white/v1781278062/LOGO_SOC_Dark_ckqhrm.png") %}
+  {% set ogImage = image | default("https://res.cloudinary.com/dxzw1zwez/image/upload/c_pad,w_1200,h_630,b_white,f_jpg,q_auto/v1781278062/LOGO_SOC_Dark_ckqhrm.jpg") %}
   
   {# Open Graph tags #}
   <meta property="og:title" content="{{ title | default('Sites On Call') }}">
@@ -33,6 +36,7 @@
   <meta property="og:url" content="https://sitesoncall.com{{ page.url }}">
   <meta property="og:site_name" content="Sites On Call">
   <meta property="og:image" content="{{ ogImage }}">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
