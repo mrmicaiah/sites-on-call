@@ -40,7 +40,7 @@ Plumber marketing is everything that gets a stranger to call your phone when the
 
 Every plumber's customer pipeline comes from three places, and these are the only three. Anyone who tells you different is selling you something.
 
-**Source #1: Referrals.** Someone tells someone else to call you. This is the gold standard. Highest close rate. Lowest acquisition cost. Most repeat business. The problem is referrals don't scale. You can't decide to get more of them next month.
+**Source #1: Referrals.** Someone tells someone else to call you. This is the gold standard. Highest close rate. Lowest acquisition cost. Most repeat business. The problem is [referrals don't scale](/articles/why-word-of-mouth-isnt-enough/). You can't decide to get more of them next month.
 
 **Source #2: Paid leads.** You give someone money — Angi, HomeAdvisor, Thumbtack, Google Ads, Facebook Ads, a marketing agency — and they send you customers. The cost varies wildly. The quality varies wildly. The relationship ends when you stop paying.
 
