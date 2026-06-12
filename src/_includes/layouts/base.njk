@@ -21,6 +21,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+
+  {# Default social-share image: Dark logo padded onto a 1200x630 white canvas via Cloudinary.
+     Per-page `image` (e.g. article featured images) overrides this default. #}
+  {% set ogImage = image | default("https://res.cloudinary.com/dxzw1zwez/image/upload/c_pad,w_1200,h_630,b_white/v1781278062/LOGO_SOC_Dark_ckqhrm.png") %}
   
   {# Open Graph tags #}
   <meta property="og:title" content="{{ title | default('Sites On Call') }}">
@@ -28,19 +32,15 @@
   <meta property="og:type" content="{{ ogType | default('website') }}">
   <meta property="og:url" content="https://sitesoncall.com{{ page.url }}">
   <meta property="og:site_name" content="Sites On Call">
-  {% if image %}
-  <meta property="og:image" content="{{ image }}">
+  <meta property="og:image" content="{{ ogImage }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  {% endif %}
 
   {# Twitter Card tags #}
-  <meta name="twitter:card" content="{{ 'summary_large_image' if image else 'summary' }}">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ title | default('Sites On Call') }}">
   <meta name="twitter:description" content="{{ description | default('Websites for contractors who are done paying for leads.') }}">
-  {% if image %}
-  <meta name="twitter:image" content="{{ image }}">
-  {% endif %}
+  <meta name="twitter:image" content="{{ ogImage }}">
   
   {# Canonical URL #}
   <link rel="canonical" href="https://sitesoncall.com{{ page.url }}">
