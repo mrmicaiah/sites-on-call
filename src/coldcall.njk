@@ -148,6 +148,7 @@ eleventyExcludeFromCollections: true
   /* Dashboard */
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
   .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat:hover { border-color: var(--accent); }
   .stat .num { font-size: 28px; font-weight: 700; }
   .stat .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; margin-top: 4px; }
 
@@ -231,6 +232,7 @@ eleventyExcludeFromCollections: true
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <button id="tabNew" class="seg active" onclick="setLeadTab('new')">🆕 New leads</button>
         <button id="tabTouched" class="seg" onclick="setLeadTab('touched')">✅ Touched leads</button>
+        <button id="tabAll" class="seg" onclick="setLeadTab('all')">All</button>
       </div>
       <div class="toolbar panel">
         <div class="field grow">
@@ -295,7 +297,7 @@ eleventyExcludeFromCollections: true
       </div>
       <div class="stat-grid" id="topStats" style="margin-bottom:20px;"></div>
       <div class="panel">
-        <div class="section-title" style="margin-top:0;">Pipeline by stage</div>
+        <div class="section-title" style="margin-top:0;">Pipeline by stage <span style="text-transform:none;letter-spacing:0;font-weight:400;">(tap any number to see those leads)</span></div>
         <div class="stat-grid" id="stageStats"></div>
       </div>
 
@@ -366,7 +368,8 @@ let allLeads = [];      // cached lead list
 let currentLead = null;
 let currentTouches = [];        // touches loaded for the open lead
 let touchedLeadIds = new Set();  // lead ids that have >= 1 touch
-let leadTab = "new";            // "new" | "touched"
+let leadTab = "new";            // "new" | "touched" | "all"
+let stageDates = {};            // lead_id -> when it entered the filtered stage
 
 const $ = (id) => document.getElementById(id);
 
@@ -477,8 +480,9 @@ function showView(name) {
 }
 
 /* ---------- leads ---------- */
-["fSearch","fStage","fCity","fIndustry","fWebsite","fSort"].forEach(id =>
+["fSearch","fCity","fIndustry","fWebsite","fSort"].forEach(id =>
   $(id).addEventListener("input", renderLeads));
+$("fStage").addEventListener("change", () => loadStageDates($("fStage").value));
 
 const LEAD_COLS = "id, business_name, industry, phone, email, address, city, state, website_status, website_url, source, stage, rating, website_problem, tags, notes, updated_at";
 
@@ -539,11 +543,12 @@ function renderLeads() {
     return true;
   });
 
-  // live counts on the New / Touched tabs
+  // live counts on the New / Touched / All tabs
   if ($("tabNew")) {
     const newTotal = allLeads.reduce((n, l) => n + (touchedLeadIds.has(l.id) ? 0 : 1), 0);
     $("tabNew").textContent = `🆕 New leads (${newTotal})`;
     $("tabTouched").textContent = `✅ Touched leads (${allLeads.length - newTotal})`;
+    if ($("tabAll")) $("tabAll").textContent = `All (${allLeads.length})`;
   }
 
   rows.sort((a, b) => {
@@ -562,6 +567,7 @@ function renderLeads() {
       <div class="main">
         <div class="name">${esc(l.business_name)}</div>
         <div class="meta">${esc(l.industry || "—")} · ${esc(l.city || "")}${l.state ? ", " + esc(l.state) : ""} · ${esc(l.phone || "no phone")}</div>
+        ${stage && stageDates[l.id] ? `<div class="meta" style="color:var(--accent)">${STAGE_LABELS[stage]} · ${fmtDate(stageDates[l.id])}</div>` : ""}
       </div>
       <div class="right">
         <div class="stage-pill" style="color:${STAGE_COLORS[l.stage] || "#9aa7c2"}">${STAGE_LABELS[l.stage] || l.stage}</div>
@@ -580,6 +586,32 @@ function setLeadTab(tab) {
   leadTab = tab;
   if ($("tabNew")) $("tabNew").classList.toggle("active", tab === "new");
   if ($("tabTouched")) $("tabTouched").classList.toggle("active", tab === "touched");
+  if ($("tabAll")) $("tabAll").classList.toggle("active", tab === "all");
+  renderLeads();
+}
+
+// jump from a dashboard stat into the Leads list filtered to that stage
+async function applyStageFilter(stage) {
+  $("fStage").value = stage;
+  $("fSearch").value = ""; $("fCity").value = ""; $("fIndustry").value = ""; $("fWebsite").value = "";
+  leadTab = "all";
+  if ($("tabNew")) $("tabNew").classList.remove("active");
+  if ($("tabTouched")) $("tabTouched").classList.remove("active");
+  if ($("tabAll")) $("tabAll").classList.add("active");
+  showView("leads");
+  await loadStageDates(stage);
+  window.scrollTo(0, 0);
+}
+
+// pull the date each lead entered the given stage (from the stage-history log)
+async function loadStageDates(stage) {
+  stageDates = {};
+  if (stage) {
+    const { data } = await sb.from("stage_history")
+      .select("lead_id, changed_at").eq("to_stage", stage)
+      .order("changed_at", { ascending: false });
+    (data || []).forEach(r => { if (!stageDates[r.lead_id]) stageDates[r.lead_id] = r.changed_at; });
+  }
   renderLeads();
 }
 
@@ -1061,14 +1093,14 @@ async function loadDashboard() {
   }
 
   $("topStats").innerHTML = `
-    <div class="stat"><div class="num">${total}</div><div class="lbl">Total leads</div></div>
+    <div class="stat" style="cursor:pointer" onclick="applyStageFilter('')"><div class="num">${total}</div><div class="lbl">Total leads</div></div>
     <div class="stat"><div class="num">${touches30 ?? "—"}</div><div class="lbl">Touches · 30d</div></div>
-    <div class="stat"><div class="num" style="color:var(--green)">${byStage.won}</div><div class="lbl">Won</div></div>
-    <div class="stat"><div class="num" style="color:var(--amber)">${dueCount ?? "—"}</div><div class="lbl">Follow-ups due</div></div>
+    <div class="stat" style="cursor:pointer" onclick="applyStageFilter('won')"><div class="num" style="color:var(--green)">${byStage.won}</div><div class="lbl">Won</div></div>
+    <div class="stat" style="cursor:pointer" onclick="showView('followups')"><div class="num" style="color:var(--amber)">${dueCount ?? "—"}</div><div class="lbl">Follow-ups due</div></div>
   `;
 
   $("stageStats").innerHTML = STAGES.map(s => `
-    <div class="stat">
+    <div class="stat" style="cursor:pointer" onclick="applyStageFilter('${s}')">
       <div class="num" style="color:${STAGE_COLORS[s]}">${byStage[s]}</div>
       <div class="lbl">${STAGE_LABELS[s]}</div>
     </div>`).join("");
@@ -1318,6 +1350,8 @@ window.completeFollowup = completeFollowup;
 window.closeModal = closeModal;
 window.openLead = openLead;
 window.setLeadTab = setLeadTab;
+window.applyStageFilter = applyStageFilter;
+window.showView = showView;
 window.openEditTouch = openEditTouch;
 window.saveEditTouch = saveEditTouch;
 window.deleteTouch = deleteTouch;
