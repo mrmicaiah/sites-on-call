@@ -350,7 +350,7 @@ That's a starting point, not a complete strategy. But it gets you out of "spendi
 
 ## An Honest Pitch
 
-I build websites for landscaping contractors in North Alabama for free. No upfront cost. Includes the structure I described above — dedicated pages for lawn care, landscape design, hardscape, irrigation, maintenance plans, portfolio gallery, and service area pages for every city you cover.
+I build websites for landscaping contractors in North Alabama — a one-time $750 for a standard build, yours to keep. Includes the structure I described above — dedicated pages for lawn care, landscape design, hardscape, irrigation, maintenance plans, portfolio gallery, and service area pages for every city you cover.
 
 If you want me to keep adding content to your site after launch — to capture the high-margin design and install searches, the maintenance program prospects, and the seasonal demand patterns — my plans run $149-$449 per month depending on volume. No long contracts. Cancel anytime.
 
@@ -368,7 +368,7 @@ You don't have to be one of them.
 
 ---
 
-*Sites On Call builds websites and content systems for landscaping contractors in North Alabama. Free websites built with the depth landscaping actually needs, content plans starting at $149/month, no long contracts. If you want a marketing foundation designed for landscaping specifically — not generic contractor marketing — let's talk.*
+*Sites On Call builds websites and content systems for landscaping contractors in North Alabama. A one-time $750 for a standard build with the depth landscaping actually needs, content plans starting at $149/month, no long contracts. If you want a marketing foundation designed for landscaping specifically — not generic contractor marketing — let's talk.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
