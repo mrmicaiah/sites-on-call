@@ -389,4 +389,4 @@ And once your website is solid, don't forget the other half of the equation: [yo
 
 ---
 
-*Sites On Call builds contractor websites — for free. No upfront cost. We handle the design so you can focus on the work. If you want us to keep adding content after launch, that's where we charge. Plans start at $149/month. If you want to see what your website could look like, reach out. No pressure.*
+*Sites On Call builds contractor websites — a one-time $750 for a standard build, and a real asset you own outright. We handle the design so you can focus on the work. If you want us to keep adding content after launch, plans start at $149/month, and prepaying a year of content gets the site free. If you want to see what your website could look like, reach out. No pressure.*
