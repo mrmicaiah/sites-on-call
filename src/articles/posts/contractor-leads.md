@@ -262,7 +262,7 @@ The choice is yours. But you do have to choose.
 
 ---
 
-*Need help building your own lead machine? I build websites for contractors in North Alabama — free, no upfront cost. If you want to stop renting customers and start owning them, let's talk.*
+*Need help building your own lead machine? I build websites for contractors in North Alabama — a one-time $750 for a standard build, content plans from $149/month, no long contracts. If you want to stop renting customers and start owning them, let's talk.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
