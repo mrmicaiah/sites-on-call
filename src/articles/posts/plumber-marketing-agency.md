@@ -224,7 +224,7 @@ If you're a plumber doing $400K a year and someone tells you that you need a $2,
 
 What I'd rather see is plumbers building real online presences at the right scale for their business. Start small. Build the foundation. Add complexity only when the simpler stuff is working and the business is big enough to support it.
 
-For most plumbers in North Alabama, that means a real website (which I happen to build for free), a solid Google Business Profile (which is free and you can do yourself), and a steady drip of content (which you can do for $149-$449/month with me, with a freelancer, or by writing it yourself).
+For most plumbers in North Alabama, that means a real website (a one-time $750 build with me — yours to keep), a solid Google Business Profile (which is free and you can do yourself), and a steady drip of content (which you can do for $149-$449/month with me, with a freelancer, or by writing it yourself).
 
 That's it. That's the whole strategy for most of the plumbers I talk to. Total monthly cost: $0-$449. Not $2,500. Not $3,500.
 
@@ -252,7 +252,7 @@ You're a plumber. You're good at fixing what's broken. Apply that same diagnosti
 
 ---
 
-*If you're a plumber in North Alabama who's tired of paying for marketing that doesn't generate work, let's talk. I build websites for contractors — free, no upfront cost. If you want help with ongoing content, my plans start at $149/month. No long contracts, no agency-level fees. Just the fundamentals, done right.*
+*If you're a plumber in North Alabama who's tired of paying for marketing that doesn't generate work, let's talk. I build websites for contractors — a one-time $750 for a standard build, no agency-level fees. If you want help with ongoing content, my plans start at $149/month, and a year of content prepaid includes the site free. No long contracts. Just the fundamentals, done right.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
