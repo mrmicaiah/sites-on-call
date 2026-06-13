@@ -449,25 +449,21 @@ That's the real tragedy. Not failing dramatically. Just slowly becoming invisibl
 
 Here's what we do at Sites On Call.
 
-We build the system I just described — **for free.**
+We build the system I just described — a real website with service pages, location pages, and everything you need to start showing up on Google. A standard build is a one-time **$750**, and it's a real asset you own outright, not a monthly rental.
 
-No upfront cost. No catch. We build you a real website with service pages, location pages, and everything you need to start showing up on Google.
+Why so cheap compared to a $5,000 agency build? Because the website isn't where the real value compounds. **Ongoing content creation is.**
 
-Why free? Because the website isn't the product. **Ongoing content creation is.**
-
-Once you have the foundation, you can grow it yourself if you want. Or you can let us keep building content for you:
+Once you have the foundation, you can grow it yourself if you want. Or you can let us keep building content for you — and if you prepay a year of content, the site comes free:
 
 - **Starter ($149/month):** 2 blog posts per month, occasional updates
 - **Standard ($299/month):** 4 blog posts per month, new service/location pages
 - **Growth ($449/month):** 8 blog posts per month, aggressive growth
 
-No contracts. Cancel anytime. If the content isn't generating leads, you stop paying.
+No long contracts. Cancel anytime. If the content isn't generating leads, you stop paying — and the website is yours either way.
 
-The website itself? You keep it either way. It's yours.
+Why keep the build affordable instead of charging agency prices? Because we've seen what happens when contractors commit to the system. They grow. They refer us to other contractors. We grow too.
 
-Why do we do this? Because we've seen what happens when contractors commit to the system. They grow. They refer us to other contractors. We grow too.
-
-We bet on ourselves by betting on you.
+We bet on ourselves by betting on you. There are also three Founding Client spots open right now — 50% off the first six months of content in exchange for letting us document your results.
 
 ---
 
