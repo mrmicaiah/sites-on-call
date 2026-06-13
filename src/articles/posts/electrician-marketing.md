@@ -350,7 +350,7 @@ That's how you win.
 
 ---
 
-*Need help with your online presence? I build websites for electricians and contractors in North Alabama — no upfront cost. If you want to stop being invisible and start getting calls, let's talk.*
+*Need help with your online presence? I build websites for electricians and contractors in North Alabama — a one-time $750 for a standard build, content plans from $149/month. If you want to stop being invisible and start getting calls, let's talk.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
