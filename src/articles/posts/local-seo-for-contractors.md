@@ -481,4 +481,4 @@ That's how you show up.
 
 ---
 
-*Sites On Call builds websites for contractors — for free. We handle the technical stuff so you can focus on the work. If you want help implementing any of this, reach out. No pressure, no pitch. Just answers.*
+*Sites On Call builds websites for contractors — a one-time $750 for a standard build, with the technical stuff handled so you can focus on the work. Content plans from $149/month if you want help implementing any of this. No pressure, no pitch. Just answers.*
