@@ -134,7 +134,7 @@ What you actually need:
 
 That's it. Doesn't have to be fancy. Doesn't need flashy graphics or stock photos of someone else's bathroom. It needs to load fast, work on mobile, and tell people what you do and how to reach you.
 
-I happen to build websites like this for free for contractors in North Alabama, so I'll mention that. But you can also build it yourself on Wix or Squarespace for $20/month if you're patient. Either path is fine. Just don't keep operating without a website.
+I happen to build websites like this for contractors in North Alabama — a one-time $750 for a standard build, yours to keep — so I'll mention that. But you can also build it yourself on Wix or Squarespace for $20/month if you're patient. Either path is fine. Just don't keep operating without a website.
 
 There's more detail in my [contractor website design guide](/articles/contractor-website-design/) if you want the specifics on what each page should contain.
 
@@ -329,7 +329,7 @@ But step one is fix the basics. Most plumbers never do that, which is exactly wh
 
 ## An Honest Pitch
 
-I build websites for plumbers in North Alabama for free. No upfront cost. If you want me to keep adding content to your site after launch, my plans run $149-$449/month depending on how much content you want. No long contracts. Cancel anytime.
+I build websites for plumbers in North Alabama — a one-time $750 for a standard build, yours to keep. If you want me to keep adding content to your site after launch, my plans run $149-$449/month depending on how much content you want, and prepaying a year of content gets the site free. No long contracts. Cancel anytime.
 
 That's the whole pitch. I don't run marketing agencies. I don't sell complicated packages. I build the foundation that lets plumbers stop renting their customers from Angi.
 
@@ -345,7 +345,7 @@ The question is whether you're going to start now, or keep waiting.
 
 ---
 
-*Sites On Call builds websites and content systems for plumbers in North Alabama. Free websites, content plans starting at $149/month, no long contracts. If you want help building a marketing system that compounds instead of one you rent forever, let's talk.*
+*Sites On Call builds websites and content systems for plumbers in North Alabama. A one-time $750 for a standard build, content plans starting at $149/month, no long contracts. If you want help building a marketing system that compounds instead of one you rent forever, let's talk.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
