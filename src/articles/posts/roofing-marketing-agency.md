@@ -341,7 +341,7 @@ If the answers concern you, it's time to have a conversation — either with you
 
 ---
 
-*Need a website that actually ranks without the agency overhead? I build sites for roofing contractors in North Alabama — free, no upfront cost. Just hosting and content if you want it. Let's talk.*
+*Need a website that actually ranks without the agency overhead? I build sites for roofing contractors in North Alabama — a one-time $750 for a standard build, with content plans from $149/month if you want it. Let's talk.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*
