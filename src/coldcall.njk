@@ -800,34 +800,42 @@ async function saveTouch() {
   if (newWeb !== (currentLead.website_status || "unknown")) leadUpdate.website_status = newWeb;
   if (scorecard && currentLead.stage !== "snapshot_requested") leadUpdate.stage = "snapshot_requested";
 
-  if (types.length === 0 && Object.keys(leadUpdate).length === 0) {
-    toast("Pick a touch type, edit a detail, or request a scorecard.", "err");
+  const primaryOutcome = outcomes.includes("interested") ? "interested" : (outcomes[0] || null);
+  let fullNote = note;
+  if (outcomes.length > 1) {
+    fullNote = "Outcomes: " + outcomes.map(o => OUTCOME_LABELS[o] || o).join(", ") + (note ? "\n" + note : "");
+  }
+
+  // one touch row per selected method; if no method was picked but an outcome/note was, log one "Other"
+  let touchRows = [];
+  if (types.length) {
+    touchRows = types.map(t => ({ lead_id: currentLead.id, caller_id: me.id, touch_type: t, outcome: primaryOutcome, notes: fullNote || null }));
+  } else if (outcomes.length || note) {
+    touchRows = [{ lead_id: currentLead.id, caller_id: me.id, touch_type: "other", outcome: primaryOutcome, notes: fullNote || null }];
+  }
+
+  if (touchRows.length === 0 && Object.keys(leadUpdate).length === 0) {
+    toast("Pick a type or outcome, jot a note, edit a detail, or request a scorecard.", "err");
     return;
   }
   $("saveTouchBtn").disabled = true;
 
-  // 1) one touch row per selected method
-  if (types.length) {
-    const primaryOutcome = outcomes.includes("interested") ? "interested" : (outcomes[0] || null);
-    let fullNote = note;
-    if (outcomes.length > 1) {
-      const labels = outcomes.map(o => OUTCOME_LABELS[o] || o).join(", ");
-      fullNote = "Outcomes: " + labels + (note ? "\n" + note : "");
-    }
-    const rows = types.map(t => ({
-      lead_id: currentLead.id, caller_id: me.id,
-      touch_type: t, outcome: primaryOutcome, notes: fullNote || null
-    }));
-    const { error: tErr } = await sb.from("touches").insert(rows);
+  // 1) log touches
+  if (touchRows.length) {
+    const { error: tErr } = await sb.from("touches").insert(touchRows);
     if (tErr) { toast("Couldn't log touch: " + tErr.message, "err"); $("saveTouchBtn").disabled = false; return; }
-    touchedLeadIds.add(currentLead.id);   // lead moves from New -> Touched
-    currentLead.last_touched_at = new Date().toISOString();
-    const c = allLeads.find(l => l.id === currentLead.id);
-    if (c) c.last_touched_at = currentLead.last_touched_at;
   }
 
-  // 2) contact / scorecard update — verify it actually landed (no silent fake-success)
+  // ANY save flags the lead "touched" so it leaves New (instant, client-side)
+  touchedLeadIds.add(currentLead.id);
+  const stamp = new Date().toISOString();
+  currentLead.last_touched_at = stamp;
+  const cachedLead = allLeads.find(l => l.id === currentLead.id);
+  if (cachedLead) cachedLead.last_touched_at = stamp;
+
+  // 2) lead update — verify it landed; if no touch row was logged, stamp last_touched_at so the move sticks on reload
   let saveOk = true;
+  if (touchRows.length === 0) leadUpdate.last_touched_at = stamp;
   if (Object.keys(leadUpdate).length) {
     const { data: upd, error: lErr } = await sb.from("leads").update(leadUpdate).eq("id", currentLead.id).select();
     if (lErr) {
@@ -839,8 +847,8 @@ async function saveTouch() {
       toast("Couldn't save — permissions issue updating this lead (nothing was written).", "err");
     } else {
       Object.assign(currentLead, leadUpdate);
-      const cached = allLeads.find(l => l.id === currentLead.id);
-      if (cached) Object.assign(cached, leadUpdate);
+      const cached2 = allLeads.find(l => l.id === currentLead.id);
+      if (cached2) Object.assign(cached2, leadUpdate);
     }
   }
 
