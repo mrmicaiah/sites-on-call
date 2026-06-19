@@ -356,7 +356,7 @@ If you want me to keep adding content to your site after launch — to capture t
 
 That's the entire pitch. I'm not a marketing agency. I'm not pitching a complicated multi-channel package. I build the foundation that lets landscaping contractors capture the work they actually want — the maintenance contracts and design installs, not just the one-off mowing calls — and I help them keep building it season over season.
 
-If you're a landscaping contractor in Decatur, Huntsville, Madison, Hartselle, Athens, Cullman, or the Shoals area and you're tired of marketing that doesn't scale to your seasonality or build long-term value — let's talk.
+If you're a landscaping contractor in [Decatur](/locations/decatur/landscaper/), [Huntsville](/locations/huntsville/landscaper/), Madison, Hartselle, Athens, Cullman, or the Shoals area and you're tired of marketing that doesn't scale to your seasonality or build long-term value — let's talk.
 
 Or use everything in this article on your own. Plenty of landscapers will read this and do the work themselves. That's fine too.
 
