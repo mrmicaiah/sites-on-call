@@ -34,7 +34,7 @@ So let's fix that.
 
 Before we get into what to look for, let's talk about why roofers specifically get burned so often.
 
-**Roofing is high-ticket.** An average residential roof replacement in the Huntsville area runs $8,000-$15,000. Commercial work is even higher. That means marketing agencies know roofers can write big checks. A contractor doing $175 service calls might balk at $2,000/month retainers. A roofer doing $12,000 jobs? They'll pay.
+**Roofing is high-ticket.** An average residential roof replacement in the Huntsville area runs $8,000-$15,000. Commercial work is even higher. That means marketing agencies know roofers can write big checks. A contractor doing $175 service calls might balk at $2,000/month retainers. A roofer doing $12,000 jobs? They'll pay. If you want to see how I'd actually position a roofing company to win that work, I broke it down for [roofers in Huntsville](/locations/huntsville/roofer/) specifically.
 
 **Roofing is competitive.** After every major storm, new roofing companies pop up like mushrooms. The North Alabama market has gotten significantly more crowded since the tornado outbreak in 2011, and again after the storms in 2019 and 2021. More competition means more desperation, and desperate business owners make easy marks.
 
@@ -111,7 +111,7 @@ Look for contracts with exit clauses. Three months with 30-day notice is reasona
 
 Here's a phrase that should make you nervous: "It's not about leads, it's about building your brand."
 
-Branding matters for Nike. Branding matters for Coca-Cola. For a roofing company in Decatur serving a 40-mile radius, what matters is whether the phone rings.
+Branding matters for Nike. Branding matters for Coca-Cola. For a roofing company in Decatur serving a 40-mile radius, what matters is whether the phone rings. (If you roof in that market, I wrote specifically about [what works for roofers in Decatur](/locations/decatur/roofer/).)
 
 Some agencies hide behind "brand awareness" because they can't deliver actual leads. If you ask "how do I know if this is working?" and their answer involves impressions, reach, engagement, or any other metric that doesn't translate to people calling you — be suspicious.
 
@@ -335,7 +335,7 @@ If you're currently shopping for an agency — or suspicious of the one you have
 
 **4. Call one of their references.** Just one. Have a real conversation. Ask the uncomfortable questions.
 
-**5. Google your own company.** Search "[your company name]" and "[roofing + your city]." Do you show up? Does your website look good? What would a homeowner think if they landed on it? If you've never thought about [what Google actually shows people when they search your business](/articles/what-google-sees-when-someone-searches-your-business/), that's the first audit to run — and it's free.
+**5. Google your own company.** Search "[your company name]" and "[roofing + your city]". Do you show up? Does your website look good? What would a homeowner think if they landed on it? If you've never thought about [what Google actually shows people when they search your business](/articles/what-google-sees-when-someone-searches-your-business/), that's the first audit to run — and it's free.
 
 If the answers concern you, it's time to have a conversation — either with your current agency or with someone new.
 
