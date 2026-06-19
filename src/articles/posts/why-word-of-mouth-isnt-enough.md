@@ -392,7 +392,8 @@ This is what actually moves the needle. Each piece of content is a new opportuni
 ### Step 3: Local Optimization
 
 Make sure Google knows you exist:
-- [Google Business Profile (fully optimized, with posts and photos)](/articles/local-seo-for-contractors/)
+- [Google Business Profile, fully optimized with posts and photos](/articles/google-business-profile-for-contractors/) — this is the single highest-leverage free asset you have, and most contractors leave it half-built
+- The [technical local SEO basics](/articles/local-seo-for-contractors/) — NAP consistency, citations, location pages
 - Consistent name, address, phone across all directories
 - Getting reviews (and responding to them)
 
