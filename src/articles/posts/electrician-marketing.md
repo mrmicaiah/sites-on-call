@@ -173,9 +173,9 @@ Let me get local for a minute, because geography matters.
 
 If you're working in Madison County, Morgan County, Limestone County, or the Shoals area, here's what you're dealing with:
 
-**Huntsville is booming.** Population growth, tech jobs, new construction everywhere. That's good news — more people means more electrical work. It also means more competition. Electricians from Birmingham and Nashville are eyeing this market. The contractors who lock in their local presence now will have an advantage for years.
+**Huntsville is booming.** Population growth, tech jobs, new construction everywhere. That's good news — more people means more electrical work. It also means more competition. Electricians from Birmingham and Nashville are eyeing this market. The contractors who lock in their local presence now will have an advantage for years — I broke down exactly what that looks like on the ground in my piece on [electrical marketing in Huntsville](/locations/huntsville/electrician/).
 
-**New construction is different from service work.** If you're doing residential new construction, your marketing barely matters — you get work through builders and general contractors. But if you're doing service and repair, you're competing for homeowners' attention. That's a completely different game.
+**New construction is different from service work.** If you're doing residential new construction, your marketing barely matters — you get work through builders and general contractors. But if you're doing service and repair, you're competing for homeowners' attention. That's a completely different game. The same dynamic plays out a few miles west, where the engineer-heavy households around [Madison](/locations/madison/electrician/) shop for electricians very differently than the rural-edge customers do.
 
 **The rural areas are underserved.** Drive 20 minutes from Huntsville and you're in a different world. Fewer electricians. Less competition. Customers who are just happy to find someone who will actually come out. If you're willing to serve Arab, Guntersville, Albertville, Fort Payne, Russellville, Moulton — there's business out there that the city contractors don't want to chase.
 
