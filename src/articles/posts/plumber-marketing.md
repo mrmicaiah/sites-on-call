@@ -333,7 +333,7 @@ I build websites for plumbers in North Alabama — a one-time $750 for a standar
 
 That's the whole pitch. I don't run marketing agencies. I don't sell complicated packages. I build the foundation that lets plumbers stop renting their customers from Angi.
 
-If you're a plumber in Decatur, Huntsville, Madison, Hartselle, Athens, Cullman, the Shoals area, or anywhere in between — and you're tired of writing checks to lead services that don't add up — let's talk.
+If you're a plumber in [Decatur](/locations/decatur/plumber/), [Huntsville](/locations/huntsville/plumber/), [Madison](/locations/madison/plumber/), Hartselle, Athens, Cullman, the Shoals area, or anywhere in between — and you're tired of writing checks to lead services that don't add up — let's talk.
 
 Or don't. The information in this article is useful whether you ever call me or not. Plenty of plumbers will read this, do the work themselves, and never need my help. That's fine too.
 
