@@ -218,7 +218,7 @@ The customers who become long-term, high-LTV relationships are the ones who got 
 
 ## The Marketing Channels That Actually Work for HVAC
 
-Let me get specific about which channels deserve your time and money. This is based on what I've seen perform across HVAC contractors in markets like Huntsville, Decatur, Madison, Athens, and Hartselle — not theory.
+Let me get specific about which channels deserve your time and money. This is based on what I've seen perform across HVAC contractors in markets like Huntsville, Decatur, Madison, Athens, and Hartselle — not theory. (The market specifics matter more than most contractors think: what wins in [Huntsville's high-ticket, engineer-buyer market](/locations/huntsville/hvac/) is not the same play that wins in [Decatur's workhorse replacement market](/locations/decatur/hvac/).)
 
 **Tier 1 — Where the most leverage lives:**
 
