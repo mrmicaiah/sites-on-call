@@ -168,7 +168,7 @@ Most of the plumbers I talk to in North Alabama are in Stage 1 or Stage 2. They'
 
 This is the part where most of these articles end with a soft pitch and a "call us today." I'll get to my pitch in a minute, but first I want to tell you what I'd actually do regardless of whether you ever talked to me.
 
-If I were starting or running a plumbing business in Decatur, Huntsville, Madison, Hartselle, Athens, or anywhere in the Shoals area tomorrow, here's the order I would do things in.
+If I were starting or running a plumbing business in Decatur, [Huntsville](/locations/huntsville/plumber/), Madison, Hartselle, [Athens](/locations/athens/plumber/), or anywhere in the Shoals area tomorrow, here's the order I would do things in.
 
 **Week 1: Fix the Google Business Profile.** Make sure every field is filled out. Add the right categories — primary "Plumber," secondary categories for every specific service you offer. Upload at least 15 real photos: your truck, your tools, work in progress, finished installs, your face. Write a description that uses all 750 characters. Set the service area to the specific cities you actually serve.
 
