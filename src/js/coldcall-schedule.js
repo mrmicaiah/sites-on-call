@@ -3,13 +3,13 @@
    Add-on for the cold-call app (coldcall.njk).
 
    Loaded as a SEPARATE file so the 1,300-line app stays untouched
-   except for one <script> include. It wraps the globally-exposed
-   openLogTouch() and saveTouch() functions:
-     - openLogTouch -> also injects a scheduling section into the modal
+   except for one <script> include. It wraps globally-exposed functions:
+     - openLogTouch -> also injects a scheduling section into the touch modal
      - saveTouch    -> after the touch is logged, books the call via book_call()
+     - loadDashboard-> adds a "Calls scheduled" stat tile + an upcoming-calls list
 
    Relies on globals already defined by coldcall.njk:
-     sb (Supabase client), currentLead, toast, openLogTouch, saveTouch.
+     sb (Supabase client), currentLead, toast, openLogTouch, saveTouch, loadDashboard.
    Rules (24h rolling lead time, M-F 9-5 Central, buffer, no double-book)
    are enforced server-side by book_call(); this UI only shows open slots.
    ============================================================ */
@@ -24,6 +24,24 @@
   function notify(msg, kind) {
     if (typeof window.toast === "function") window.toast(msg, kind || "ok");
   }
+  function esc(s) {
+    return (s == null ? "" : String(s)).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function dayShort(iso) {
+    if (!iso) return "";
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  }
+  function telHref(p) { return "tel:" + (p || "").replace(/[^0-9+]/g, ""); }
+  function srcBadge(source) {
+    return source === "web"
+      ? '<span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:rgba(163,113,247,.16);color:#a371f7;">Web</span>'
+      : '<span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:rgba(63,185,80,.16);color:#3fb950;">Cold</span>';
+  }
+
+  /* ---------- booking UI inside the Log-a-touch modal ---------- */
 
   async function loadAvailability() {
     if (availLoading || typeof sb === "undefined" || !sb) return;
@@ -96,7 +114,6 @@
       hours.map(function (h) { return '<option value="' + h + '">' + (SLOT_LABELS[h] || h) + "</option>"; }).join("");
   }
 
-  // Read a pending booking from the modal BEFORE saveTouch closes it.
   function readPendingBooking() {
     var wrap = document.getElementById("schedCallWrap");
     if (!wrap) return null;
@@ -107,6 +124,55 @@
     if (!date || !hour) return { invalid: true };
     return { lead_id: (typeof currentLead !== "undefined" && currentLead) ? currentLead.id : null, date: date, hour: parseInt(hour, 10) };
   }
+
+  /* ---------- dashboard: "Calls scheduled" stat + upcoming list ---------- */
+
+  async function renderCallStats() {
+    if (typeof sb === "undefined" || !sb) return;
+    var res = await sb.rpc("get_upcoming_calls", { p_days: 365 });
+    if (res.error) { console.error("calls stat error", res.error); return; }
+    var rows = res.data || [];
+
+    // 1) stat tile appended to #topStats (rebuilt fresh by loadDashboard each load)
+    var top = document.getElementById("topStats");
+    if (top && !document.getElementById("statCalls")) {
+      var tile = document.createElement("div");
+      tile.className = "stat";
+      tile.id = "statCalls";
+      tile.style.cursor = "pointer";
+      tile.title = "Open the full calls dashboard";
+      tile.onclick = function () { window.open("/calls", "_blank"); };
+      tile.innerHTML = '<div class="num" style="color:var(--accent)">' + rows.length + '</div><div class="lbl">Calls scheduled</div>';
+      top.appendChild(tile);
+    }
+
+    // 2) "Scheduled calls" panel inserted right after #topStats
+    var panel = document.getElementById("schedCallsPanel");
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.id = "schedCallsPanel";
+      panel.className = "panel";
+      panel.style.marginBottom = "20px";
+      if (top && top.parentNode) top.parentNode.insertBefore(panel, top.nextSibling);
+      else { var dash = document.getElementById("dashboardView"); if (dash) dash.appendChild(panel); }
+    }
+    var upcoming = rows.slice(0, 12);
+    var listHtml = upcoming.map(function (r) {
+      var t = SLOT_LABELS[r.slot_hour] || (r.slot_hour + ":00");
+      var who = r.booked_by_name ? (" · " + esc(r.booked_by_name)) : (r.source === "web" ? " · self-booked" : "");
+      var phone = r.phone ? '<a href="' + telHref(r.phone) + '">' + esc(r.phone) + "</a>" : '<span style="color:var(--muted)">no phone</span>';
+      return '<div class="touch-item" style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
+        '<div><strong>' + esc(dayShort(r.slot_date)) + " · " + esc(t) + "</strong> — " + esc(r.business_name) + " " + srcBadge(r.source) + who + "</div>" +
+        "<div>" + phone + "</div>" +
+        "</div>";
+    }).join("");
+    panel.innerHTML =
+      '<div class="section-title" style="margin-top:0;">📞 Scheduled calls' + (rows.length ? " (" + rows.length + ")" : "") + "</div>" +
+      (rows.length ? listHtml : '<div class="empty" style="padding:14px;">No calls scheduled.</div>') +
+      '<div style="margin-top:10px;"><a href="/calls" target="_blank">Open full calls dashboard →</a></div>';
+  }
+
+  /* ---------- install: wrap the app's global functions ---------- */
 
   function install() {
     if (typeof window.openLogTouch !== "function" || typeof window.saveTouch !== "function") return false;
@@ -141,12 +207,21 @@
         }
       }
     };
+
+    if (typeof window.loadDashboard === "function") {
+      var _dash = window.loadDashboard;
+      window.loadDashboard = async function () {
+        var r = await _dash.apply(this, arguments);
+        try { await renderCallStats(); } catch (e) { console.error("call stats", e); }
+        return r;
+      };
+    }
+
     return true;
   }
 
   // The inline app script runs before this file (we're included after it),
-  // so openLogTouch/saveTouch already exist. Install immediately; retry a few
-  // times only as a safety net.
+  // so the functions already exist. Install immediately; retry as a safety net.
   if (!install()) {
     var tries = 0;
     var iv = setInterval(function () {
