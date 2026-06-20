@@ -1,0 +1,164 @@
+{% raw %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Scheduled Calls — Sites On Call</title>
+  <style>
+    :root{
+      --bg:#0b0e14; --panel:#141925; --panel2:#1b2130; --line:#283042;
+      --text:#e8ecf4; --muted:#93a0b8; --accent:#4f8cff; --green:#3fb950;
+      --web:#a371f7; --cold:#3fb950;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    a{color:var(--accent)}
+    .wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+    h1{font-size:20px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 14px}
+    button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    button:disabled{opacity:.5;cursor:default}
+    .hidden{display:none!important}
+    /* login */
+    .login{max-width:360px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+    .login h1{margin:0 0 4px}
+    .login p{color:var(--muted);margin:0 0 18px;font-size:13px}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+    .field input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit}
+    .err{color:#ff6b6b;font-size:13px;min-height:18px;margin-top:6px}
+    /* list */
+    .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .count{color:var(--muted);font-size:13px}
+    .daygroup{margin-bottom:22px}
+    .dayhdr{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+    .call{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+    .call .time{font-weight:700;font-size:16px;min-width:74px;white-space:nowrap}
+    .call .body{flex:1;min-width:0}
+    .call .biz{font-weight:600}
+    .call .meta{color:var(--muted);font-size:13px;margin-top:2px}
+    .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle}
+    .badge.web{background:rgba(163,113,247,.16);color:var(--web)}
+    .badge.cold{background:rgba(63,185,80,.16);color:var(--cold)}
+    .empty{text-align:center;color:var(--muted);padding:48px 0}
+    .foot{color:var(--muted);font-size:12px;margin-top:24px;text-align:center}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginView" class="login">
+    <h1>Scheduled Calls</h1>
+    <p>Sign in with your Sites On Call caller account.</p>
+    <form id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" autocomplete="username" required></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" autocomplete="current-password" required></div>
+      <button type="submit" id="loginBtn" class="primary" style="width:100%">Sign in</button>
+      <div class="err" id="loginError"></div>
+    </form>
+  </div>
+
+  <!-- APP -->
+  <div id="appView" class="wrap hidden">
+    <header>
+      <div>
+        <h1>Scheduled Calls</h1>
+        <div class="sub">Upcoming calls with Irene · all times Central</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="sub" id="whoami"></span>
+        <button id="signOutBtn">Sign out</button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <button id="refreshBtn" class="primary">Refresh</button>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div id="callsList"></div>
+
+    <div class="foot">A slot disappears here and from the booking pickers once it's taken (plus the hour on either side, for buffer).</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+    const HOUR_LABELS = {9:"9:00 AM",10:"10:00 AM",11:"11:00 AM",13:"1:00 PM",14:"2:00 PM",15:"3:00 PM",16:"4:00 PM"};
+
+    function esc(s){ return (s==null?"":String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function dayHeading(iso){
+      const d = new Date(iso + "T00:00:00");
+      return d.toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" });
+    }
+    function telHref(p){ return "tel:" + (p||"").replace(/[^0-9+]/g,""); }
+
+    async function loadCalls(){
+      $("callsList").innerHTML = '<div class="empty">Loading…</div>';
+      const { data, error } = await sb.rpc("get_upcoming_calls", { p_days: 30 });
+      if (error){ $("callsList").innerHTML = '<div class="empty">Couldn\'t load calls: ' + esc(error.message) + '</div>'; $("count").textContent=""; return; }
+      const rows = data || [];
+      $("count").textContent = rows.length + (rows.length === 1 ? " call" : " calls") + " in the next 30 days";
+      if (!rows.length){ $("callsList").innerHTML = '<div class="empty">No calls scheduled yet.</div>'; return; }
+
+      // group by slot_date
+      const byDay = {};
+      rows.forEach(r => { (byDay[r.slot_date] = byDay[r.slot_date] || []).push(r); });
+
+      let html = "";
+      Object.keys(byDay).sort().forEach(day => {
+        html += '<div class="daygroup"><div class="dayhdr">' + esc(dayHeading(day)) + '</div>';
+        byDay[day].forEach(r => {
+          const src = r.source === "web"
+            ? '<span class="badge web">Web</span>'
+            : '<span class="badge cold">Cold call</span>';
+          const who = r.booked_by_name ? (" · booked by " + esc(r.booked_by_name)) : (r.source === "web" ? " · self-booked" : "");
+          const phone = r.phone ? '<a href="' + telHref(r.phone) + '">' + esc(r.phone) + '</a>' : '<span style="color:var(--muted)">no phone</span>';
+          html += ''
+            + '<div class="call">'
+            +   '<div class="time">' + esc(HOUR_LABELS[r.slot_hour] || (r.slot_hour + ":00")) + '</div>'
+            +   '<div class="body">'
+            +     '<div class="biz">' + esc(r.business_name) + src + '</div>'
+            +     '<div class="meta">' + phone + who + '</div>'
+            +   '</div>'
+            + '</div>';
+        });
+        html += '</div>';
+      });
+      $("callsList").innerHTML = html;
+    }
+
+    async function onSignedIn(user){
+      $("loginView").classList.add("hidden");
+      $("appView").classList.remove("hidden");
+      const { data: prof } = await sb.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
+      $("whoami").textContent = (prof && prof.full_name) ? prof.full_name : user.email;
+      loadCalls();
+    }
+
+    $("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("loginError").textContent = "";
+      $("loginBtn").disabled = true; $("loginBtn").textContent = "Signing in…";
+      const email = $("loginEmail").value.trim();
+      const password = $("loginPassword").value;
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      $("loginBtn").disabled = false; $("loginBtn").textContent = "Sign in";
+      if (error){ $("loginError").textContent = error.message; return; }
+      onSignedIn(data.user);
+    });
+
+    $("signOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
+    $("refreshBtn").addEventListener("click", loadCalls);
+
+    // Auto-sign-in if a session already exists (e.g. already logged into /coldcall).
+    sb.auth.getSession().then(({ data }) => { if (data.session) onSignedIn(data.session.user); });
+  </script>
+</body>
+</html>{% endraw %}
