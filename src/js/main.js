@@ -65,10 +65,6 @@ document.querySelectorAll('.founding-banner-cta, .founding-cta-btn').forEach(btn
   });
 });
 
-// Track contact modal opens (any way it opens)
-const _originalOpenContactModal = window.openContactModal;
-// Will be wrapped after openContactModal is defined below — see end of file
-
 
 // ============================================
 // PRICING SYSTEM: Site Size + Monthly/Annual
@@ -321,6 +317,7 @@ function submitAnotherRequest() {
   
   // Clear any leftover validation error state
   form.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+  if (typeof setSlotMsg === 'function') setSlotMsg('');
   
   // Restore the submit button (it was left in the "Sending…" disabled state)
   if (cfSubmitBtn) {
@@ -398,228 +395,204 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modal.classList.contains('open')) closeContactModal();
 });
 
-// Date picker: restrict to weekdays only (Mon-Fri)
+// ============================================
+// SUPABASE-BACKED SCHEDULING + LEAD CAPTURE
+// All bookings/leads now live in Supabase (Google Sheet + Courier retired).
+// ============================================
+const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+const sb = (window.supabase && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// Hour (24h, Central) -> display label for the time dropdown
+const SLOT_LABELS = { 9:'9:00 AM', 10:'10:00 AM', 11:'11:00 AM', 13:'1:00 PM', 14:'2:00 PM', 15:'3:00 PM', 16:'4:00 PM' };
+
+// availabilityByDate: { 'YYYY-MM-DD': [9,10,...] } of OPEN hours (booked + buffered already excluded server-side)
+let availabilityByDate = {};
+let availabilityLoaded = false;
+
 const dateInput = document.getElementById('cf-date');
+const timeSelect = document.getElementById('cf-time');
+const slotMsg = document.getElementById('cf-slot-msg');
+
+function setSlotMsg(text) {
+  if (!slotMsg) return;
+  slotMsg.textContent = text || '';
+  slotMsg.style.display = text ? 'block' : 'none';
+}
+
+function populateTimes() {
+  if (!timeSelect) return;
+  if (!dateInput || !dateInput.value) {
+    timeSelect.innerHTML = '<option value="">Select a date first…</option>';
+    return;
+  }
+  const hours = (availabilityByDate[dateInput.value] || []).slice().sort((a, b) => a - b);
+  if (!hours.length) {
+    timeSelect.innerHTML = '<option value="">No times open that day</option>';
+    return;
+  }
+  timeSelect.innerHTML = '<option value="">Select a time…</option>' +
+    hours.map(h => `<option value="${h}">${SLOT_LABELS[h] || (h + ':00')}</option>`).join('');
+}
+
+async function loadAvailability() {
+  if (!sb) {
+    setSlotMsg('Scheduling is briefly unavailable — submit the form and Irene will reach out to set a time.');
+    return;
+  }
+  setSlotMsg('Loading available times…');
+  const { data, error } = await sb.rpc('get_available_slots', { p_source: 'web', p_days: 21 });
+  if (error) {
+    availabilityLoaded = false;
+    setSlotMsg('Couldn\'t load times right now — submit anyway and we\'ll sort out a time.');
+    return;
+  }
+  availabilityByDate = {};
+  (data || []).forEach(row => {
+    (availabilityByDate[row.slot_date] = availabilityByDate[row.slot_date] || []).push(row.slot_hour);
+  });
+  availabilityLoaded = true;
+
+  const dates = Object.keys(availabilityByDate).sort();
+  if (dateInput && dates.length) {
+    dateInput.min = dates[0];
+    dateInput.max = dates[dates.length - 1];
+    if (dateInput.value && !availabilityByDate[dateInput.value]) dateInput.value = '';
+  }
+  populateTimes();
+  setSlotMsg(dates.length ? '' : 'No open times in the next few weeks — submit the form and Irene will reach out.');
+}
+
 if (dateInput) {
-  // Set min date to today
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  dateInput.min = `${yyyy}-${mm}-${dd}`;
-  
-  // Validate on change - if weekend selected, find next weekday
   dateInput.addEventListener('change', () => {
-    const selected = new Date(dateInput.value + 'T12:00:00');
-    const day = selected.getDay();
-    if (day === 0) { // Sunday - move to Monday
-      selected.setDate(selected.getDate() + 1);
-    } else if (day === 6) { // Saturday - move to Monday
-      selected.setDate(selected.getDate() + 2);
+    if (availabilityLoaded && dateInput.value && !availabilityByDate[dateInput.value]) {
+      setSlotMsg('That day has no open times — pick another weekday (Mon–Fri).');
+    } else {
+      setSlotMsg('');
     }
-    const newYyyy = selected.getFullYear();
-    const newMm = String(selected.getMonth() + 1).padStart(2, '0');
-    const newDd = String(selected.getDate()).padStart(2, '0');
-    dateInput.value = `${newYyyy}-${newMm}-${newDd}`;
+    populateTimes();
   });
 }
 
-// Contact form submission
+// Load availability the first time the "Schedule a phone call" toggle is switched on.
+const _scheduleCheckbox = document.getElementById('cf-schedule');
+if (_scheduleCheckbox) {
+  _scheduleCheckbox.addEventListener('change', () => {
+    if (_scheduleCheckbox.checked && !availabilityLoaded) loadAvailability();
+  });
+}
+
+// Map package values to a clean GA4 label
+function mapPackageInterest(pkg) {
+  if (!pkg) return 'Not Sure';
+  if (pkg.includes('starter')) return 'Starter';
+  if (pkg.includes('standard')) return 'Standard';
+  if (pkg.includes('growth')) return 'Growth';
+  return 'Not Sure';
+}
+
+// Contact form submission -> Supabase (create_web_lead RPC)
 (function() {
-  const CONFIG = {
-    list: 'sites-on-call-leads',
-    source: 'sites-on-call',
-    funnel: 'contact-form',
-    formSelector: '#contactForm',
-    tags: ['new-lead'],
-    customFields: ['business', 'phone', 'message', 'package', 'call_date', 'call_time', 'wants_snapshot', 'wants_call'],
-    successMessage: 'Thanks! We\'ll be in touch within 24 hours.',
-    errorMessage: 'Something went wrong. Please try again or email us at hello@sitesoncall.com.'
-  };
-  
-  const API_URL = 'https://email-bot-server.micaiah-tasks.workers.dev/api/subscribe';
-  // Cold Call Leads Apps Script (same sheet Gloria's call tool writes to).
-  // Web form rows are stamped Source = "Web Form"; cold-call rows default to "Cold Call".
-  const LEAD_TRACKER_URL = 'https://script.google.com/macros/s/AKfycbySuUc1-9uz9X7XIU1a39Ydob8eaDq89XmDeUd-RakTh81idxFx0gfTfIR6fEiVplPd/exec';
-  
-  // Map package values to Lead Tracker format
-  function mapPackageInterest(pkg) {
-    if (!pkg) return 'Not Sure';
-    if (pkg.includes('starter')) return 'Starter';
-    if (pkg.includes('standard')) return 'Standard';
-    if (pkg.includes('growth')) return 'Growth';
-    if (pkg === 'website-only') return 'Not Sure';
-    return 'Not Sure';
-  }
-  
-  // Build a human-readable Notes blob from the form-only fields that the
-  // Cold Call Leads sheet has no dedicated columns for (package interest,
-  // scorecard/call requests, scheduling, free-text message).
-  function buildSheetNotes(formData) {
-    const parts = [];
-    if (formData.package) parts.push('Package: ' + mapPackageInterest(formData.package));
-    parts.push('Wants scorecard: ' + (formData.wants_snapshot ? 'Yes' : 'No'));
-    if (formData.wants_call) {
-      let callLine = 'Wants call: Yes';
-      if (formData.call_date || formData.call_time) {
-        callLine += ' (' + [formData.call_date, formData.call_time].filter(Boolean).join(' ') + ')';
-      }
-      parts.push(callLine);
-    }
-    if (formData.message) parts.push('Message: ' + formData.message);
-    return parts.join(' | ');
-  }
+  const form = document.getElementById('contactForm');
+  if (!form) return;
 
-  // Send to the Cold Call Leads sheet (same sheet Gloria's call tool feeds).
-  // Field names MUST match what the Apps Script doPost reads:
-  // d.date, d.interest, d.business, d.contact, d.decisionMaker, d.phone,
-  // d.email, d.trade, d.city, d.hasWebsite, d.problem, d.followUp,
-  // d.notes, d.status, d.source.
-  async function sendToLeadTracker(formData) {
-    const payload = {
-      date: new Date().toLocaleString('en-US'),
-      interest: '',                              // Gloria's call-temperature field; N/A for web
-      business: formData.business || '',         // Business column
-      contact: formData.name || '',              // Contact column (person's name)
-      decisionMaker: '',                         // Not collected on the web form
-      phone: formData.phone || '',
-      email: formData.email || '',
-      trade: '',                                 // Not collected on the web form
-      city: '',                                  // Not collected on the web form
-      hasWebsite: '',                            // Not collected on the web form
-      problem: '',                               // Gloria's call-observation field; N/A for web
-      followUp: '',
-      notes: buildSheetNotes(formData),          // Package / scorecard / call / message packed here
-      status: 'New',
-      source: 'Web Form'                         // Stamps the Source column (R)
-    };
-
-    try {
-      await fetch(LEAD_TRACKER_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Google Apps Script requires this
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    } catch (err) {
-      console.error('Lead Tracker error:', err);
-      // Don't block form submission if the sheet write fails
-    }
-  }
-  
-  document.querySelector(CONFIG.formSelector)?.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const form = e.target;
     const btn = form.querySelector('button[type="submit"]');
     const originalHTML = btn.innerHTML;
-    
     form.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
-    
-    const email = form.querySelector('[name="email"]').value.trim();
+
     const name = form.querySelector('[name="name"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
     const business = form.querySelector('[name="business"]').value.trim();
     const phone = form.querySelector('[name="phone"]').value.trim();
+    const wantsCall = form.querySelector('[name="wants_call"]')?.checked || false;
+    const wantsSnapshot = form.querySelector('[name="wants_snapshot"]')?.checked || false;
+    const pkg = form.querySelector('[name="package"]')?.value.trim() || '';
+    const message = form.querySelector('[name="message"]')?.value.trim() || '';
+    const callDate = form.querySelector('[name="call_date"]')?.value.trim() || '';
+    const callHourRaw = form.querySelector('[name="call_time"]')?.value.trim() || '';
+
     let hasError = false;
-    
-    if (!name) {
-      form.querySelector('[name="name"]').closest('.form-group').classList.add('has-error');
+    function flag(sel) {
+      form.querySelector(sel).closest('.form-group').classList.add('has-error');
       hasError = true;
     }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      form.querySelector('[name="email"]').closest('.form-group').classList.add('has-error');
-      hasError = true;
-    }
-    if (!business) {
-      form.querySelector('[name="business"]').closest('.form-group').classList.add('has-error');
-      hasError = true;
-    }
-    if (!phone) {
-      form.querySelector('[name="phone"]').closest('.form-group').classList.add('has-error');
+    if (!name) flag('[name="name"]');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) flag('[name="email"]');
+    if (!business) flag('[name="business"]');
+    if (!phone) flag('[name="phone"]');
+    if (wantsCall && (!callDate || !callHourRaw)) {
+      setSlotMsg('Pick a date and time for your call, or uncheck "Schedule a phone call".');
       hasError = true;
     }
     if (hasError) {
       trackEvent('form_validation_error', { form_name: 'contact' });
       return;
     }
-    
+
     btn.disabled = true;
     btn.textContent = 'Sending…';
-    
-    // Collect all form data
-    const formData = {
-      email: email,
-      name: name,
-      business: business,
-      phone: phone,
-      package: form.querySelector('[name="package"]')?.value.trim() || '',
-      call_date: form.querySelector('[name="call_date"]')?.value.trim() || '',
-      call_time: form.querySelector('[name="call_time"]')?.value.trim() || '',
-      message: form.querySelector('[name="message"]')?.value.trim() || '',
-      wants_snapshot: form.querySelector('[name="wants_snapshot"]')?.checked || false,
-      wants_call: form.querySelector('[name="wants_call"]')?.checked || false
-    };
-    
-    // Send to Lead Tracker (Google Sheet) - fire and forget
-    sendToLeadTracker(formData);
-    
-    // Send to Courier (email system)
-    const payload = {
-      email: email,
-      list: CONFIG.list,
-      source: CONFIG.source,
-      funnel: CONFIG.funnel,
-      name: name,
-      tags: CONFIG.tags,
-      metadata: {}
-    };
-    
-    CONFIG.customFields.forEach(field => {
-      const el = form.querySelector('[name="' + field + '"]');
-      if (el) {
-        // Handle checkbox vs other inputs
-        if (el.type === 'checkbox') {
-          payload.metadata[field] = el.checked ? 'yes' : 'no';
-        } else if (el.value.trim()) {
-          payload.metadata[field] = el.value.trim();
-        }
-      }
-    });
-    
-    try {
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await resp.json();
-      if (resp.ok) {
-        // Personalize the success message with the submitter's first name
-        const successNameEl = document.getElementById('successName');
-        if (successNameEl) {
-          const firstName = name.split(/\s+/)[0];
-          successNameEl.textContent = firstName ? ', ' + firstName : '';
-        }
-        document.getElementById('formContent').style.display = 'none';
-        const success = document.getElementById('formSuccess');
-        success.style.display = 'block';
-        success.classList.add('show');
-        
-        // GA4 conversion event — generate_lead is the standard GA4 lead event
-        trackEvent('generate_lead', {
-          form_name: 'contact',
-          package_interest: mapPackageInterest(formData.package),
-          wants_snapshot: formData.wants_snapshot ? 'yes' : 'no',
-          wants_call: formData.wants_call ? 'yes' : 'no'
-        });
-      } else {
-        trackEvent('form_submit_error', { form_name: 'contact', error: data.error || 'unknown' });
-        throw new Error(data.error || CONFIG.errorMessage);
-      }
-    } catch (err) {
+
+    if (!sb) {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
-      trackEvent('form_submit_error', { form_name: 'contact', error: err.message || 'network' });
-      alert(err.message || CONFIG.errorMessage);
+      alert('Something went wrong. Please email info@sitesoncall.com.');
+      return;
     }
+
+    const { data, error } = await sb.rpc('create_web_lead', {
+      p_name: name,
+      p_email: email,
+      p_phone: phone,
+      p_business: business,
+      p_package: pkg,
+      p_message: message,
+      p_wants_snapshot: wantsSnapshot,
+      p_wants_call: wantsCall,
+      p_call_date: (wantsCall && callDate) ? callDate : null,
+      p_call_hour: (wantsCall && callHourRaw) ? parseInt(callHourRaw, 10) : null
+    });
+
+    if (error) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+      trackEvent('form_submit_error', { form_name: 'contact', error: error.message || 'rpc' });
+      alert('Something went wrong. Please try again or email info@sitesoncall.com.');
+      return;
+    }
+
+    // The lead always saves. If they asked for a call but the slot was grabbed
+    // between loading and submitting, booking comes back false — keep them on the
+    // form, refresh availability, and ask them to pick another open time.
+    if (wantsCall && data && data.booked === false) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+      trackEvent('booking_conflict', { form_name: 'contact' });
+      await loadAvailability();
+      setSlotMsg('That time was just taken — your details are saved. Pick another open slot and resubmit, or we\'ll reach out to you.');
+      return;
+    }
+
+    // Success
+    const successNameEl = document.getElementById('successName');
+    if (successNameEl) {
+      const firstName = name.split(/\s+/)[0];
+      successNameEl.textContent = firstName ? ', ' + firstName : '';
+    }
+    document.getElementById('formContent').style.display = 'none';
+    const success = document.getElementById('formSuccess');
+    success.style.display = 'block';
+    success.classList.add('show');
+
+    trackEvent('generate_lead', {
+      form_name: 'contact',
+      package_interest: mapPackageInterest(pkg),
+      wants_snapshot: wantsSnapshot ? 'yes' : 'no',
+      wants_call: wantsCall ? 'yes' : 'no',
+      booked_call: (wantsCall && data && data.booked) ? 'yes' : 'no'
+    });
   });
 })();
