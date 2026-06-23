@@ -264,9 +264,9 @@
             <label for="cf-message">Anything else? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
             <textarea id="cf-message" name="message" rows="2" placeholder="I need a website for my HVAC business..."></textarea>
           </div>
-          {# Cloudflare Turnstile — invisible/managed spam check #}
+          {# Cloudflare Turnstile — explicit render (mounted when the modal opens, see main.js) #}
           <div class="form-group">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAADp5EfXTrI2txHB9"></div>
+            <div id="cf-turnstile-widget"></div>
           </div>
           <button type="submit" class="btn-primary" id="cfSubmit" style="width:100%;justify-content:center;margin-top:0.75rem">
             Send Message 
@@ -306,8 +306,8 @@
     </div>
   </footer>
 
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileReady" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/main.js?v=3"></script>
+  <script src="/js/main.js?v=4"></script>
 </body>
 </html>
