@@ -246,6 +246,45 @@ if (pricingToggle) {
 
 
 // ============================================
+// CLOUDFLARE TURNSTILE (explicit render)
+// The widget lives inside a modal that's hidden at page load, so auto-render
+// fails to mount. We render explicitly when the modal opens instead.
+// ============================================
+const TURNSTILE_SITEKEY = "0x4AAAAAADp5EfXTrI2txHB9";
+let turnstileWidgetId = null;
+let turnstileApiReady = false;
+
+function renderTurnstile() {
+  if (!turnstileApiReady || turnstileWidgetId !== null || !window.turnstile) return;
+  const el = document.getElementById('cf-turnstile-widget');
+  if (!el) return;
+  try {
+    turnstileWidgetId = window.turnstile.render('#cf-turnstile-widget', { sitekey: TURNSTILE_SITEKEY });
+  } catch (e) { /* not ready / already rendered */ }
+}
+function getTurnstileToken() {
+  try {
+    if (window.turnstile && turnstileWidgetId !== null) {
+      return window.turnstile.getResponse(turnstileWidgetId) || '';
+    }
+  } catch (e) {}
+  const f = document.querySelector('#contactForm [name="cf-turnstile-response"]');
+  return (f && f.value) || '';
+}
+function resetTurnstile() {
+  try {
+    if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
+  } catch (e) {}
+}
+// Called by the Turnstile API script once it has loaded (?onload=onTurnstileReady)
+window.onTurnstileReady = function () {
+  turnstileApiReady = true;
+  // If the modal is already open, mount now.
+  if (document.getElementById('contactModal')?.classList.contains('open')) renderTurnstile();
+};
+
+
+// ============================================
 // CONTACT MODAL
 // ============================================
 
@@ -320,7 +359,7 @@ function submitAnotherRequest() {
   if (typeof setSlotMsg === 'function') setSlotMsg('');
 
   // Fresh Turnstile token for the next submission
-  if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+  resetTurnstile();
   
   // Restore the submit button (it was left in the "Sending…" disabled state)
   if (cfSubmitBtn) {
@@ -348,6 +387,9 @@ function openContactModal(precheckSnapshot = false) {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   navLinks.classList.remove('open');
+
+  // Mount the Turnstile widget now that its container is visible.
+  renderTurnstile();
   
   // If the previous submission's success card is still showing (because the
   // user closed and reopened the modal), reset the form for another request
@@ -538,11 +580,11 @@ function mapPackageInterest(pkg) {
       return;
     }
 
-    // Cloudflare Turnstile token (auto-filled by the widget inside the form)
-    const tToken = (form.querySelector('[name="cf-turnstile-response"]') || {}).value
-      || (window.turnstile && turnstile.getResponse ? turnstile.getResponse() : '');
+    // Cloudflare Turnstile token (from the explicitly-rendered widget)
+    const tToken = getTurnstileToken();
     if (!tToken) {
-      alert('Please complete the verification just above the button, then try again.');
+      setSlotMsg('');
+      alert('Hang on a second for the verification box to finish, then tap Send again.');
       return;
     }
 
@@ -573,7 +615,7 @@ function mapPackageInterest(pkg) {
       if (!resp.ok) {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-        if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+        resetTurnstile();
         trackEvent('form_submit_error', { form_name: 'contact', error: (data && data.error) || resp.status });
         alert(data && data.error === 'captcha_failed'
           ? 'Verification failed — please try again.'
@@ -583,14 +625,14 @@ function mapPackageInterest(pkg) {
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
-      if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+      resetTurnstile();
       trackEvent('form_submit_error', { form_name: 'contact', error: 'network' });
       alert('Something went wrong. Please try again or email info@sitesoncall.com.');
       return;
     }
 
     // One token per submission — refresh for any subsequent send.
-    if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+    resetTurnstile();
 
     // Lead always saves; if the slot was grabbed first, booking comes back false.
     if (wantsCall && data && data.booked === false) {
