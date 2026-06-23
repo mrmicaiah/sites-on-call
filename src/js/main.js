@@ -318,6 +318,9 @@ function submitAnotherRequest() {
   // Clear any leftover validation error state
   form.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
   if (typeof setSlotMsg === 'function') setSlotMsg('');
+
+  // Fresh Turnstile token for the next submission
+  if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
   
   // Restore the submit button (it was left in the "Sending…" disabled state)
   if (cfSubmitBtn) {
@@ -397,10 +400,12 @@ document.addEventListener('keydown', (e) => {
 
 // ============================================
 // SUPABASE-BACKED SCHEDULING + LEAD CAPTURE
-// All bookings/leads now live in Supabase (Google Sheet + Courier retired).
+// Leads/bookings live in Supabase. Submission goes through the Turnstile-gated
+// submit-lead edge function; availability is a read-only anon RPC.
 // ============================================
 const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+const SUBMIT_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co/functions/v1/submit-lead";
 const sb = (window.supabase && typeof window.supabase.createClient === 'function')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
@@ -493,7 +498,7 @@ function mapPackageInterest(pkg) {
   return 'Not Sure';
 }
 
-// Contact form submission -> Supabase (create_web_lead RPC)
+// Contact form submission -> Turnstile-gated submit-lead function
 (function() {
   const form = document.getElementById('contactForm');
   if (!form) return;
@@ -533,40 +538,61 @@ function mapPackageInterest(pkg) {
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
-
-    if (!sb) {
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
-      alert('Something went wrong. Please email info@sitesoncall.com.');
+    // Cloudflare Turnstile token (auto-filled by the widget inside the form)
+    const tToken = (form.querySelector('[name="cf-turnstile-response"]') || {}).value
+      || (window.turnstile && turnstile.getResponse ? turnstile.getResponse() : '');
+    if (!tToken) {
+      alert('Please complete the verification just above the button, then try again.');
       return;
     }
 
-    const { data, error } = await sb.rpc('create_web_lead', {
-      p_name: name,
-      p_email: email,
-      p_phone: phone,
-      p_business: business,
-      p_package: pkg,
-      p_message: message,
-      p_wants_snapshot: wantsSnapshot,
-      p_wants_call: wantsCall,
-      p_call_date: (wantsCall && callDate) ? callDate : null,
-      p_call_hour: (wantsCall && callHourRaw) ? parseInt(callHourRaw, 10) : null
-    });
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
 
-    if (error) {
+    let data = {};
+    try {
+      const resp = await fetch(SUBMIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          phone: phone,
+          business: business,
+          package: pkg,
+          message: message,
+          wants_snapshot: wantsSnapshot,
+          wants_call: wantsCall,
+          call_date: (wantsCall && callDate) ? callDate : null,
+          call_hour: (wantsCall && callHourRaw) ? parseInt(callHourRaw, 10) : null,
+          turnstile_token: tToken
+        })
+      });
+      data = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+        trackEvent('form_submit_error', { form_name: 'contact', error: (data && data.error) || resp.status });
+        alert(data && data.error === 'captcha_failed'
+          ? 'Verification failed — please try again.'
+          : 'Something went wrong. Please try again or email info@sitesoncall.com.');
+        return;
+      }
+    } catch (err) {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
-      trackEvent('form_submit_error', { form_name: 'contact', error: error.message || 'rpc' });
+      if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+      trackEvent('form_submit_error', { form_name: 'contact', error: 'network' });
       alert('Something went wrong. Please try again or email info@sitesoncall.com.');
       return;
     }
 
-    // The lead always saves. If they asked for a call but the slot was grabbed
-    // between loading and submitting, booking comes back false — keep them on the
-    // form, refresh availability, and ask them to pick another open time.
+    // One token per submission — refresh for any subsequent send.
+    if (window.turnstile) { try { turnstile.reset(); } catch (e) {} }
+
+    // Lead always saves; if the slot was grabbed first, booking comes back false.
     if (wantsCall && data && data.booked === false) {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
