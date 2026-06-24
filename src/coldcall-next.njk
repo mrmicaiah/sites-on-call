@@ -218,20 +218,37 @@ const SCRIPTS={
   website:`You really should check out our website — sitesoncall.com. Just sent it over so you can take a look whenever. -[your name]`,
   call2:``
 };
+/* which SMS body each text-step uses */
+const TEXT_SCRIPT={ t1_vm:"text_vm", t1_na:"text_no_answer", t2_curiosity:"day3", t3_final:"text_final" };
+function isTextStep(k){ return Object.prototype.hasOwnProperty.call(TEXT_SCRIPT, k); }
+function bodyForStep(k){ return SCRIPTS[TEXT_SCRIPT[k]] || SCRIPTS.text_no_answer; }
+
 const STEP_LABEL={
-  text_no_answer:"Day 1 text · after no answer",
-  text_vm:"Day 1 text · after voicemail",
-  call2:"Day 3 · second call",
-  text_final:"Day 5 · final text"
+  t1_na:"Day 2 · text (no answer)",
+  t1_vm:"Day 2 · text (after voicemail)",
+  call2:"Day 5 · second call",
+  t2_curiosity:"Day 7 · curiosity text",
+  call3:"Day 10 · third call",
+  t3_final:"Day 14 · final text",
+  callback:"Call back"
 };
-/* given the step we just handled + how the call went, what's the next follow-up */
-function nextCadence(scriptKey,callResult){
-  if(!scriptKey||scriptKey==="call1"){
-    return {script_key: callResult==="vm" ? "text_vm" : "text_no_answer", days:1};
+/* Locked cadence — 6 touches / ~14 days: call+VM, text, call, text, call, breakup text.
+   Research-backed: 5-7 touches, 2-3 day spacing, 3-4 calls, multi-channel, breakup close. */
+function nextCadence(scriptKey,result){
+  switch(scriptKey){
+    case "call1": case undefined: case null: case "":
+      return { script_key: result==="vm" ? "t1_vm" : "t1_na", days:2 }; // touch 2 — text (~day 2)
+    case "t1_vm": case "t1_na":
+      return { script_key:"call2", days:3 };                            // touch 3 — second call (~day 5)
+    case "call2":
+      return { script_key:"t2_curiosity", days:2 };                     // touch 4 — curiosity text (~day 7)
+    case "t2_curiosity":
+      return { script_key:"call3", days:3 };                            // touch 5 — third call (~day 10)
+    case "call3":
+      return { script_key:"t3_final", days:4 };                         // touch 6 — breakup text (~day 14)
+    default:
+      return null;                                                      // t3_final -> cadence done
   }
-  if(scriptKey==="text_no_answer"||scriptKey==="text_vm") return {script_key:"call2",days:2};
-  if(scriptKey==="call2") return {script_key:"text_final",days:2};
-  return null; // text_final -> cadence done
 }
 
 /* ===== boot ===== */
@@ -413,7 +430,7 @@ async function resCall(touchType,outcome,callResult){
   await logTouch(touchType,outcome,null);
   await completeCurrentFollowup();
   await scheduleNext(callResult);
-  await finishLead("Logged — next text scheduled");
+  await finishLead("Logged — next touch scheduled");
 }
 
 /* spoke with them -> notes + scorecard / callback / not interested */
@@ -513,9 +530,9 @@ async function wnDead(){
 /* ===== TEXT: prefilled sms, then confirm ===== */
 function onText(){
   const l=leadCache[ctx.leadId];
-  const key = (ctx.scriptKey&&ctx.scriptKey.indexOf("text")>-1)?ctx.scriptKey:"text_no_answer";
-  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(fillScript(SCRIPTS[key]||SCRIPTS.text_no_answer,l));
-  ctx.phase="text_confirm";ctx._textKey=key;saveCtx();renderTextConfirm();
+  const body = isTextStep(ctx.scriptKey) ? bodyForStep(ctx.scriptKey) : SCRIPTS.text_no_answer;
+  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(fillScript(body,l));
+  ctx.phase="text_confirm";ctx._textKey=ctx.scriptKey;saveCtx();renderTextConfirm();
 }
 /* text our website — convenience during a live call; stays on the lead, no cadence change */
 function textWebsite(){
@@ -525,10 +542,10 @@ function textWebsite(){
 }
 function renderTextConfirm(){
   const l=leadCache[ctx.leadId];
-  const key=ctx._textKey||"text_no_answer";
+  const body = isTextStep(ctx._textKey) ? bodyForStep(ctx._textKey) : SCRIPTS.text_no_answer;
   $("flowPanel").innerHTML=`<div class="panel">
     <div class="muted" style="font-size:13px;margin-bottom:6px;">Messages opened with this text, pre-filled — she can edit before sending:</div>
-    <div class="script-box">${esc(fillScript(SCRIPTS[key]||SCRIPTS.text_no_answer,l))}</div>
+    <div class="script-box">${esc(fillScript(body,l))}</div>
     <div class="question">Did you send it?</div>
     <div class="grid2">
       <button class="green" onclick="textSent()">Sent</button>
@@ -540,7 +557,7 @@ function renderTextConfirm(){
 async function textSent(){
   await logTouch("text",null,null);
   await completeCurrentFollowup();
-  // advancing the cadence: a sent text moves to the next step (call2 / final / done)
+  // advancing the cadence: a sent text moves to the next step (call / breakup / done)
   await scheduleNext("text");
   await finishLead("Text logged");
 }
@@ -557,8 +574,8 @@ async function setScorecard(){
   const{error}=await sb.from("leads").update({stage:"snapshot_requested"}).eq("id",ctx.leadId);
   if(error)toast("Scorecard flag failed: "+error.message,"err");
 }
-async function scheduleNext(callResult){
-  const nx=nextCadence(ctx.scriptKey,callResult);
+async function scheduleNext(result){
+  const nx=nextCadence(ctx.scriptKey,result);
   if(!nx)return; // cadence finished
   await sb.from("follow_ups").insert({lead_id:ctx.leadId,caller_id:me.id,kind:"custom",script_key:nx.script_key,due_date:addDaysISO(nx.days),notes:"Auto-scheduled by cadence"});
 }
