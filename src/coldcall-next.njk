@@ -112,6 +112,12 @@ eleventyExcludeFromCollections: true
   .mic{width:auto;flex:0 0 auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
     padding:13px 14px;font-size:18px;border-radius:10px;}
   .mic.listening{background:var(--red);color:#fff;border-color:var(--red);}
+
+  /* manager dashboard stats */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .stat{background:var(--panel2);border-radius:10px;padding:14px;}
+  .stat .num{font-size:24px;font-weight:700;}
+  .stat .lbl{font-size:12px;color:var(--muted);}
 </style>
 </head>
 <body>
@@ -141,12 +147,12 @@ eleventyExcludeFromCollections: true
   <main>
     <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>. Text scripts here are placeholders.</div>
 
-    <nav class="tabs">
-      <button id="navToday" class="tab active" onclick="goView('today')">Today</button>
-      <button id="navLeads" class="tab" onclick="goView('leads')">Leads</button>
-    </nav>
+    <nav class="tabs" id="navbar"></nav>
 
-    <!-- TODAY -->
+    <!-- MANAGER DASHBOARD -->
+    <div id="dashView" class="hidden"></div>
+
+    <!-- TODAY (caller) -->
     <div id="todayView"></div>
 
     <!-- LEADS BROWSE (New / Touched / All) -->
@@ -231,7 +237,8 @@ async function onSignedIn(user){
   const{data:prof}=await sb.from("profiles").select("full_name, role").eq("id",user.id).maybeSingle();
   myProfile=prof||{full_name:user.email,role:"caller"};
   $("whoami").textContent=(myProfile.full_name||user.email);
-  await loadToday();
+  buildNav();
+  goShow(isManager() ? "dash" : "today");   // managers land on their dashboard
   restoreCtx();   // interruption-proof: jump back to where she was
 }
 
@@ -337,7 +344,7 @@ async function openFollowup(i){
 async function renderDetail(){
   const l=await ensureLead(ctx.leadId);
   if(!l){toast("Couldn't open that lead","err");return;}
-  $("todayView").classList.add("hidden");$("leadsView").classList.add("hidden");$("detailView").classList.remove("hidden");
+  $("todayView").classList.add("hidden");$("leadsView").classList.add("hidden");$("dashView").classList.add("hidden");$("detailView").classList.remove("hidden");
   const web=l.website_status==="none"?'<span class="badge web-none">No website</span>':l.website_status==="has_site"?'<span class="badge web-has">Has site</span>':'';
   let html=`<button class="line" style="width:auto;padding:8px 14px;margin-bottom:12px;" onclick="showOrigin()">‹ Back</button>
     <div class="panel">
@@ -544,29 +551,87 @@ async function requestScorecard(){
   toast("Scorecard requested — it's on Irene's list","ok");
 }
 
-/* ===== navigation: Today vs Leads browse ===== */
-function goView(name){
-  clearCtx();
+/* ===== role + navigation ===== */
+function isManager(){ return !!myProfile && (myProfile.role==="admin"||myProfile.role==="manager"); }
+function buildNav(){
+  $("navbar").innerHTML = isManager()
+    ? `<button class="tab active" data-view="dash" onclick="goView('dash')">Dashboard</button>
+       <button class="tab" data-view="leads" onclick="goView('leads')">Leads</button>`
+    : `<button class="tab active" data-view="today" onclick="goView('today')">Today</button>
+       <button class="tab" data-view="leads" onclick="goView('leads')">Leads</button>`;
+}
+function goShow(name){
   $("detailView").classList.add("hidden");
+  $("dashView").classList.toggle("hidden", name!=="dash");
   $("todayView").classList.toggle("hidden", name!=="today");
   $("leadsView").classList.toggle("hidden", name!=="leads");
-  $("navToday").classList.toggle("active", name==="today");
-  $("navLeads").classList.toggle("active", name==="leads");
-  if(name==="today") loadToday();
-  if(name==="leads") loadAllLeads();
+  document.querySelectorAll("#navbar .tab").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
+  if(name==="dash") loadDash();
+  else if(name==="today") loadToday();
+  else if(name==="leads") loadAllLeads();
 }
-async function showOrigin(){
-  const o = ctx && ctx.origin; clearCtx();
-  $("detailView").classList.add("hidden");
-  if(o==="leads"){
-    $("leadsView").classList.remove("hidden");$("todayView").classList.add("hidden");
-    $("navLeads").classList.add("active");$("navToday").classList.remove("active");
-    await loadAllLeads();
-  } else {
-    $("todayView").classList.remove("hidden");$("leadsView").classList.add("hidden");
-    $("navToday").classList.add("active");$("navLeads").classList.remove("active");
-    await loadToday();
-  }
+function goView(name){ clearCtx(); goShow(name); }
+async function showOrigin(){ const o=(ctx&&ctx.origin)||(isManager()?"dash":"today"); clearCtx(); goShow(o); }
+
+/* ===== manager dashboard (your current items) ===== */
+async function loadDash(){
+  $("dashView").innerHTML='<div class="panel">Loading dashboard…</div>';
+  const day=todayISO();
+  const [sc,du,up,won,tot]=await Promise.all([
+    sb.from("leads").select("id,business_name,industry,phone,email,city,state,website_status,website_problem,stage").eq("stage","snapshot_requested").order("updated_at",{ascending:true}),
+    sb.from("follow_ups").select("id,lead_id,script_key,due_date,notes,leads(business_name,phone,city)").eq("completed",false).lte("due_date",day).order("due_date",{ascending:true}),
+    sb.rpc("get_upcoming_calls",{p_days:30}),
+    sb.from("leads").select("id",{count:"exact",head:true}).eq("stage","won"),
+    sb.from("leads").select("id",{count:"exact",head:true})
+  ]);
+  const snaps=sc.data||[], dues=du.data||[], ups=up.data||[];
+  snaps.forEach(l=>{leadCache[l.id]={...(leadCache[l.id]||{}),...l};});
+
+  let html=`<div class="stats">
+    <div class="stat"><div class="num">${tot.count??"—"}</div><div class="lbl">Total leads</div></div>
+    <div class="stat"><div class="num" style="color:#f0883e">${snaps.length}</div><div class="lbl">Scorecards waiting</div></div>
+    <div class="stat"><div class="num" style="color:var(--amber)">${dues.length}</div><div class="lbl">Calls due</div></div>
+    <div class="stat"><div class="num" style="color:var(--green)">${won.count??"—"}</div><div class="lbl">Won</div></div>
+  </div>`;
+
+  html+=`<div class="sec">Scorecard queue (${snaps.length})</div>`;
+  html+= snaps.length ? snaps.map(s=>`<div class="item">
+      <div class="body"><div class="name">${esc(s.business_name)}</div>
+        <div class="sub">${esc(s.city||"")} · ${esc(s.phone||"no phone")}${s.website_problem?" · "+esc(s.website_problem):""}</div></div>
+      <div style="display:flex;gap:6px;flex:0 0 auto;">
+        <button class="line" style="width:auto;padding:8px 12px;" onclick="openBrowseLead('${s.id}','dash')">Open</button>
+        <button style="width:auto;padding:8px 12px;" onclick="markSent('${s.id}')">Sent</button>
+      </div></div>`).join("")
+    : '<div class="panel muted" style="text-align:center;">No scorecards waiting. All caught up.</div>';
+
+  html+=`<div class="sec">Calls due today (${dues.length})</div>`;
+  html+= dues.length ? dues.map(d=>{
+      const past=d.due_date<day; const b=d.leads||{};
+      return `<div class="item" onclick="openBrowseLead('${d.lead_id}','dash')">
+        <div class="ic">📞</div>
+        <div class="body"><div class="name">${esc(b.business_name||"Lead")}</div>
+          <div class="sub">${past?'<span class="pastdue">PAST DUE · </span>':''}${esc(STEP_LABEL[d.script_key]||"follow-up")} · ${esc(b.phone||"")}</div></div>
+        <div class="chev">›</div></div>`;
+    }).join("")
+    : '<div class="panel muted" style="text-align:center;">No calls due. 🎉</div>';
+
+  html+=`<div class="sec">Scheduled calls (${ups.length})</div>`;
+  html+= ups.length ? ups.map(u=>`<div class="item" onclick="openBrowseLead('${u.lead_id}','dash')">
+      <div class="ic">📅</div>
+      <div class="body"><div class="name">${esc(u.business_name||"Call")}</div>
+        <div class="sub">${esc(u.slot_date)} · ${fmtHour(u.slot_hour)} · ${esc(u.source||"")}</div></div>
+      <div class="chev">›</div></div>`).join("")
+    : '<div class="panel muted" style="text-align:center;">No calls booked.</div>';
+
+  html+=`<div style="margin-top:16px;"><a href="/coldcall/"><button class="line">Manager tools (classic): add lead · import · scripts ↗</button></a></div>`;
+  $("dashView").innerHTML=html;
+}
+function fmtHour(h){ if(h==null)return""; const ap=h>=12?"PM":"AM"; let hh=h%12; if(hh===0)hh=12; return hh+":00 "+ap; }
+async function markSent(id){
+  const{data,error}=await sb.from("leads").update({stage:"sent_snapshot"}).eq("id",id).select();
+  if(error){toast("Couldn't update: "+error.message,"err");return;}
+  if(!data||!data.length){toast("Nothing written — permissions issue","err");return;}
+  toast("Marked scorecard sent","ok"); loadDash();
 }
 
 /* ===== leads browse (New / Touched / All) ===== */
@@ -625,8 +690,8 @@ function renderLBList(){
       <div class="chev">›</div></div>`;
   }).join("");
 }
-async function openBrowseLead(id){
-  ctx={leadId:id,followupId:null,scriptKey:"call1",worklistId:null,origin:"leads",phase:"detail"};
+async function openBrowseLead(id,origin){
+  ctx={leadId:id,followupId:null,scriptKey:"call1",worklistId:null,origin:origin||"leads",phase:"detail"};
   saveCtx();await renderDetail();
 }
 
