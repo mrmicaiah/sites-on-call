@@ -1,5 +1,6 @@
 ---
-title: Caller App (Next) — Sites On Call
+title: Cold Call Tool — Sites On Call
+permalink: "/coldcall/index.html"
 noindex: true
 eleventyExcludeFromCollections: true
 ---
@@ -126,7 +127,7 @@ eleventyExcludeFromCollections: true
 <div id="loginView" class="login-wrap">
   <div class="login-card">
     <h1>Sites On <span style="color:var(--accent)">Call</span></h1>
-    <p class="sub">Caller app — preview build</p>
+    <p class="sub">Caller app</p>
     <form id="loginForm">
       <div style="margin-bottom:12px;"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required /></div>
       <div style="margin-bottom:16px;"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required /></div>
@@ -145,8 +146,6 @@ eleventyExcludeFromCollections: true
     <button id="signOutBtn" class="line" style="width:auto;padding:8px 12px;">Sign out</button>
   </header>
   <main>
-    <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>.</div>
-
     <nav class="tabs" id="navbar"></nav>
 
     <!-- MANAGER DASHBOARD -->
@@ -663,7 +662,7 @@ async function loadDash(){
       <div class="chev">›</div></div>`).join("")
     : '<div class="panel muted" style="text-align:center;">No calls booked.</div>';
 
-  html+=`<div style="margin-top:16px;"><a href="/coldcall/"><button class="line">Manager tools (classic): add lead · import · scripts ↗</button></a></div>`;
+  html+=`<div style="margin-top:16px;"><a href="/coldcall-classic/"><button class="line">Manager tools (classic): add lead · import · scripts ↗</button></a></div>`;
   $("dashView").innerHTML=html;
 }
 function fmtHour(h){ if(h==null)return""; const ap=h>=12?"PM":"AM"; let hh=h%12; if(hh===0)hh=12; return hh+":00 "+ap; }
