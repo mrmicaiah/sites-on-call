@@ -145,7 +145,7 @@ eleventyExcludeFromCollections: true
     <button id="signOutBtn" class="line" style="width:auto;padding:8px 12px;">Sign out</button>
   </header>
   <main>
-    <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>. Text scripts here are placeholders.</div>
+    <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>.</div>
 
     <nav class="tabs" id="navbar"></nav>
 
@@ -193,13 +193,30 @@ function todayISO(){return new Date().toISOString().slice(0,10);}
 function addDaysISO(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function fmtDay(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");return d.toLocaleDateString(undefined,{month:"short",day:"numeric"});}
 
-/* ===== cadence ===== */
-/* placeholder SMS scripts — replace with the real ones from your script library */
+/* ===== real text scripts (pulled from your Scripts tab) + auto-fill ===== */
+const CALLER_DEFAULT="Gloria";
+function callerName(){ const n=myProfile&&myProfile.full_name; return (n && n.indexOf("@")===-1) ? n.split(" ")[0] : CALLER_DEFAULT; }
+function fillScript(body,l){
+  l=l||{};
+  return String(body||"")
+    .split("[Business]").join(l.business_name||"there")
+    .split("[your name]").join(callerName())
+    .split("[industry]").join(l.industry||"local business")
+    .split("[city]").join(l.city||"your area")
+    .split("[your phone]").join((myProfile&&myProfile.phone)||"");
+}
 const SCRIPTS={
-  text_no_answer:(b)=>`Hi, this is Gloria with Sites On Call — tried reaching ${b} earlier. We put together a free Online Presence Scorecard showing where you land on Google. Want me to send it over? No strings.`,
-  text_vm:(b)=>`Hi ${b}, Gloria with Sites On Call — just left you a voicemail. We did a free Online Presence Scorecard for you (where you show up on Google, who's ranking instead). Want me to text or email it?`,
-  call2:(b)=>``,
-  text_final:(b)=>`Last note from me — this is Gloria at Sites On Call. The free Scorecard for ${b} is still yours if you want it, just say the word. Either way, best of luck out there!`
+  // Day-1 text after a voicemail (verbatim from Scripts tab)
+  text_vm:`Hi! [your name] here — just left you a voicemail. I made a free Online Presence Scorecard for [Business] that shows how you look online. Want me to send it over? -[your name]`,
+  // Day-1 text after no answer (same script with the voicemail line removed)
+  text_no_answer:`Hi! [your name] here — I made a free Online Presence Scorecard for [Business] that shows how you look online. Want me to send it over? -[your name]`,
+  // Day-3 follow-up text (verbatim)
+  day3:`Hey [Business], [your name] again — quick question: are most of your new customers finding you on Google, or mostly word of mouth? Your scorecard had a couple things worth a look. Happy to send it over. -[your name]`,
+  // Final text (verbatim Day-7)
+  text_final:`Last one from me — your free Online Presence Scorecard is still here whenever you want it, no strings attached. Good luck out there! -[your name]`,
+  // The "I just texted you our site" one-tap
+  website:`You really should check out our website — sitesoncall.com. Just sent it over so you can take a look whenever. -[your name]`,
+  call2:``
 };
 const STEP_LABEL={
   text_no_answer:"Day 1 text · after no answer",
@@ -361,6 +378,7 @@ async function renderDetail(){
         ${l.email?`<a href="mailto:${esc(l.email)}" style="text-decoration:none;"><button class="ghost bigbtn" style="width:100%;">✉️ Email</button></a>`:`<button class="ghost bigbtn" disabled>✉️ No email</button>`}
         <button class="scorecard bigbtn" onclick="requestScorecard()">📋 Scorecard</button>
       </div>
+      <button class="line bigbtn" style="margin-top:10px;" onclick="textWebsite()">🔗 Text our website</button>
     </div>
     <div id="flowPanel"></div>`;
   $("detailView").innerHTML=html;
@@ -496,16 +514,21 @@ async function wnDead(){
 function onText(){
   const l=leadCache[ctx.leadId];
   const key = (ctx.scriptKey&&ctx.scriptKey.indexOf("text")>-1)?ctx.scriptKey:"text_no_answer";
-  const body=(SCRIPTS[key]||SCRIPTS.text_no_answer)(l.business_name||"there");
-  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(body);
+  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(fillScript(SCRIPTS[key]||SCRIPTS.text_no_answer,l));
   ctx.phase="text_confirm";ctx._textKey=key;saveCtx();renderTextConfirm();
+}
+/* text our website — convenience during a live call; stays on the lead, no cadence change */
+function textWebsite(){
+  const l=leadCache[ctx.leadId];
+  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(fillScript(SCRIPTS.website,l));
+  toast("Website text drafted — hit send in Messages, then come back","ok");
 }
 function renderTextConfirm(){
   const l=leadCache[ctx.leadId];
   const key=ctx._textKey||"text_no_answer";
   $("flowPanel").innerHTML=`<div class="panel">
-    <div class="muted" style="font-size:13px;margin-bottom:6px;">Messages should have opened with this (placeholder) text, pre-filled:</div>
-    <div class="script-box">${esc((SCRIPTS[key]||SCRIPTS.text_no_answer)(l.business_name||"there"))}</div>
+    <div class="muted" style="font-size:13px;margin-bottom:6px;">Messages opened with this text, pre-filled — she can edit before sending:</div>
+    <div class="script-box">${esc(fillScript(SCRIPTS[key]||SCRIPTS.text_no_answer,l))}</div>
     <div class="question">Did you send it?</div>
     <div class="grid2">
       <button class="green" onclick="textSent()">Sent</button>
