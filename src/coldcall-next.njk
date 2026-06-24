@@ -1,0 +1,531 @@
+---
+title: Caller App (Next) — Sites On Call
+noindex: true
+eleventyExcludeFromCollections: true
+---
+{% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Sites On Call — Caller (Next)</title>
+<style>
+  :root{
+    --bg:#0f1729; --panel:#1b2438; --panel2:#232e47; --line:#32405f;
+    --text:#e8edf7; --muted:#9aa7c2; --accent:#4f8cff; --accent2:#3a6fd6;
+    --green:#36c08a; --red:#e2615f; --amber:#e0a73a; --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);font-size:16px;line-height:1.45;
+    padding-bottom:env(safe-area-inset-bottom);}
+  a{color:var(--accent);text-decoration:none;}
+  .hidden{display:none !important;}
+  .muted{color:var(--muted);}
+
+  button{font:inherit;cursor:pointer;border:none;border-radius:12px;padding:14px 16px;
+    background:var(--accent);color:#fff;width:100%;font-weight:600;transition:filter .1s ease,transform .05s ease;}
+  button:active{transform:scale(.98);}
+  button:disabled{opacity:.5;}
+  button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);}
+  button.line{background:transparent;color:var(--text);border:1px solid var(--line);font-weight:500;}
+  button.green{background:var(--green);color:#06281c;}
+  button.amber{background:var(--amber);color:#2a1d02;}
+  button.red{background:var(--red);}
+  button.scorecard{background:#f0883e;color:#1a1006;}
+  input,select,textarea{font:inherit;background:var(--panel2);color:var(--text);
+    border:1px solid var(--line);border-radius:10px;padding:13px;width:100%;}
+  textarea{resize:vertical;min-height:64px;}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px;}
+
+  header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;}
+  header .brand{font-weight:700;font-size:17px;}
+  header .brand span{color:var(--accent);}
+  header .spacer{flex:1;}
+  header .who{font-size:12px;color:var(--muted);}
+  main{max-width:640px;margin:0 auto;padding:16px;}
+
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .login-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px;width:100%;max-width:380px;}
+  .login-card h1{margin:0 0 4px;font-size:22px;}
+  .login-card p.sub{margin:0 0 20px;color:var(--muted);font-size:14px;}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  /* progress */
+  .progress-label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;}
+  .bar{height:9px;border-radius:999px;background:var(--panel2);overflow:hidden;}
+  .bar>span{display:block;height:100%;background:var(--accent);border-radius:999px;}
+  .goalnote{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .sec{font-size:13px;color:var(--muted);font-weight:600;margin:18px 4px 8px;text-transform:uppercase;letter-spacing:.4px;}
+
+  .item{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);
+    border-radius:12px;background:var(--panel);margin-bottom:8px;}
+  .item.done{opacity:.5;}
+  .item .ic{width:30px;text-align:center;font-size:20px;}
+  .item .body{flex:1;min-width:0;}
+  .item .name{font-weight:600;}
+  .item .sub{font-size:13px;color:var(--muted);}
+  .item .chev{color:var(--muted);}
+  .pastdue{color:var(--red);font-weight:700;font-size:12px;}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;border:1px solid var(--line);}
+  .web-none{color:var(--red);border-color:var(--red);}
+  .web-has{color:var(--green);border-color:var(--green);}
+
+  .done-state{text-align:center;padding:30px 16px;}
+  .done-state .big{font-size:46px;}
+  .done-state h2{margin:8px 0 4px;}
+
+  /* detail / guided flow */
+  .lead-head h2{margin:0 0 2px;font-size:21px;}
+  .pitch{background:var(--panel2);border-left:3px solid var(--accent);padding:10px 12px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px;}
+  .actrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .act-call{background:var(--green);color:#06281c;}
+  .act-text{background:var(--accent);}
+  .bigbtn{padding:18px 12px;font-size:16px;}
+  .question{font-size:16px;font-weight:600;margin:4px 0 12px;}
+  .script-box{background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:12px;font-size:14px;white-space:pre-line;margin:10px 0;}
+
+  #toastRoot{position:fixed;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none;padding:0 16px;}
+  .toast{background:#0c1426;border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:10px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:auto;}
+  .toast.ok{border-color:var(--green);}
+  .toast.err{border-color:var(--red);}
+
+  .preview-flag{background:#3a2a05;border:1px solid var(--amber);color:#ffd98a;font-size:12px;
+    padding:8px 12px;border-radius:8px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <h1>Sites On <span style="color:var(--accent)">Call</span></h1>
+    <p class="sub">Caller app — preview build</p>
+    <form id="loginForm">
+      <div style="margin-bottom:12px;"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required /></div>
+      <div style="margin-bottom:16px;"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required /></div>
+      <button id="loginBtn" type="submit">Sign in</button>
+      <p id="loginError" style="color:var(--red);font-size:13px;margin-top:12px;"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="brand">Sites On <span>Call</span></div>
+    <div class="spacer"></div>
+    <div class="who" id="whoami"></div>
+    <button id="signOutBtn" class="line" style="width:auto;padding:8px 12px;">Sign out</button>
+  </header>
+  <main>
+    <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>. Text scripts here are placeholders.</div>
+
+    <!-- TODAY -->
+    <div id="todayView"></div>
+
+    <!-- LEAD DETAIL / GUIDED FLOW -->
+    <div id="detailView" class="hidden"></div>
+  </main>
+</div>
+
+<div id="toastRoot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===== CONFIG (anon key is public by design) ===== */
+const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+
+let sb=null, me=null, myProfile=null;
+let today=null;            // last get_todays_worklist payload
+let leadCache={};          // lead_id -> lead row
+let ctx=null;              // { leadId, followupId, scriptKey, phase }
+
+const $=(id)=>document.getElementById(id);
+const LS_KEY="cc_next_ctx";
+
+function toast(msg,kind,onclick){
+  const root=$("toastRoot");const el=document.createElement("div");
+  el.className="toast "+(kind||"");el.textContent=msg;
+  if(kind==="err"){el.textContent=msg+"  (tap to dismiss)";el.onclick=()=>el.remove();setTimeout(()=>el.remove(),15000);}
+  else setTimeout(()=>el.remove(),3000);
+  if(onclick){el.style.cursor="pointer";el.onclick=()=>{onclick();el.remove();};}
+  root.appendChild(el);
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function digits(p){return String(p||"").replace(/[^0-9+]/g,"");}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function addDaysISO(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function fmtDay(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");return d.toLocaleDateString(undefined,{month:"short",day:"numeric"});}
+
+/* ===== cadence ===== */
+/* placeholder SMS scripts — replace with the real ones from your script library */
+const SCRIPTS={
+  text_no_answer:(b)=>`Hi, this is Gloria with Sites On Call — tried reaching ${b} earlier. We put together a free Online Presence Scorecard showing where you land on Google. Want me to send it over? No strings.`,
+  text_vm:(b)=>`Hi ${b}, Gloria with Sites On Call — just left you a voicemail. We did a free Online Presence Scorecard for you (where you show up on Google, who's ranking instead). Want me to text or email it?`,
+  call2:(b)=>``,
+  text_final:(b)=>`Last note from me — this is Gloria at Sites On Call. The free Scorecard for ${b} is still yours if you want it, just say the word. Either way, best of luck out there!`
+};
+const STEP_LABEL={
+  text_no_answer:"Day 1 text · after no answer",
+  text_vm:"Day 1 text · after voicemail",
+  call2:"Day 3 · second call",
+  text_final:"Day 5 · final text"
+};
+/* given the step we just handled + how the call went, what's the next follow-up */
+function nextCadence(scriptKey,callResult){
+  if(!scriptKey||scriptKey==="call1"){
+    return {script_key: callResult==="vm" ? "text_vm" : "text_no_answer", days:1};
+  }
+  if(scriptKey==="text_no_answer"||scriptKey==="text_vm") return {script_key:"call2",days:2};
+  if(scriptKey==="call2") return {script_key:"text_final",days:2};
+  return null; // text_final -> cadence done
+}
+
+/* ===== boot ===== */
+function init(){
+  sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  sb.auth.getSession().then(({data})=>{ if(data.session) onSignedIn(data.session.user); });
+}
+$("loginForm").addEventListener("submit",async(e)=>{
+  e.preventDefault();$("loginError").textContent="";$("loginBtn").disabled=true;$("loginBtn").textContent="Signing in…";
+  const{data,error}=await sb.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
+  $("loginBtn").disabled=false;$("loginBtn").textContent="Sign in";
+  if(error){$("loginError").textContent=error.message;return;}
+  onSignedIn(data.user);
+});
+$("signOutBtn").addEventListener("click",async()=>{await sb.auth.signOut();localStorage.removeItem(LS_KEY);location.reload();});
+
+async function onSignedIn(user){
+  me={id:user.id,email:user.email};
+  $("loginView").classList.add("hidden");$("appView").classList.remove("hidden");
+  const{data:prof}=await sb.from("profiles").select("full_name, role").eq("id",user.id).maybeSingle();
+  myProfile=prof||{full_name:user.email,role:"caller"};
+  $("whoami").textContent=(myProfile.full_name||user.email);
+  await loadToday();
+  restoreCtx();   // interruption-proof: jump back to where she was
+}
+
+/* ===== TODAY ===== */
+async function loadToday(){
+  $("todayView").innerHTML='<div class="panel">Loading your day…</div>';
+  const{data,error}=await sb.rpc("get_todays_worklist",{p_caller:me.id});
+  if(error){$("todayView").innerHTML='<div class="panel">Couldn\'t load: '+esc(error.message)+'</div>';return;}
+  today=data;data.new_leads.forEach(l=>leadCache[l.lead_id]={...l,id:l.lead_id});
+  renderToday();
+}
+function showToday(){clearCtx();$("detailView").classList.add("hidden");$("todayView").classList.remove("hidden");}
+
+function renderToday(){
+  const s=today.stats, fus=today.follow_ups||[], news=(today.new_leads||[]).filter(n=>!n.done);
+  const allDone = news.length===0 && fus.length===0;
+  let html="";
+
+  // progress
+  html+=`<div class="panel">
+    <div class="progress-label"><span>New calls</span><span>${s.new_done} / ${s.new_goal||0}</span></div>
+    <div class="bar"><span style="width:${s.new_goal?Math.round(100*s.new_done/s.new_goal):0}%"></span></div>
+    <div class="goalnote">Your goal — not a deadline. Tomorrow's a fresh ${s.new_goal||40}.</div>
+  </div>`;
+
+  if(allDone){
+    html+=`<div class="panel done-state">
+      <div class="big">✅</div><h2>You're done for today</h2>
+      <p class="muted">Nice work. Go catch a fare.</p>
+      <button onclick="requestNext()" style="max-width:260px;margin:8px auto 0;">＋ Request next 40 leads</button>
+    </div>`;
+    $("todayView").innerHTML=html;return;
+  }
+
+  // follow-ups
+  if(fus.length){
+    html+=`<div class="sec">Follow-ups due (${fus.length})</div>`;
+    fus.forEach((f,i)=>{
+      const icon = f.script_key && f.script_key.indexOf("call")>-1 ? "📞" : "💬";
+      html+=`<div class="item" onclick="openFollowup(${i})">
+        <div class="ic">${icon}</div>
+        <div class="body">
+          <div class="name">${esc(f.business_name)}</div>
+          <div class="sub">${f.past_due?'<span class="pastdue">PAST DUE · </span>':''}${esc(STEP_LABEL[f.script_key]||f.kind)} · due ${fmtDay(f.due_date)}</div>
+        </div><div class="chev">›</div></div>`;
+    });
+  }
+
+  // new leads
+  if(news.length){
+    html+=`<div class="sec">New leads (${news.length} left)</div>`;
+    news.forEach(n=>{
+      const web = n.website_status==="none"?'<span class="badge web-none">No site</span>':n.website_status==="has_site"?'<span class="badge web-has">Has site</span>':'';
+      html+=`<div class="item" onclick="openNew('${n.lead_id}','${n.worklist_id}')">
+        <div class="ic">📞</div>
+        <div class="body"><div class="name">${esc(n.business_name)}</div>
+          <div class="sub">${esc(n.industry||"")} · ${esc(n.city||"")} ${web}</div></div>
+        <div class="chev">›</div></div>`;
+    });
+  } else {
+    html+=`<div class="panel" style="text-align:center;">
+      <p class="muted" style="margin:0 0 10px;">No new leads in today's batch.</p>
+      <button onclick="requestNext()" style="max-width:260px;margin:0 auto;">＋ Request next 40 leads</button></div>`;
+  }
+  $("todayView").innerHTML=html;
+}
+
+async function requestNext(){
+  toast("Pulling your next batch…");
+  const{data,error}=await sb.rpc("request_next_batch",{p_caller:me.id,p_count:40});
+  if(error){toast("Couldn't pull leads: "+error.message,"err");return;}
+  toast(`Added ${data.assigned} leads`,"ok");
+  await loadToday();
+}
+
+/* ===== open a lead (new or follow-up) ===== */
+async function ensureLead(id){
+  if(leadCache[id]&&leadCache[id].business_name&&leadCache[id].email!==undefined)return leadCache[id];
+  const{data}=await sb.from("leads").select("id,business_name,industry,city,state,phone,email,website_status,website_url,website_problem,stage").eq("id",id).maybeSingle();
+  if(data)leadCache[id]=data;
+  return leadCache[id];
+}
+async function openNew(leadId,worklistId){
+  ctx={leadId,followupId:null,scriptKey:"call1",worklistId,phase:"detail"};
+  saveCtx();await renderDetail();
+}
+async function openFollowup(i){
+  const f=today.follow_ups[i];
+  leadCache[f.lead_id]={id:f.lead_id,business_name:f.business_name,phone:f.phone,email:f.email,website_status:f.website_status,website_problem:f.website_problem};
+  ctx={leadId:f.lead_id,followupId:f.id,scriptKey:f.script_key||"call1",phase:"detail"};
+  saveCtx();await renderDetail();
+}
+
+async function renderDetail(){
+  const l=await ensureLead(ctx.leadId);
+  if(!l){toast("Couldn't open that lead","err");return;}
+  $("todayView").classList.add("hidden");$("detailView").classList.remove("hidden");
+  const web=l.website_status==="none"?'<span class="badge web-none">No website</span>':l.website_status==="has_site"?'<span class="badge web-has">Has site</span>':'';
+  let html=`<button class="line" style="width:auto;padding:8px 14px;margin-bottom:12px;" onclick="showToday()">‹ Back to today</button>
+    <div class="panel">
+      <div class="lead-head"><h2>${esc(l.business_name)}</h2>
+        <div class="muted">${esc(l.industry||"")} · ${esc(l.city||"")}${l.state?", "+esc(l.state):""} ${web}</div></div>
+      ${l.website_problem?`<div class="pitch"><strong>Pitch:</strong> ${esc(l.website_problem)}</div>`:""}
+      ${ctx.scriptKey&&ctx.scriptKey!=="call1"?`<div class="muted" style="font-size:13px;margin:6px 0;">Cadence step: ${esc(STEP_LABEL[ctx.scriptKey]||ctx.scriptKey)}</div>`:""}
+
+      <div class="actrow">
+        <button class="act-call bigbtn" onclick="onCall()">📞 Call</button>
+        <button class="act-text bigbtn" onclick="onText()">💬 Text</button>
+      </div>
+      <div class="actrow" style="margin-top:10px;">
+        ${l.email?`<a href="mailto:${esc(l.email)}" style="text-decoration:none;"><button class="ghost bigbtn" style="width:100%;">✉️ Email</button></a>`:`<button class="ghost bigbtn" disabled>✉️ No email</button>`}
+        <button class="scorecard bigbtn" onclick="requestScorecard()">📋 Scorecard</button>
+      </div>
+    </div>
+    <div id="flowPanel"></div>`;
+  $("detailView").innerHTML=html;
+
+  if(ctx.phase==="call_result")renderCallResult();
+  else if(ctx.phase==="text_confirm")renderTextConfirm();
+  else if(ctx.phase==="wrongnum")renderWrongNum();
+}
+
+/* ===== CALL: dial only, then ask what happened ===== */
+function onCall(){
+  const l=leadCache[ctx.leadId];
+  if(l&&l.phone)window.location.href="tel:"+digits(l.phone);
+  ctx.phase="call_result";saveCtx();renderCallResult();
+}
+function renderCallResult(){
+  $("flowPanel").innerHTML=`<div class="panel">
+    <div class="question">What happened?</div>
+    <div class="grid2" style="gap:10px;">
+      <button class="line bigbtn" onclick="resCall('call',null,'no_answer')">No answer</button>
+      <button class="line bigbtn" onclick="resCall('voicemail',null,'vm')">Left voicemail</button>
+      <button class="line bigbtn" onclick="spoke()">Spoke with them</button>
+      <button class="line bigbtn" onclick="ctx.phase='wrongnum';saveCtx();renderWrongNum()">Wrong number</button>
+    </div>
+    <button class="line" style="margin-top:10px;" onclick="busyCallback()">Busy — call back later</button>
+  </div>`;
+  $("flowPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* no answer / voicemail -> log + schedule next cadence text */
+async function resCall(touchType,outcome,callResult){
+  await logTouch(touchType,outcome,null);
+  await completeCurrentFollowup();
+  await scheduleNext(callResult);
+  await finishLead("Logged — next text scheduled");
+}
+
+/* spoke with them -> notes + scorecard / callback / not interested */
+function spoke(){
+  $("flowPanel").innerHTML=`<div class="panel">
+    <div class="question">Spoke with them</div>
+    <label>Quick note</label>
+    <textarea id="spokeNote" placeholder="What did they say…"></textarea>
+    <div class="muted" style="margin:12px 0 6px;">Want the scorecard sent?</div>
+    <div class="grid2">
+      <button class="scorecard bigbtn" onclick="spokeResult('interested',true)">Yes, send it</button>
+      <button class="line bigbtn" onclick="spokeResult('interested',false)">Not now</button>
+    </div>
+    <div class="grid2" style="margin-top:10px;">
+      <button class="line bigbtn" onclick="spokeCallback()">📅 Call back</button>
+      <button class="line bigbtn" onclick="spokeResult('not_interested',false)">Not interested</button>
+    </div>
+  </div>`;
+  $("flowPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function spokeResult(outcome,sendScorecard){
+  const note=$("spokeNote")?$("spokeNote").value.trim():"";
+  await logTouch("call",outcome,note||null);
+  await completeCurrentFollowup();
+  if(sendScorecard) await setScorecard();
+  // interested or not_interested -> cadence stops (no next follow-up)
+  await finishLead(sendScorecard?"Scorecard requested · on Irene's list":"Logged");
+}
+function spokeCallback(){
+  $("flowPanel").innerHTML=`<div class="panel">
+    <div class="question">Call back when?</div>
+    <input type="date" id="cbDate" value="${addDaysISO(1)}" />
+    <button style="margin-top:12px;" onclick="doCallback()">Set call-back</button>
+  </div>`;
+}
+async function doCallback(){
+  const d=$("cbDate").value||addDaysISO(1);
+  await logTouch("call","callback",null);
+  await completeCurrentFollowup();
+  await sb.from("follow_ups").insert({lead_id:ctx.leadId,caller_id:me.id,kind:"custom",script_key:"callback",due_date:d,notes:"Call back (from guided flow)"});
+  await finishLead("Call-back set for "+fmtDay(d));
+}
+
+/* busy -> push to bottom of today, no disposition */
+async function busyCallback(){
+  if(ctx.worklistId){const{error}=await sb.rpc("busy_requeue",{p_worklist_id:ctx.worklistId});if(error)toast(error.message,"err");}
+  toast("Sent to the bottom of today's list","ok");
+  showToday();await loadToday();
+}
+
+/* wrong number salvage */
+function renderWrongNum(){
+  const l=leadCache[ctx.leadId];
+  $("flowPanel").innerHTML=`<div class="panel">
+    <div class="question">Wrong number</div>
+    <label>Another number listed?</label>
+    <input id="wnPhone" type="tel" placeholder="(256) 555-0148" />
+    <div class="grid2" style="margin-top:10px;">
+      <button onclick="wnSavePhone()">Save & retry</button>
+      <button class="line" onclick="wnNoPhone()">No other #</button>
+    </div>
+    <div id="wnEmail" class="hidden">
+      <div class="muted" style="margin:16px 0 6px;">Website with an email listed?</div>
+      <input id="wnEmailVal" type="email" placeholder="info@theirsite.com" value="${esc(l&&l.email||"")}" />
+      <div class="grid2" style="margin-top:10px;">
+        <button class="scorecard" onclick="wnEmailScorecard()">Add email + send scorecard</button>
+        <button class="red" onclick="wnDead()">Dead — bad number</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function wnSavePhone(){
+  const p=$("wnPhone").value.trim();if(!p){toast("Enter a number or tap No other #","err");return;}
+  await sb.from("leads").update({phone:p}).eq("id",ctx.leadId);
+  leadCache[ctx.leadId].phone=p;
+  toast("Number updated — try the call again","ok");
+  ctx.phase="detail";saveCtx();renderDetail();
+}
+function wnNoPhone(){$("wnEmail").classList.remove("hidden");}
+async function wnEmailScorecard(){
+  const em=$("wnEmailVal").value.trim();
+  const upd={};if(em)upd.email=em;
+  await logTouch("call","wrong_number","Wrong number — salvaged by email");
+  if(em)await sb.from("leads").update(upd).eq("id",ctx.leadId);
+  await completeCurrentFollowup();
+  await setScorecard();
+  await finishLead("Email saved · scorecard on Irene's list");
+}
+async function wnDead(){
+  await logTouch("call","wrong_number","Dead — bad number, no website");
+  await sb.from("leads").update({stage:"lost"}).eq("id",ctx.leadId);
+  await completeCurrentFollowup();
+  await finishLead("Marked bad number");
+}
+
+/* ===== TEXT: prefilled sms, then confirm ===== */
+function onText(){
+  const l=leadCache[ctx.leadId];
+  const key = (ctx.scriptKey&&ctx.scriptKey.indexOf("text")>-1)?ctx.scriptKey:"text_no_answer";
+  const body=(SCRIPTS[key]||SCRIPTS.text_no_answer)(l.business_name||"there");
+  if(l&&l.phone)window.location.href="sms:"+digits(l.phone)+"&body="+encodeURIComponent(body);
+  ctx.phase="text_confirm";ctx._textKey=key;saveCtx();renderTextConfirm();
+}
+function renderTextConfirm(){
+  const l=leadCache[ctx.leadId];
+  const key=ctx._textKey||"text_no_answer";
+  $("flowPanel").innerHTML=`<div class="panel">
+    <div class="muted" style="font-size:13px;margin-bottom:6px;">Messages should have opened with this (placeholder) text, pre-filled:</div>
+    <div class="script-box">${esc((SCRIPTS[key]||SCRIPTS.text_no_answer)(l.business_name||"there"))}</div>
+    <div class="question">Did you send it?</div>
+    <div class="grid2">
+      <button class="green" onclick="textSent()">Sent</button>
+      <button class="line" onclick="ctx.phase='detail';saveCtx();renderDetail()">Didn't send</button>
+    </div>
+  </div>`;
+  $("flowPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+async function textSent(){
+  await logTouch("text",null,null);
+  await completeCurrentFollowup();
+  // advancing the cadence: a sent text moves to the next step (call2 / final / done)
+  await scheduleNext("text");
+  await finishLead("Text logged");
+}
+
+/* ===== shared writes ===== */
+async function logTouch(touchType,outcome,notes){
+  const{error}=await sb.from("touches").insert({lead_id:ctx.leadId,caller_id:me.id,touch_type:touchType,outcome:outcome,notes:notes});
+  if(error)toast("Touch not saved: "+error.message,"err");
+}
+async function completeCurrentFollowup(){
+  if(ctx.followupId)await sb.from("follow_ups").update({completed:true,completed_at:new Date().toISOString()}).eq("id",ctx.followupId);
+}
+async function setScorecard(){
+  const{error}=await sb.from("leads").update({stage:"snapshot_requested"}).eq("id",ctx.leadId);
+  if(error)toast("Scorecard flag failed: "+error.message,"err");
+}
+async function scheduleNext(callResult){
+  const nx=nextCadence(ctx.scriptKey,callResult);
+  if(!nx)return; // cadence finished
+  await sb.from("follow_ups").insert({lead_id:ctx.leadId,caller_id:me.id,kind:"custom",script_key:nx.script_key,due_date:addDaysISO(nx.days),notes:"Auto-scheduled by cadence"});
+}
+async function finishLead(msg){
+  if(ctx.worklistId)await sb.rpc("mark_worklist_done",{p_lead:ctx.leadId,p_caller:me.id});
+  toast(msg,"ok");
+  showToday();await loadToday();
+}
+
+/* scorecard button on the lead (reachable any time) */
+async function requestScorecard(){
+  await setScorecard();
+  toast("Scorecard requested — it's on Irene's list","ok");
+}
+
+/* ===== interruption-proof state ===== */
+function saveCtx(){if(ctx)localStorage.setItem(LS_KEY,JSON.stringify(ctx));}
+function clearCtx(){ctx=null;localStorage.removeItem(LS_KEY);}
+function restoreCtx(){
+  const raw=localStorage.getItem(LS_KEY);if(!raw)return;
+  try{ctx=JSON.parse(raw);}catch(e){return;}
+  if(ctx&&ctx.leadId)renderDetail();
+}
+
+init();
+</script>
+</body>
+</html>
+{% endraw %}
