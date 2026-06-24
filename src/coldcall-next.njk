@@ -101,6 +101,17 @@ eleventyExcludeFromCollections: true
 
   .preview-flag{background:#3a2a05;border:1px solid var(--amber);color:#ffd98a;font-size:12px;
     padding:8px 12px;border-radius:8px;margin-bottom:14px;}
+
+  /* nav + leads browse + mic */
+  .tabs{display:flex;gap:6px;margin-bottom:12px;}
+  .tab{width:auto;flex:1;background:var(--panel2);color:var(--muted);border:1px solid var(--line);padding:11px;font-weight:600;border-radius:10px;}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tabs.sub{margin-top:10px;}
+  .searchrow{display:flex;gap:8px;align-items:flex-start;}
+  .searchrow input,.searchrow textarea{flex:1;}
+  .mic{width:auto;flex:0 0 auto;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    padding:13px 14px;font-size:18px;border-radius:10px;}
+  .mic.listening{background:var(--red);color:#fff;border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -130,8 +141,16 @@ eleventyExcludeFromCollections: true
   <main>
     <div class="preview-flag">Preview build — your live tool is untouched at <a href="/coldcall/">/coldcall</a>. Text scripts here are placeholders.</div>
 
+    <nav class="tabs">
+      <button id="navToday" class="tab active" onclick="goView('today')">Today</button>
+      <button id="navLeads" class="tab" onclick="goView('leads')">Leads</button>
+    </nav>
+
     <!-- TODAY -->
     <div id="todayView"></div>
+
+    <!-- LEADS BROWSE (New / Touched / All) -->
+    <div id="leadsView" class="hidden"></div>
 
     <!-- LEAD DETAIL / GUIDED FLOW -->
     <div id="detailView" class="hidden"></div>
@@ -228,6 +247,15 @@ function showToday(){clearCtx();$("detailView").classList.add("hidden");$("today
 
 function renderToday(){
   const s=today.stats, fus=today.follow_ups||[], news=(today.new_leads||[]).filter(n=>!n.done);
+  // nothing pulled yet today (and no follow-ups) -> "ready to start", not "done"
+  if((s.new_goal||0)===0 && fus.length===0){
+    $("todayView").innerHTML=`<div class="panel done-state">
+      <div class="big">📞</div><h2>Ready to start</h2>
+      <p class="muted">Pull your first 40 — any follow-ups due will land up top here too.</p>
+      <button onclick="requestNext()" style="max-width:280px;margin:8px auto 0;">＋ Get today's 40 leads</button>
+    </div>`;
+    return;
+  }
   const allDone = news.length===0 && fus.length===0;
   let html="";
 
@@ -296,22 +324,22 @@ async function ensureLead(id){
   return leadCache[id];
 }
 async function openNew(leadId,worklistId){
-  ctx={leadId,followupId:null,scriptKey:"call1",worklistId,phase:"detail"};
+  ctx={leadId,followupId:null,scriptKey:"call1",worklistId,origin:"today",phase:"detail"};
   saveCtx();await renderDetail();
 }
 async function openFollowup(i){
   const f=today.follow_ups[i];
   leadCache[f.lead_id]={id:f.lead_id,business_name:f.business_name,phone:f.phone,email:f.email,website_status:f.website_status,website_problem:f.website_problem};
-  ctx={leadId:f.lead_id,followupId:f.id,scriptKey:f.script_key||"call1",phase:"detail"};
+  ctx={leadId:f.lead_id,followupId:f.id,scriptKey:f.script_key||"call1",origin:"today",phase:"detail"};
   saveCtx();await renderDetail();
 }
 
 async function renderDetail(){
   const l=await ensureLead(ctx.leadId);
   if(!l){toast("Couldn't open that lead","err");return;}
-  $("todayView").classList.add("hidden");$("detailView").classList.remove("hidden");
+  $("todayView").classList.add("hidden");$("leadsView").classList.add("hidden");$("detailView").classList.remove("hidden");
   const web=l.website_status==="none"?'<span class="badge web-none">No website</span>':l.website_status==="has_site"?'<span class="badge web-has">Has site</span>':'';
-  let html=`<button class="line" style="width:auto;padding:8px 14px;margin-bottom:12px;" onclick="showToday()">‹ Back to today</button>
+  let html=`<button class="line" style="width:auto;padding:8px 14px;margin-bottom:12px;" onclick="showOrigin()">‹ Back</button>
     <div class="panel">
       <div class="lead-head"><h2>${esc(l.business_name)}</h2>
         <div class="muted">${esc(l.industry||"")} · ${esc(l.city||"")}${l.state?", "+esc(l.state):""} ${web}</div></div>
@@ -368,7 +396,8 @@ function spoke(){
   $("flowPanel").innerHTML=`<div class="panel">
     <div class="question">Spoke with them</div>
     <label>Quick note</label>
-    <textarea id="spokeNote" placeholder="What did they say…"></textarea>
+    <div class="searchrow"><textarea id="spokeNote" placeholder="What did they say…"></textarea>
+      <button class="mic" onclick="dictateInto('spokeNote',this)" aria-label="Dictate">🎤</button></div>
     <div class="muted" style="margin:12px 0 6px;">Want the scorecard sent?</div>
     <div class="grid2">
       <button class="scorecard bigbtn" onclick="spokeResult('interested',true)">Yes, send it</button>
@@ -408,7 +437,7 @@ async function doCallback(){
 async function busyCallback(){
   if(ctx.worklistId){const{error}=await sb.rpc("busy_requeue",{p_worklist_id:ctx.worklistId});if(error)toast(error.message,"err");}
   toast("Sent to the bottom of today's list","ok");
-  showToday();await loadToday();
+  await showOrigin();
 }
 
 /* wrong number salvage */
@@ -506,13 +535,112 @@ async function scheduleNext(callResult){
 async function finishLead(msg){
   if(ctx.worklistId)await sb.rpc("mark_worklist_done",{p_lead:ctx.leadId,p_caller:me.id});
   toast(msg,"ok");
-  showToday();await loadToday();
+  await showOrigin();
 }
 
 /* scorecard button on the lead (reachable any time) */
 async function requestScorecard(){
   await setScorecard();
   toast("Scorecard requested — it's on Irene's list","ok");
+}
+
+/* ===== navigation: Today vs Leads browse ===== */
+function goView(name){
+  clearCtx();
+  $("detailView").classList.add("hidden");
+  $("todayView").classList.toggle("hidden", name!=="today");
+  $("leadsView").classList.toggle("hidden", name!=="leads");
+  $("navToday").classList.toggle("active", name==="today");
+  $("navLeads").classList.toggle("active", name==="leads");
+  if(name==="today") loadToday();
+  if(name==="leads") loadAllLeads();
+}
+async function showOrigin(){
+  const o = ctx && ctx.origin; clearCtx();
+  $("detailView").classList.add("hidden");
+  if(o==="leads"){
+    $("leadsView").classList.remove("hidden");$("todayView").classList.add("hidden");
+    $("navLeads").classList.add("active");$("navToday").classList.remove("active");
+    await loadAllLeads();
+  } else {
+    $("todayView").classList.remove("hidden");$("leadsView").classList.add("hidden");
+    $("navToday").classList.add("active");$("navLeads").classList.remove("active");
+    await loadToday();
+  }
+}
+
+/* ===== leads browse (New / Touched / All) ===== */
+let allLeads=[], leadsTab="new";
+async function loadAllLeads(){
+  $("leadsView").innerHTML='<div class="panel">Loading leads…</div>';
+  const{data,error}=await sb.from("leads")
+    .select("id,business_name,industry,city,state,phone,email,website_status,website_problem,stage,rating,last_touched_at")
+    .order("business_name");
+  if(error){$("leadsView").innerHTML='<div class="panel">Couldn\'t load: '+esc(error.message)+'</div>';return;}
+  allLeads=data||[];
+  allLeads.forEach(l=>{leadCache[l.id]={...(leadCache[l.id]||{}),...l};});
+  renderLeadsChrome();
+}
+function renderLeadsChrome(){
+  $("leadsView").innerHTML=`
+    <div class="panel" style="padding:12px;">
+      <div class="searchrow">
+        <input id="lbSearch" placeholder="Search leads…" oninput="renderLBList()" />
+        <button class="mic" onclick="dictateInto('lbSearch',this)" aria-label="Dictate">🎤</button>
+      </div>
+      <div class="tabs sub">
+        <button id="lbNew" class="tab" onclick="setLeadsTab('new')">New</button>
+        <button id="lbTouched" class="tab" onclick="setLeadsTab('touched')">Touched</button>
+        <button id="lbAll" class="tab" onclick="setLeadsTab('all')">All</button>
+      </div>
+    </div>
+    <div id="lbList"></div>`;
+  setLeadsTab(leadsTab);
+}
+function setLeadsTab(t){
+  leadsTab=t;
+  const map={new:"lbNew",touched:"lbTouched",all:"lbAll"};
+  ["lbNew","lbTouched","lbAll"].forEach(id=>{const b=$(id);if(b)b.classList.remove("active");});
+  if($(map[t]))$(map[t]).classList.add("active");
+  renderLBList();
+}
+function renderLBList(){
+  const q=($("lbSearch")?$("lbSearch").value:"").trim().toLowerCase();
+  const rows=allLeads.filter(l=>{
+    const touched=!!l.last_touched_at;
+    if(leadsTab==="new"&&touched)return false;
+    if(leadsTab==="touched"&&!touched)return false;
+    if(q){const hay=(l.business_name+" "+(l.city||"")+" "+(l.industry||"")+" "+(l.phone||"")).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  if(!$("lbList"))return;
+  if(!rows.length){$("lbList").innerHTML='<div class="panel muted" style="text-align:center;">No leads match.</div>';return;}
+  $("lbList").innerHTML=rows.map(l=>{
+    const web=l.website_status==="none"?'<span class="badge web-none">No site</span>':l.website_status==="has_site"?'<span class="badge web-has">Has site</span>':'';
+    const t=l.last_touched_at?'<span class="badge">touched</span>':'';
+    return `<div class="item" onclick="openBrowseLead('${l.id}')">
+      <div class="ic">📞</div>
+      <div class="body"><div class="name">${esc(l.business_name)}</div>
+        <div class="sub">${esc(l.industry||"")} · ${esc(l.city||"")} ${web} ${t}</div></div>
+      <div class="chev">›</div></div>`;
+  }).join("");
+}
+async function openBrowseLead(id){
+  ctx={leadId:id,followupId:null,scriptKey:"call1",worklistId:null,origin:"leads",phase:"detail"};
+  saveCtx();await renderDetail();
+}
+
+/* ===== voice / dictation ===== */
+function dictateInto(inputId,btn){
+  const el=$(inputId); if(!el)return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ el.focus(); toast("Tap the 🎤 on your keyboard to talk into this","ok"); return; }
+  const r=new SR(); r.lang="en-US"; r.interimResults=false; r.maxAlternatives=1;
+  if(btn)btn.classList.add("listening");
+  r.onresult=(e)=>{ const txt=e.results[0][0].transcript; el.value=(el.value?el.value.trim()+" ":"")+txt; el.dispatchEvent(new Event("input")); };
+  r.onerror=()=>{ toast("Didn't catch that — try your keyboard mic","err"); };
+  r.onend=()=>{ if(btn)btn.classList.remove("listening"); };
+  try{ r.start(); }catch(e){}
 }
 
 /* ===== interruption-proof state ===== */
