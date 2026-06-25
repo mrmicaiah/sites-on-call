@@ -196,7 +196,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let sb=null, me=null, myProfile=null;
 let today=null;            // last get_todays_worklist payload
 let leadCache={};          // lead_id -> lead row
-let ctx=null;              // { leadId, followupId, scriptKey, phase }
+let ctx=null;              // { leadId, followupId, scriptKey, phase, did }
 
 const $=(id)=>document.getElementById(id);
 const LS_KEY="cc_next_ctx";
@@ -446,13 +446,15 @@ async function renderDetail(){
       ${ctx.cbInfo?`<div class="pitch" style="border-left-color:var(--amber);margin-top:12px;"><strong>Scheduled call-back:</strong> ${esc(ctx.cbInfo)}</div>`:""}
 
       <div class="divider"></div>
-      <div class="sec2">Log what happened</div>
+      <div class="sec2">Log what happened — tap all that apply</div>
       <div class="grid2">
-        <button class="line bigbtn" onclick="resCall('call',null,'no_answer')">No answer</button>
-        <button class="line bigbtn" onclick="resCall('voicemail',null,'vm')">Left voicemail</button>
+        <button class="${ctx.did&&ctx.did.na?'green':'line'} bigbtn" onclick="logAttempt('no_answer')">${ctx.did&&ctx.did.na?'✓ ':''}No answer</button>
+        <button class="${ctx.did&&ctx.did.vm?'green':'line'} bigbtn" onclick="logAttempt('vm')">${ctx.did&&ctx.did.vm?'✓ ':''}Left voicemail</button>
         <button class="line bigbtn" onclick="ctx.phase='spoke';saveCtx();spoke()">Spoke with them</button>
         <button class="line bigbtn" onclick="ctx.phase='wrongnum';saveCtx();renderWrongNum()">Wrong number</button>
       </div>
+      ${ctx.did&&ctx.did.text?`<div class="muted" style="font-size:13px;margin-top:8px;">✓ Text sent — logged</div>`:""}
+      <button class="green bigbtn" style="margin-top:10px;" onclick="finishAttempt()">✓ Done — save &amp; next lead</button>
       <button class="line" style="margin-top:8px;" onclick="busyCallback()">Busy — call back later</button>
 
       <div class="divider"></div>
@@ -504,6 +506,24 @@ async function resCall(touchType,outcome,callResult){
   await completeCurrentFollowup();
   await scheduleNext(callResult);
   await finishLead("Logged — next touch scheduled");
+}
+
+/* ===== additive logging: tap all that apply, then Done =====
+   Each tap records a touch and STAYS on the lead (idempotent), so she can log a
+   voicemail AND a text on the same contact. "Done" advances the cadence once. */
+async function logAttempt(kind){
+  ctx.did=ctx.did||{};
+  if(kind==="no_answer"){ if(!ctx.did.na){ await logTouch("call",null,null); ctx.did.na=true; toast("No-answer logged","ok"); } }
+  else if(kind==="vm"){ if(!ctx.did.vm){ await logTouch("voicemail",null,null); ctx.did.vm=true; toast("Voicemail logged","ok"); } }
+  saveCtx();
+  renderDetail();
+}
+async function finishAttempt(){
+  // pick the cadence result from what she actually did (vm first-step variant matters)
+  const result=(ctx.did&&ctx.did.vm)?"vm":((ctx.did&&ctx.did.text)?"text":"no_answer");
+  await completeCurrentFollowup();
+  await scheduleNext(result);
+  await finishLead("Saved — next touch scheduled");
 }
 
 /* spoke with them -> notes + scorecard / callback / not interested */
@@ -713,11 +733,12 @@ function renderTextConfirm(){
   $("flowPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 async function textSent(){
-  await logTouch("text",null,null);
-  await completeCurrentFollowup();
-  // advancing the cadence: a sent text moves to the next step (call / breakup / done)
-  await scheduleNext("text");
-  await finishLead("Text logged");
+  // additive: log the text and STAY on the lead so she can also log a voicemail etc.
+  ctx.did=ctx.did||{};
+  if(!ctx.did.text){ await logTouch("text",null,null); ctx.did.text=true; }
+  ctx.phase="detail";saveCtx();
+  toast("Text logged — log anything else, then tap Done","ok");
+  renderDetail();
 }
 
 /* ===== shared writes ===== */
