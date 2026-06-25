@@ -95,6 +95,21 @@ eleventyExcludeFromCollections: true
   .question{font-size:16px;font-weight:600;margin:4px 0 12px;}
   .script-box{background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:12px;font-size:14px;white-space:pre-line;margin:10px 0;}
 
+  /* call script panel (spoken scripts on the call screen) */
+  .callscript{margin:12px 0;}
+  .cs-hook{background:var(--panel2);border-left:3px solid var(--green);padding:11px 12px;border-radius:0 8px 8px 0;font-size:14px;white-space:pre-line;line-height:1.5;}
+  .cs-hook .cs-tag{display:block;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+  .cs-more{margin-top:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);overflow:hidden;}
+  .cs-more>summary{list-style:none;cursor:pointer;padding:11px 12px;font-size:13px;font-weight:600;color:var(--accent);}
+  .cs-more>summary::-webkit-details-marker{display:none;}
+  .cs-more>summary::before{content:"▸ ";}
+  .cs-more[open]>summary::before{content:"▾ ";}
+  .cs-more[open]>summary{border-bottom:1px solid var(--line);}
+  .cs-block{padding:11px 12px;border-top:1px solid var(--line);}
+  .cs-block:first-of-type{border-top:none;}
+  .cs-h{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+  .cs-body{font-size:14px;white-space:pre-line;line-height:1.5;}
+
   #toastRoot{position:fixed;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none;padding:0 16px;}
   .toast{background:#0c1426;border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:10px;max-width:520px;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:auto;}
   .toast.ok{border-color:var(--green);}
@@ -168,7 +183,7 @@ eleventyExcludeFromCollections: true
 <script>
 /* ===== CONFIG (anon key is public by design) ===== */
 const SUPABASE_URL = "https://fvnuzyexrzkzugqpzkot.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ 9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2bnV6eWV4cnprenVncXB6a290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODc3MjksImV4cCI6MjA5NjY2MzcyOX0.-K934pgNlMoe3khevOjE_1FCZFLxuDvIE_IBy-Mj3oo".replace(" ","");
 
 let sb=null, me=null, myProfile=null;
 let today=null;            // last get_todays_worklist payload
@@ -216,6 +231,19 @@ const SCRIPTS={
   // The "I just texted you our site" one-tap
   website:`You really should check out our website — sitesoncall.com. Just sent it over so you can take a look whenever. -[your name]`,
   call2:``
+};
+/* ===== spoken call scripts (verbatim from classic Scripts tab) — shown on the call screen ===== */
+const SPOKEN={
+  hook:`Hey, is this [Business]? Hi — this is [your name]. I do something kind of fun: I put together free Online Presence Scorecards for [industry]s around [city]. It's basically a quick report card on how your business shows up online — your website, your Google listing, your reviews, all of it. I already started pulling yours together. Want me to send it over? No cost, no catch.`,
+  vm:`Hey [Business], this is [your name]. I put together a free Online Presence Scorecard for your business — it shows how you're showing up online: your Google listing, website, reviews, all of it. No cost, I just thought it'd be handy for you. If you want me to send it over, shoot me a quick text at [your phone]. Again, it's [your name] at [your phone]. Have a good one!`,
+  what:`Great question! It's a quick, easy-to-read report that grades how your business looks online — whether folks can find your website, how your Google listing looks, your reviews, and whether your info is consistent everywhere. Takes me a couple minutes to put together and it's completely free. A lot of [industry]s are surprised by what's on it.`,
+  objections:`"I'm not interested." → Totally fair — there's no sales pitch, it's just a free snapshot of how you look online. Want me to text it so you can glance at it later? No pressure either way.
+
+"How much is it?" → Nothing — it's free. I do these to introduce myself to local [industry]s.
+
+"I already have a website." → Perfect — the scorecard checks more than that: your Google listing, your reviews, whether your info matches everywhere. Most people find a surprise or two.
+
+"I'm busy right now." → No problem — what's the best number to text it to? You can look whenever you've got a sec.`
 };
 /* which SMS body each text-step uses */
 const TEXT_SCRIPT={ t1_vm:"text_vm", t1_na:"text_no_answer", t2_curiosity:"day3", t3_final:"text_final" };
@@ -385,6 +413,16 @@ async function renderDetail(){
         <div class="muted">${esc(l.industry||"")} · ${esc(l.city||"")}${l.state?", "+esc(l.state):""} ${web}</div></div>
       ${l.website_problem?`<div class="pitch"><strong>Pitch:</strong> ${esc(l.website_problem)}</div>`:""}
       ${ctx.scriptKey&&ctx.scriptKey!=="call1"?`<div class="muted" style="font-size:13px;margin:6px 0;">Cadence step: ${esc(STEP_LABEL[ctx.scriptKey]||ctx.scriptKey)}</div>`:""}
+
+      <div class="callscript">
+        <div class="cs-hook"><span class="cs-tag">☎️ Opening hook — when they pick up</span>${esc(fillScript(SPOKEN.hook,l))}</div>
+        <details class="cs-more">
+          <summary>More script — what's a scorecard · objections · voicemail</summary>
+          <div class="cs-block"><div class="cs-h">❓ If they ask "what's a scorecard?"</div><div class="cs-body">${esc(fillScript(SPOKEN.what,l))}</div></div>
+          <div class="cs-block"><div class="cs-h">🛡️ Quick objection handling</div><div class="cs-body">${esc(fillScript(SPOKEN.objections,l))}</div></div>
+          <div class="cs-block"><div class="cs-h">📵 Voicemail — under 25 seconds</div><div class="cs-body">${esc(fillScript(SPOKEN.vm,l))}</div></div>
+        </details>
+      </div>
 
       <div class="actrow">
         <button class="act-call bigbtn" onclick="onCall()">📞 Call</button>
