@@ -2,7 +2,7 @@
 title: "Landscaping Marketing Agency: Do You Need One, or Are You Just Funding Theirs?"
 excerpt: "Landscaping marketing agencies promise full schedules and steady leads. Some deliver. Most sell a seasonal business a flat-line plan and bill straight through the winter. Here's how to tell whether you actually need an agency, what they don't tell you, and when DIY wins."
 author: Irene Daniels
-date: 2026-06-24
+date: 2026-07-01
 tags:
   - landscaping marketing agency
   - landscaping marketing
