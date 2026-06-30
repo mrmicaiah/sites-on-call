@@ -41,7 +41,7 @@ Eighteen of fifty-three. That's the number that matters.
 
 When a homeowner in Madison searches "plumber madison al," they see ten results. On average, fewer than four of them lead to an actual local plumber's website. The rest send that homeowner to a directory that will sell their information, a national chain headquartered three states away, or a Facebook page.
 
-Every one of those non-local results is a spot a local contractor could have owned — and didn't.
+Every one of those non-local results is a spot a local contractor could have owned — and didn't. (If you've never looked, it's worth seeing exactly [what Google shows when someone searches your business](/articles/what-google-sees-when-someone-searches-your-business/) — most owners are surprised.)
 
 ## Finding 2: Directories take 40% of the page — and some of them are charging you for it
 
@@ -59,7 +59,7 @@ Five of the results we logged weren't websites at all. They were Facebook pages 
 
 In the Athens electrician search, *two* of the local results were Facebook: one business page and one "anybody know a good electrician?" group post. The painter search and the garage door search each had one.
 
-A Facebook page can disappear or get throttled the day Meta changes its mind, and it gives you almost nothing in Google's eyes. These contractors aren't ranking — they're squatting on borrowed land, one algorithm tweak from invisible.
+A Facebook page can disappear or get throttled the day Meta changes its mind, and it gives you almost nothing in Google's eyes. These contractors aren't ranking — they're squatting on borrowed land, one algorithm tweak from invisible. A free, fully-built [Google Business Profile](/articles/google-business-profile-for-contractors/) plus a real website would put them miles ahead of where they're standing now.
 
 ## Finding 4: Decatur roofing proves it's winnable
 
