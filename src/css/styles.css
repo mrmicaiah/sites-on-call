@@ -956,6 +956,9 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   letter-spacing: -0.025em;
   max-width: 780px;
   margin: 0 auto 1.5rem;
+  /* Balance the heading across lines so the trailing "City, AL" never
+     orphans "AL" onto its own line. Graceful no-op on older browsers. */
+  text-wrap: balance;
   animation: fadeUp 0.8s ease both;
 }
 .location-hero .location-intro {
