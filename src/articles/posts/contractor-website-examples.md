@@ -197,7 +197,7 @@ A well-built site can start converting the traffic you send it immediately — b
 
 I build websites for service contractors across North Alabama — Decatur, Huntsville, Madison, Hartselle, Athens, Cullman, and the Shoals. The patterns in this article are exactly what I build around: the right layout for your trade, real photos of your real work, a phone number nobody can miss, the service-and-location depth that gets you found, and the trust signals that turn visitors into calls.
 
-If you want me to keep building it out after launch — more service pages, more local content, the stuff that compounds into free rankings over time — my content plans run $149 to $449 a month. No long contracts. Cancel anytime. And I'm currently running a Founding Client Program: a few spots at 50% off the first six months in exchange for letting me document the results as a real case study.
+If you want me to keep building it out after launch — more service pages, more local content, the stuff that compounds into free rankings over time — my content plans run $149 to $449 a month. No long contracts. Cancel anytime.
 
 That's the pitch. No black box, no jargon, no "quality you can trust" filler. I build the kind of contractor website this article describes — the kind that passes all six tests.
 

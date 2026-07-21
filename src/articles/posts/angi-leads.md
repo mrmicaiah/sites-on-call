@@ -249,7 +249,7 @@ You don't have to quit Angi cold turkey. But you should start building something
 
 ---
 
-*Need help getting started? I build websites for contractors in North Alabama — a one-time $750 for a standard build, content plans from $149/month, and three Founding Client spots open right now at 50% off the first six months. If you want to stop renting customers and start owning them, let's talk.*
+*Need help getting started? I build websites for contractors in North Alabama — a one-time $750 for a standard build, content plans from $149/month, no long contracts. If you want to stop renting customers and start owning them, <a href="javascript:void(0)" onclick="openContactModal()">let's talk</a>.*
 
 *— Irene Daniels, Sites On Call*
 *sitesoncall.com*

@@ -56,15 +56,6 @@ document.querySelectorAll('a[href^="sms:"]').forEach(link => {
   });
 });
 
-// Track founding client button clicks
-document.querySelectorAll('.founding-banner-cta, .founding-cta-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    trackEvent('founding_client_click', {
-      button_location: btn.closest('section')?.id || 'banner'
-    });
-  });
-});
-
 
 // ============================================
 // PRICING SYSTEM: Site Size + Monthly/Annual

@@ -115,7 +115,7 @@ Building your own lead sources costs time and, usually, some money to do it righ
 
 I build websites and run content for contractors in North Alabama, so yes — I have a reason to tell you owned leads beat rented ones. But the math doesn't depend on you hiring me. You can claim your Google profile yourself this afternoon for nothing. You can ask for reviews yourself. You can post in the Huntsville group yourself.
 
-Where I come in is speed. A site build runs $750 for a standard one, and ongoing content plans start at $149 a month — and right now I'm running a **Founding Client Program**: three spots, half off the first six months, in exchange for letting me document your results as a real case study with real numbers. That's it. That's the whole pitch, and it's honest: scarce, time-bound, and built so you can point at proof later instead of taking my word for it.
+Where I come in is speed. A site build runs $750 for a standard one, and ongoing content plans start at $149 a month — no long contracts, cancel anytime. That's the whole pitch, and it's honest: you own what you build, you can point at proof later instead of taking my word for it, and if the content isn't earning its keep, you stop paying.
 
 Compare that to $1,558 over three months for platform leads that closed six jobs and left you owning none of the customers. The contrast isn't subtle.
 

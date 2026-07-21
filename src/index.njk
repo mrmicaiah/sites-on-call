@@ -128,20 +128,6 @@ description: "Web design and SEO for contractors in Huntsville, Madison, Decatur
       <p class="section-subtitle" style="margin-left:auto;margin-right:auto">One-time website build + optional monthly content. You own everything. Cancel anytime.</p>
     </div>
     
-    {# Founding Client Banner #}
-    <div class="founding-client-banner reveal">
-      <div class="founding-banner-content">
-        <div class="founding-banner-badge">Limited</div>
-        <div class="founding-banner-text">
-          <h3>🚀 Founding Client Program</h3>
-          <p><strong>3 spots available.</strong> Get 50% off your first 6 months of content. You agree to be a case study with real numbers — I get proof, you get results at half price. <a href="#founding" class="founding-banner-link">Learn more ↓</a></p>
-        </div>
-        <button class="btn-primary btn-sm founding-banner-cta" onclick="openContactModal(); document.getElementById('cf-package').value='founding-client'; document.getElementById('cf-message').value='I\'m interested in the Founding Client Program.';">
-          Apply Now
-        </button>
-      </div>
-    </div>
-    
     <div class="reveal">
       <h3 class="pricing-section-header">Website Build <span>(One-Time)</span></h3>
       <p class="pricing-section-desc">Pick your site size, then choose a content plan below.</p>
@@ -345,55 +331,38 @@ description: "Web design and SEO for contractors in Huntsville, Madison, Decatur
   </div>
 </section>
 
-{# NEW: Building Something New Section #}
-<section class="founding-section" id="founding">
+{# Portfolio / Recent Work Section #}
+<section class="work-section" id="work">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Honest</div>
-      <h2 class="section-title">Building Something New</h2>
+      <div class="section-label">Proof</div>
+      <h2 class="section-title">Real contractors. Real sites.</h2>
     </div>
-    
-    <div class="founding-content reveal">
-      <div class="founding-text">
-        <p class="founding-lead">I'm not going to show you a wall of logos and pretend I've been doing this for twenty years.</p>
-        
-        <p>Here's the truth: Sites On Call is new. I started this business because I watched too many contractors get ripped off by agencies that promised the world and delivered a template.</p>
-        
-        <p>I'm building this the same way I'll help you build yours — by doing the work, tracking the results, and being honest about what's happening.</p>
-        
-        <p>Right now, I'm looking for <strong>3 contractors</strong> willing to be founding clients. You get my full attention and a significant discount. I get real case studies with real numbers. We grow together.</p>
-        
-        <p class="founding-emphasis">Spots are limited because I'd rather do great work for a few people than mediocre work for many.</p>
+
+    <div class="work-content reveal">
+      <div class="work-intro">
+        <p class="work-lead">I'd rather show you real work than talk about it.</p>
+
+        <p>These are contractors I've built for — live sites, running right now, doing the job a contractor website is supposed to do: load fast, look right on a phone, and turn searches into calls.</p>
+
+        <p>Go look at them. Click around. That's the same thing I'd build for you — designed for your trade, your service area, and the way local search actually works.</p>
+
+        <p class="work-note">Two clients here, more on the way. I'll add them as the work ships — same as everything else I do, out in the open.</p>
       </div>
-      
-      <div class="founding-cta-box">
-        <div class="founding-cta-content">
-          <h3>Founding Client Program</h3>
-          <ul class="founding-benefits">
-            <li>
-              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>50% off first 6 months of content</span>
-            </li>
-            <li>
-              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Priority support & monthly strategy calls</span>
-            </li>
-            <li>
-              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>You agree to be a case study (with real numbers)</span>
-            </li>
-          </ul>
-          <p class="spots-remaining"><strong>3 spots available</strong></p>
-          <button class="btn-primary founding-cta-btn" onclick="openContactModal(); document.getElementById('cf-package').value='founding-client'; document.getElementById('cf-message').value='I\'m interested in the Founding Client Program.';">
-            Apply to Be a Founding Client
-          </button>
-        </div>
+
+      <div class="work-grid">
+        {%- for client in portfolio %}
+        <a href="{{ client.url }}" class="work-card" target="_blank" rel="noopener">
+          <div class="work-card-trade">{{ client.trade }}</div>
+          <h3>{{ client.name }}</h3>
+          <p class="work-card-location">{{ client.location }}</p>
+          <p class="work-card-blurb">{{ client.blurb }}</p>
+          <span class="work-card-link">
+            Visit site
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+        {%- endfor %}
       </div>
     </div>
   </div>
@@ -403,7 +372,7 @@ description: "Web design and SEO for contractors in Huntsville, Madison, Decatur
 <section class="how-it-works articles-showcase" id="how-i-think">
   <div class="section-inner">
     <div class="reveal" style="text-align:center">
-      <div class="section-label">Proof</div>
+      <div class="section-label">How I Think</div>
       <h2 class="section-title">How I Think</h2>
       <p class="section-subtitle" style="margin-left:auto;margin-right:auto">I write about contractor marketing because I actually think about it. Here's how I approach the problems you're dealing with.</p>
     </div>
@@ -469,7 +438,7 @@ description: "Web design and SEO for contractors in Huntsville, Madison, Decatur
       <p>I'll be honest with you: I'm not a big marketing agency. I'm not going to promise you'll be on the first page of Google in 30 days. Anyone who tells you that is lying.</p>
       <p>What I am is someone who's watched too many contractors get ripped off by lead generation companies and overpriced marketing agencies. I started Sites On Call because I believe there's a better way — building something you actually own instead of renting your customers from Angi.</p>
       <p>I'm based here in North Alabama. When you work with me, you're working with me — not getting handed off to some account manager who doesn't know your name. I answer my own phone and I actually care whether your business grows.</p>
-      <p>This is still a new business. I'm not going to pretend I have 500 clients and a fancy office. But I know websites, I know SEO, and I know how to help contractors stop throwing money at lead services that don't work.</p>
+      <p>I'm not a big agency, and I won't pretend to be one. I've got a handful of real clients whose sites you can go look at, I know websites, I know SEO, and I know how to help contractors stop throwing money at lead services that don't work.</p>
       <p><strong>Skeptical?</strong> Good. You should be. That's exactly the kind of contractor I want to work with.</p>
     </div>
   </div>
