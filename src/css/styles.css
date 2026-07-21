@@ -337,7 +337,121 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   text-decoration:underline;
 }
 
-/* .work-section styles TODO */
+/* ========================================
+   PORTFOLIO / RECENT WORK
+   ======================================== */
+.work-section {
+  padding: 6rem 2rem;
+  background: var(--paper);
+}
+.work-content {
+  margin-top: 3rem;
+}
+.work-intro {
+  max-width: 680px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+.work-lead {
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 1.25rem;
+}
+.work-intro p {
+  font-size: 1.05rem;
+  color: var(--slate);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.work-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.work-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.work-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--shadow);
+  border-color: var(--accent);
+}
+.work-card-image {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--cream);
+}
+.work-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.work-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 1.75rem;
+}
+.work-card-trade {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.work-card h3 {
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+  line-height: 1.3;
+  font-family: 'DM Serif Display', serif;
+}
+.work-card-location {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.work-card-blurb {
+  font-size: 0.95rem;
+  color: var(--slate);
+  line-height: 1.7;
+  flex-grow: 1;
+  margin-bottom: 1.25rem;
+}
+.work-card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  transition: gap 0.2s;
+}
+.work-card:hover .work-card-link {
+  gap: 0.75rem;
+}
+.work-card-link svg {
+  transition: transform 0.2s;
+}
 
 /* ========================================
    HOW I THINK (Article Showcase)
@@ -955,6 +1069,7 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .build-pricing-grid { grid-template-columns:1fr; max-width:400px; margin-left:auto; margin-right:auto; }
   .pricing-grid { grid-template-columns:1fr; max-width:400px; margin-left:auto; margin-right:auto; }
   .who-grid { grid-template-columns:1fr; }
+  .work-grid { grid-template-columns: 1fr; max-width: 400px; }
   .pricing-promises { flex-direction:column; align-items:center; gap:1rem; }
   .footer-inner { flex-direction:column; gap:1.5rem; text-align:center; }
   .featured-articles-grid { grid-template-columns: 1fr; gap: 1.5rem; }

@@ -353,14 +353,19 @@ description: "Web design and SEO for contractors in Huntsville, Madison, Decatur
       <div class="work-grid">
         {%- for client in portfolio %}
         <a href="{{ client.url }}" class="work-card" target="_blank" rel="noopener">
-          <div class="work-card-trade">{{ client.trade }}</div>
-          <h3>{{ client.name }}</h3>
-          <p class="work-card-location">{{ client.location }}</p>
-          <p class="work-card-blurb">{{ client.blurb }}</p>
-          <span class="work-card-link">
-            Visit site
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </span>
+          <div class="work-card-image">
+            <img src="{{ client.image }}" alt="{{ client.name }} website" loading="lazy">
+          </div>
+          <div class="work-card-body">
+            <div class="work-card-trade">{{ client.trade }}</div>
+            <h3>{{ client.name }}</h3>
+            <p class="work-card-location">{{ client.location }}</p>
+            <p class="work-card-blurb">{{ client.blurb }}</p>
+            <span class="work-card-link">
+              Visit site
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </span>
+          </div>
         </a>
         {%- endfor %}
       </div>
