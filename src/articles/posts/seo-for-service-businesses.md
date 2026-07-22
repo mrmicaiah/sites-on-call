@@ -179,7 +179,7 @@ That's not the whole strategy. But it gets you out of "paying strangers to rent 
 
 I build websites and content systems for service contractors across North Alabama — Decatur, Huntsville, Madison, Hartselle, Athens, Cullman, and the Shoals. The structure I described in this article is exactly what I build: a fully optimized Google Business Profile setup, dedicated service pages, honest location content, the technical foundation, and a review system that actually runs.
 
-If you want me to keep adding content after launch — the service pages and local content that compound into rankings over months — my plans run $149 to $449 a month depending on volume. No long contracts. Cancel anytime. And right now I'm running a Founding Client Program: a few spots at 50% off the first six months in exchange for letting me document the results as a real case study.
+If you want me to keep adding content after launch — the service pages and local content that compound into rankings over months — my plans run $149 to $449 a month depending on volume. No long contracts. Cancel anytime.
 
 That's the entire pitch. I'm not an agency selling you a black box. I build the foundation that lets a service business get found by the people already searching for exactly what it does.
 

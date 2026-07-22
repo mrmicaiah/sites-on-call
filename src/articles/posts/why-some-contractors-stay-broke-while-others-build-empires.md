@@ -275,8 +275,8 @@ Which one are you going to be?
 
 At Sites On Call, we build websites for contractors that you own outright—a one-time $750 for a standard build, not the $5,000 a custom agency charges. Then, if you want us to keep adding content—the stuff that actually makes Google pay attention—monthly plans start at $149. Prepay a year of content and the site comes free.
 
-No long contracts. No pressure. There are also three Founding Client spots open right now: 50% off the first six months of content in exchange for letting us document your results.
+No long contracts. No pressure. Just an asset that's yours, growing month over month.
 
-If you're tired of renting leads and ready to build something that works for you, let's talk.
+If you're done spinning your wheels and ready to build something real, <a href="javascript:void(0)" onclick="openContactModal()">let's talk</a> — or see what it'd look like first.
 
-[Get a free mockup for your business →](/contact)
+<a href="javascript:void(0)" onclick="openContactModal()">Get a free mockup for your business →</a>

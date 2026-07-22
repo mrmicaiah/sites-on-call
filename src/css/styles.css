@@ -338,143 +338,119 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 
 /* ========================================
-   FOUNDING CLIENT BANNER (Pricing)
+   PORTFOLIO / RECENT WORK
    ======================================== */
-.founding-client-banner {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  margin-bottom: 3rem;
-  margin-top: 2rem;
+.work-section {
+  padding: 6rem 2rem;
+  background: var(--paper);
 }
-.founding-banner-content {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.work-content {
+  margin-top: 3rem;
 }
-.founding-banner-badge {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.375rem 0.75rem;
-  border-radius: 4px;
-  white-space: nowrap;
+.work-intro {
+  max-width: 680px;
+  margin: 0 auto 3rem;
+  text-align: center;
 }
-.founding-banner-text {
-  flex-grow: 1;
-}
-.founding-banner-text h3 {
-  font-size: 1.125rem;
-  color: #ffffff;
-  margin-bottom: 0.25rem;
-}
-.founding-banner-text p {
-  font-size: 0.9375rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-}
-.founding-banner-link {
-  color: #ffffff;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.founding-banner-link:hover {
-  color: #ffffff;
-  text-decoration: none;
-}
-.founding-banner-cta {
-  white-space: nowrap;
-  background: #ffffff;
-  color: #1e40af;
-}
-.founding-banner-cta:hover {
-  background: #f3f4f6;
-}
-
-/* ========================================
-   FOUNDING SECTION (Building Something New)
-   ======================================== */
-.founding-section {
-  padding: 5rem 2rem;
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-}
-.founding-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: start;
-  margin-top: 2rem;
-}
-.founding-text p {
-  font-size: 1.125rem;
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  color: var(--slate);
-}
-.founding-lead {
+.work-lead {
   font-size: 1.375rem;
   font-weight: 500;
   color: var(--ink);
+  margin-bottom: 1.25rem;
 }
-.founding-emphasis {
-  font-weight: 500;
-  color: var(--ink);
-  border-left: 3px solid var(--accent);
-  padding-left: 1.25rem;
-  margin-top: 2rem;
+.work-intro p {
+  font-size: 1.05rem;
+  color: var(--slate);
+  line-height: 1.8;
+  margin-bottom: 1rem;
 }
-.founding-cta-box {
-  background: #ffffff;
+.work-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.work-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 4px 20px var(--shadow);
   overflow: hidden;
-  position: sticky;
-  top: 6rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
-.founding-cta-content {
-  padding: 2rem;
+.work-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--shadow);
+  border-color: var(--accent);
 }
-.founding-cta-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+.work-card-image {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--cream);
+}
+.work-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.work-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 1.75rem;
+}
+.work-card-trade {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.work-card h3 {
+  font-size: 1.3rem;
   color: var(--ink);
+  margin-bottom: 0.35rem;
+  line-height: 1.3;
   font-family: 'DM Serif Display', serif;
 }
-.founding-benefits {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem 0;
-}
-.founding-benefits li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+.work-card-location {
+  font-size: 0.85rem;
+  color: var(--muted);
   margin-bottom: 1rem;
-  font-size: 1rem;
+}
+.work-card-blurb {
+  font-size: 0.95rem;
   color: var(--slate);
+  line-height: 1.7;
+  flex-grow: 1;
+  margin-bottom: 1.25rem;
 }
-.founding-benefits .check-icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: var(--green);
-  margin-top: 2px;
-}
-.spots-remaining {
+.work-card-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
-  color: #dc2626;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
-  background: #fef2f2;
-  border-radius: 6px;
-  display: inline-block;
+  font-weight: 600;
+  color: var(--accent);
+  transition: gap 0.2s;
 }
-.founding-cta-btn {
-  width: 100%;
-  justify-content: center;
+.work-card:hover .work-card-link {
+  gap: 0.75rem;
+}
+.work-card-link svg {
+  transition: transform 0.2s;
 }
 
 /* ========================================
@@ -1093,10 +1069,9 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .build-pricing-grid { grid-template-columns:1fr; max-width:400px; margin-left:auto; margin-right:auto; }
   .pricing-grid { grid-template-columns:1fr; max-width:400px; margin-left:auto; margin-right:auto; }
   .who-grid { grid-template-columns:1fr; }
+  .work-grid { grid-template-columns: 1fr; max-width: 400px; }
   .pricing-promises { flex-direction:column; align-items:center; gap:1rem; }
   .footer-inner { flex-direction:column; gap:1.5rem; text-align:center; }
-  .founding-content { grid-template-columns: 1fr; gap: 2rem; }
-  .founding-cta-box { position: static; }
   .featured-articles-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .location-content h2 { margin-top: 2.5rem; }
@@ -1105,8 +1080,6 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
   .location-cta-block .btn-secondary { justify-content: center; }
 }
 @media(max-width:768px) {
-  .founding-banner-content { flex-direction:column; text-align:center; gap:1rem; }
-  .founding-banner-badge { align-self:center; }
   .update-header { flex-direction:column; gap:0.75rem; align-items:flex-start; }
 }
 @media(max-width:640px) {

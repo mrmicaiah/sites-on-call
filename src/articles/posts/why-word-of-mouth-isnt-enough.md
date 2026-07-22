@@ -464,7 +464,7 @@ No long contracts. Cancel anytime. If the content isn't generating leads, you st
 
 Why keep the build affordable instead of charging agency prices? Because we've seen what happens when contractors commit to the system. They grow. They refer us to other contractors. We grow too.
 
-We bet on ourselves by betting on you. There are also three Founding Client spots open right now — 50% off the first six months of content in exchange for letting us document your results.
+We bet on ourselves by betting on you.
 
 ---
 
