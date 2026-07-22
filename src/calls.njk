@@ -67,7 +67,6 @@
   <div id="appView" class="wrap hidden">
     <header>
       <div>
-        <a href="/coldcall/" class="backlink">← Back to caller app</a>
         <h1>Scheduled Calls</h1>
         <div class="sub">Upcoming calls with Irene · all times Central</div>
       </div>
@@ -160,7 +159,7 @@
     $("signOutBtn").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
     $("refreshBtn").addEventListener("click", loadCalls);
 
-    // Auto-sign-in if a session already exists (e.g. already logged into /coldcall).
+    // Auto-sign-in if a session already exists (e.g. a session already in localStorage).
     sb.auth.getSession().then(({ data }) => { if (data.session) onSignedIn(data.session.user); });
   </script>
 </body>
