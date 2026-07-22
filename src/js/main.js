@@ -313,7 +313,6 @@ function setupFormToggle(toggleId, checkboxId, fieldsId) {
 }
 
 // Setup toggles
-const snapshotToggle = setupFormToggle('snapshotToggle', 'cf-snapshot');
 const scheduleToggle = setupFormToggle('scheduleToggle', 'cf-schedule', 'scheduleFields');
 
 // Capture original submit button HTML so we can restore it when a returning
@@ -335,11 +334,7 @@ function submitAnotherRequest() {
     if (el) el.value = '';
   });
   
-  // Reset the scorecard + schedule toggles
-  if (snapshotToggle) {
-    snapshotToggle.checkbox.checked = false;
-    snapshotToggle.updateState();
-  }
+  // Reset the schedule toggle
   if (scheduleToggle) {
     scheduleToggle.checkbox.checked = false;
     scheduleToggle.updateState();
@@ -374,7 +369,7 @@ function submitAnotherRequest() {
 
 window.submitAnotherRequest = submitAnotherRequest;
 
-function openContactModal(precheckSnapshot = false) {
+function openContactModal() {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   navLinks.classList.remove('open');
@@ -390,16 +385,8 @@ function openContactModal(precheckSnapshot = false) {
     submitAnotherRequest();
   }
   
-  // Pre-check snapshot if requested (e.g., from article CTA)
-  if (precheckSnapshot && snapshotToggle) {
-    snapshotToggle.checkbox.checked = true;
-    snapshotToggle.updateState();
-  }
-  
   // Track modal open
-  trackEvent('contact_modal_open', {
-    pre_check_snapshot: precheckSnapshot ? 'yes' : 'no'
-  });
+  trackEvent('contact_modal_open', {});
   
   // If contact info is already filled in (returning submitter), skip past it
   // to the package selector. Otherwise focus the name field as usual.

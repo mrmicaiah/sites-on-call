@@ -22,10 +22,6 @@ nav.scrolled { box-shadow:0 2px 20px var(--shadow); }
 .hero h1 em { font-style:italic; color:var(--accent); }
 .hero p { font-size:1.1rem; color:var(--slate); max-width:580px; margin:0 auto 2.5rem; line-height:1.8; animation:fadeUp 0.8s ease 0.1s both; }
 .hero-actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; animation:fadeUp 0.8s ease 0.2s both; }
-.hero-scorecard-link { display:inline-flex; align-items:center; gap:0.5rem; margin-top:1.5rem; color:var(--accent); font-weight:600; font-size:0.95rem; text-decoration:none; transition:gap 0.2s,color 0.2s; animation:fadeUp 0.8s ease 0.3s both; }
-.hero-scorecard-link:hover { gap:0.75rem; color:var(--accent-dark); }
-.hero-scorecard-link svg { stroke:var(--accent); }
-
 /* Scroll indicator */
 .scroll-indicator { display:flex; flex-direction:column; align-items:center; gap:0.5rem; text-decoration:none; color:var(--muted); font-size:0.8rem; font-weight:500; margin-top:3rem; animation:fadeUp 0.8s ease 0.4s both; transition:color 0.2s; }
 .scroll-indicator:hover { color:var(--accent); }
@@ -320,21 +316,6 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 .schedule-fields .form-group {
   margin-bottom:0;
-}
-
-/* Article CTA link style */
-.snapshot-cta-link {
-  display:inline-flex;
-  align-items:center;
-  gap:0.5rem;
-  color:var(--accent);
-  font-weight:600;
-  text-decoration:none;
-  transition:gap 0.2s;
-}
-.snapshot-cta-link:hover {
-  gap:0.75rem;
-  text-decoration:underline;
 }
 
 /* ========================================
