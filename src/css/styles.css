@@ -1060,6 +1060,59 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 
 /* ========================================
+   RANKONCALL BANNER (dormant until live)
+   ======================================== */
+.roc-banner {
+  background: #0d0d0f;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  margin: 4rem 0 2rem;
+  text-align: center;
+}
+.roc-banner-inner {
+  max-width: 620px;
+  margin: 0 auto;
+}
+.roc-banner-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.9rem;
+  line-height: 1.2;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+.roc-banner-body {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: #c9cbd4;
+  margin-bottom: 1.5rem;
+}
+.roc-banner-price {
+  font-size: 1rem;
+  color: #ffffff;
+  margin-bottom: 1.75rem;
+}
+.roc-banner-value {
+  color: #9a9db0;
+}
+.roc-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #3b5ce0;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.95rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.roc-banner-cta:hover {
+  background: #2f4bc4;
+  transform: translateY(-2px);
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 @media(max-width:900px) {
@@ -1081,6 +1134,8 @@ footer { background:var(--ink); color:#a0a4ad; padding:3rem 2rem; }
 }
 @media(max-width:768px) {
   .update-header { flex-direction:column; gap:0.75rem; align-items:flex-start; }
+  .roc-banner { padding: 2.25rem 1.25rem; }
+  .roc-banner-headline { font-size: 1.5rem; }
 }
 @media(max-width:640px) {
   .nav-links { display:none; }
