@@ -96,7 +96,7 @@ Phase 3 = "one-box contact form that records email consent." The database layer 
 When the user is ready to put this work live, the order matters. All merges use `--no-ff`. The user runs all pushes/merges personally.
 
 **Current relevant branches:**
-- `kill-scorecard-offer` — all the Phase 2 + article work above (4 commits). NOT pushed.
+- `kill-scorecard-offer` — all the Phase 2 + article work above, plus this handoff doc (`STUDIO87-STATUS.md`). Pushed to origin, NOT merged.
 - `rankoncall-banner-dormant` at `ab953b5` — the RankOnCall banner, built but gated OFF. Committed, NOT pushed, NOT merged. It adds the banner markup to `src/articles/article.njk`, styles, and a data file `src/_data/rankoncall.js` with `live: false`. Flipping that one boolean to `true` renders the banner on all 22 article pages pointing at rankoncall.com. Banner copy: headline "Why can't people find you on Google?", "$39 introductory price", "$249.00 value", CTA "Get your Deep Dive".
 
 **The sequence:**
