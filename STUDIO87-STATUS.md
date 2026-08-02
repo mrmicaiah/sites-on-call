@@ -9,7 +9,7 @@
 
 ## 0. READ THIS FIRST — the one thing that matters for safety
 
-**NOTHING IN THIS SESSION HAS BEEN PUSHED OR DEPLOYED.** All repo work is on branch `kill-scorecard-offer`, which HAS been pushed to origin (5 commits). `main` is untouched and nothing is merged or deployed. `origin/main` is unchanged. The live website (sitesoncall.com) is exactly as it was before this session started — the old pages are still what the public sees.
+**NOTHING IN THIS SESSION HAS BEEN MERGED OR DEPLOYED.** All repo work is on branch `kill-scorecard-offer`, which HAS been pushed to origin (5 commits). `main` is untouched and nothing is merged or deployed. `origin/main` is unchanged. The live website (sitesoncall.com) is exactly as it was before this session started — the old pages are still what the public sees.
 
 **The ONLY production change made this session was to the Supabase database.** During the session the live contact form briefly BROKE (an overloaded RPC function caused a PostgREST resolution error) and was then FIXED. The fix was confirmed by a real human form submission that succeeded end to end (lead + booking both stored correctly). As of the end of session the live contact form WORKS. The database has exactly one `create_web_lead` function (11-arg, consent-aware, anon-locked).
 
