@@ -28,7 +28,7 @@ This is why the whole "kill the scorecard" body of work exists.
 
 ---
 
-## 2. Repo work — DONE this session (all on branch `kill-scorecard-offer`, NOT pushed)
+## 2. Repo work — DONE this session (all on branch `kill-scorecard-offer`)
 
 Branch `kill-scorecard-offer` was cut from `main` at `aee815e`. Commit stack, oldest to newest:
 
@@ -97,7 +97,7 @@ When the user is ready to put this work live, the order matters. All merges use 
 
 **Current relevant branches:**
 - `kill-scorecard-offer` — all the Phase 2 + article work above, plus this handoff doc (`STUDIO87-STATUS.md`). Pushed to origin, NOT merged.
-- `rankoncall-banner-dormant` at `ab953b5` — the RankOnCall banner, built but gated OFF. Committed, NOT pushed, NOT merged. It adds the banner markup to `src/articles/article.njk`, styles, and a data file `src/_data/rankoncall.js` with `live: false`. Flipping that one boolean to `true` renders the banner on all 22 article pages pointing at rankoncall.com. Banner copy: headline "Why can't people find you on Google?", "$39 introductory price", "$249.00 value", CTA "Get your Deep Dive".
+- `rankoncall-banner-dormant` at `ab953b5` — the RankOnCall banner, built but gated OFF. Committed and pushed to origin (in sync with local at `ab953b5`), NOT merged. It adds the banner markup to `src/articles/article.njk`, styles, and a data file `src/_data/rankoncall.js` with `live: false`. Flipping that one boolean to `true` renders the banner on all 22 article pages pointing at rankoncall.com. Banner copy: headline "Why can't people find you on Google?", "$39 introductory price", "$249.00 value", CTA "Get your Deep Dive".
 
 **The sequence:**
 1. Merge `kill-scorecard-offer` into `main` (`--no-ff`). This is what makes the article CTA a services ask instead of "free website today."
