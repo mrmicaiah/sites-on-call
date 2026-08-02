@@ -9,7 +9,7 @@
 
 ## 0. READ THIS FIRST — the one thing that matters for safety
 
-**NOTHING IN THIS SESSION HAS BEEN MERGED OR DEPLOYED.** All repo work is on branch `kill-scorecard-offer`, which HAS been pushed to origin (5 commits). `main` is untouched and nothing is merged or deployed. `origin/main` is unchanged. The live website (sitesoncall.com) is exactly as it was before this session started — the old pages are still what the public sees.
+**NOTHING IN THIS SESSION HAS BEEN MERGED OR DEPLOYED.** All repo work is on branch `kill-scorecard-offer`, which HAS been pushed to origin. `main` is untouched and nothing is merged or deployed. `origin/main` is unchanged. The live website (sitesoncall.com) is exactly as it was before this session started — the old pages are still what the public sees.
 
 **The ONLY production change made this session was to the Supabase database.** During the session the live contact form briefly BROKE (an overloaded RPC function caused a PostgREST resolution error) and was then FIXED. The fix was confirmed by a real human form submission that succeeded end to end (lead + booking both stored correctly). As of the end of session the live contact form WORKS. The database has exactly one `create_web_lead` function (11-arg, consent-aware, anon-locked).
 
@@ -137,7 +137,7 @@ When the user is ready to put this work live, the order matters. All merges use 
 
 ## 8. THE ONE-LINE ANSWER TO "WHERE WERE WE"
 
-Phase 2 (kill the scorecard offer sitewide) is DONE and committed on branch `kill-scorecard-offer` (5 commits, pushed to origin; `main` untouched, not merged). The what-google-sees article is fully rewritten. The Supabase DB layer of Phase 3 (email-consent column + updated 11-arg RPC) is DONE; it briefly broke the live form via an overload and was fixed and human-confirmed working.
+Phase 2 (kill the scorecard offer sitewide) is DONE and committed on branch `kill-scorecard-offer` (pushed to origin; `main` untouched, not merged). The what-google-sees article is fully rewritten. The Supabase DB layer of Phase 3 (email-consent column + updated 11-arg RPC) is DONE; it briefly broke the live form via an overload and was fixed and human-confirmed working.
 
 **Immediate next action:** finish Phase 3 — (A) update the deployed `submit-lead` edge function to forward a `wants_updates` field to the 11-arg `create_web_lead` [user pastes the function source or manager reads it via MCP], then (B) dispatch the worker to add the consent checkbox to the form (`base.njk` + `main.js`) on branch `kill-scorecard-offer`.
 
